@@ -1,8 +1,11 @@
 -- Program Kapur, Sun, Wang 2013
 -- Algorithm CGSMainPoly, page 137
 
--- Kapur, Sun, Wang 2010 Definition 2.3
--- See also Section 5, Paragraph 1
+
+-- The definition of consistency is 
+-- found in Kapur, Sun, Wang 2010, Definition 2.3
+-- See the remark following this definition
+-- for the test we implement below
 isConsistent = (E,N) -> (
     if E == {} then return true;
     I:=radical ideal(E);
@@ -17,6 +20,7 @@ R=QQ[c_1,c_2][x_0..x_3]
 isConsistent({c_1},{c_2})
 isConsistent({c_1},{c_1^2*c_2})
 *}
+
 
 
 hDividesT = (h,t) -> (
@@ -106,7 +110,7 @@ end
 
 restart
 
-load "ParametricGB.m2";
+load "ParametricGB.v2.m2";
 
 
 R=QQ[c_1,c_2][x_0..x_3]
