@@ -53,6 +53,7 @@ newPackage(
     	)
 needsPackage "Depth";
 needsPackage "BoijSoederberg";
+needsPackage "TorAlgebra";
 
 export {
     "randomMonomialSets",
@@ -66,6 +67,7 @@ export {
     "dimStats",
     "regStats",
     "CMStats",
+    "GorensteinStats",
     "borelFixedStats",
     "ShowTally",
     "degStats",
@@ -543,7 +545,7 @@ CMStats (List) := QQ => o -> (ideals) -> (
     N := #ideals;
     R := ring(ideals#0);
     for i from 0 to #ideals-1 do (
-     if isCM(R/ideals_i) == true then cm = cm + 1 else cm = cm);
+     if isCM(R/ideals_i) then cm = cm + 1);
      if o.Verbose then (
        numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
        stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
@@ -551,6 +553,22 @@ CMStats (List) := QQ => o -> (ideals) -> (
        stdio << cm << " out of " << N << " ideals in the given sample are Cohen-Macaulay." << endl;
        );
    cm/N
+)
+
+GorensteinStats = method(TypicalValue => QQ, Options =>{Verbose => false})
+GorensteinStats (List) := QQ => o -> (ideals) -> (
+    g := 0;
+    N := #ideals;
+    R := ring(ideals#0);
+    for i from 0 to #ideals-1 do (
+     if isGorenstein(R/ideals_i) then g = g + 1);
+     if o.Verbose then (
+       numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
+       stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
+       if numberOfZeroIdeals>0 then stdio <<"The zero ideals are included in the reported count of Cohen-Macaulay quotient rings."<< endl;
+       stdio << g << " out of " << N << " ideals in the given sample are Gorenstein." << endl;
+       );
+   g/N
 )
 
 borelFixedStats = method(TypicalValue =>QQ, Options =>{Verbose => false})
@@ -1497,6 +1515,31 @@ doc ///
 
 doc ///
  Key
+  GorensteinStats
+  (GorensteinStats, List)
+ Headline
+  fraction of monomial ideals in the given list whose quotient ring is Gorenstein
+ Usage
+  GorensteinStats(List)
+ Inputs
+  ideals: List
+    of @TO monomialIdeal@s or any object with a coordinate ring to which @TO isGorenstein@ can be applied
+ Outputs
+  : QQ
+   the fraction of Gorenstein ideals in the list
+ Description
+  Text
+   GorensteinStats simply checks whether the coordinate ring of each ideal in the given sample satisfies @TO TorAlgebra@'s @TO isGorenstein@ and returns the proportion that are.
+  Example
+    R=ZZ/101[a,b,c];
+    ideals = {monomialIdeal"a3,b,c2", monomialIdeal"a3,b,ac"}
+    GorensteinStats(ideals)
+  Text
+    Note that the method can be run on a list of @TO Ideal@s.  See @TO isGorenstein@ for caveats.
+///
+
+doc ///
+ Key
   borelFixedStats
   (borelFixedStats, List)
  Headline
@@ -1527,6 +1570,7 @@ doc ///
    [idealsFromGeneratingSets, Verbose]
    [regStats, Verbose]
    [CMStats, Verbose]
+   [GorensteinStats, Verbose]
    [borelFixedStats, Verbose]
    [mingenStats, Verbose]
    [bettiStats, Verbose]
@@ -1556,6 +1600,7 @@ doc ///
      ideals = randomMonomialIdeals(n,D,p,N)
      regStats(ideals, Verbose => true)
      CMStats(ideals, Verbose => true)
+     GorensteinStats(ideals, Verbose => true)
      degStats(ideals, Verbose => true)
      dimStats(ideals, Verbose=>true)
      borelFixedStats(ideals, Verbose => true)
@@ -1570,6 +1615,7 @@ doc ///
    idealsFromGeneratingSets
    regStats
    CMStats
+   GorensteinStats
    borelFixedStats
    mingenStats
 ///
@@ -2301,6 +2347,22 @@ TEST ///
  assert(.5==CMStats(listOfIdeals))
  listOfIdeals = {monomialIdeal(0_R), monomialIdeal(R_0*R_1, R_2*R_0), monomialIdeal(R_0)};
  assert(2/3==CMStats(listOfIdeals))
+///
+
+--*******************--
+--  GorensteinStats  --
+--*******************--
+
+TEST ///
+ L=randomMonomialSet(5,1,1.0); R=ring(L#0);
+ listOfIdeals = {monomialIdeal(0_R)};
+ assert(1==GorensteinStats(listOfIdeals))
+ listOfIdeals = {monomialIdeal(R_0*R_1, R_2*R_0)};
+ assert(0==GorensteinStats(listOfIdeals))
+ listOfIdeals = {monomialIdeal(0_R), monomialIdeal(R_0*R_1, R_2*R_0)};
+ assert(.5==GorensteinStats(listOfIdeals))
+ listOfIdeals = {monomialIdeal(0_R), monomialIdeal(R_0*R_1, R_2*R_0), monomialIdeal(R_0)};
+ assert(2/3==GorensteinStats(listOfIdeals))
 ///
 
 --********************--
