@@ -53,6 +53,7 @@ newPackage(
     	)
 needsPackage "Depth";
 needsPackage "BoijSoederberg";
+needsPackage "TorAlgebra";
 
 export {
     "randomMonomialSets",
@@ -525,7 +526,7 @@ CMStats (List) := QQ => o -> (ideals) -> (
     N := #ideals;
     R := ring(ideals#0);
     for i from 0 to #ideals-1 do (
-     if isCM(R/ideals_i) == true then cm = cm + 1 else cm = cm);
+     if isCM(R/ideals_i) then cm = cm + 1);
      if o.Verbose then (
        numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
        stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
@@ -533,6 +534,22 @@ CMStats (List) := QQ => o -> (ideals) -> (
        stdio << cm << " out of " << N << " ideals in the given sample are Cohen-Macaulay." << endl;
        );
    cm/N
+)
+
+GorensteinStats = method(TypicalValue => QQ, Options =>{Verbose => false})
+GorensteinStats (List) := QQ => o -> (ideals) -> (
+    g := 0;
+    N := #ideals;
+    R := ring(ideals#0);
+    for i from 0 to #ideals-1 do (
+     if isCM(R/ideals_i) then g = g + 1);
+     if o.Verbose then (
+       numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
+       stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
+       if numberOfZeroIdeals>0 then stdio <<"The zero ideals are included in the reported count of Cohen-Macaulay quotient rings."<< endl;
+       stdio << g << " out of " << N << " ideals in the given sample are Gorenstein." << endl;
+       );
+   g/N
 )
 
 borelFixedStats = method(TypicalValue =>QQ, Options =>{Verbose => false})
