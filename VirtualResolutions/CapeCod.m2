@@ -1,4 +1,4 @@
-needsPackage "SplendidComplexes2"
+needsPackage "SplendidComplexes"
 needsPackage "FourierMotzkin"
 
 

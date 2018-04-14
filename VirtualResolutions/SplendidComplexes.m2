@@ -17,7 +17,7 @@
 ------------------------------------------------------------------------------
 
 newPackage(
-  "SplendidComplexes2",
+  "SplendidComplexes",
   AuxiliaryFiles => false,
   Version => "0.2",
   Date => "30 June 2014",
@@ -269,7 +269,7 @@ pointsIdeal (NormalToricVariety, ZZ) := Ideal => (X,m) -> (
 beginDocumentation()
 
 document {
-  Key => SplendidComplexes2,
+  Key => SplendidComplexes,
   Headline => "a package for working with splendid complexes",
   "A splendid complex is a short chain complex with irrelevant homology.",
   PARA{},
