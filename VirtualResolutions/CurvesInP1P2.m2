@@ -50,10 +50,24 @@ randomMonomialCurve = (d,e)->(
     I = sub(eliminate({s,t},J'),S)
     )
 
+
+
+
 randomCurve = (d,g) ->(
     R = ZZ/101[z_0,z_1,z_2,z_3];
-    R1 := ZZ/101[x_0, x_1];
-    R2 := ZZ/101[y_0,y_1,y_2];
-    map(R,R1,{z_0,z_1})
-    map(R,R2,{z_0,z_1,z_2})
+    C = (random spaceCurve)(d,g,R);
+    ---
+    S1 = ZZ/101[x_0, x_1];
+    S2 = ZZ/101[y_0,y_1,y_2];
+    S = tensor(S1,S2);
+    ---
+    U = tensor(R,S);   
+    --- 
+    M1 = matrix {{z_0,z_1},{x_0,x_1}};
+    M2 = matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
+    --
+    C' = sub(J,U)
+    D = minors(2,M1)+minors(2,M2);
+    K  = saturate(C'+D,ideal(z_0,z_1,z_2,z_3));
+    I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
     )
