@@ -15,25 +15,40 @@ restart
 
 randomRationalCurve = (d,e)->(
     R := ZZ/101[s,t];
+    ---
     S1 := ZZ/101[x_0, x_1];
     S2 := ZZ/101[y_0,y_1,y_2];
     S = tensor(S1,S2);
-    U := tensor(R,S);    
-    M1 := matrix {apply(2,i->random({0,0,d},U)),{x_0,x_1}};
-    M2 := matrix {apply(3,i->random({0,0,e},U)),{y_0,y_1,y_2}};
+    ---
+    U = tensor(R,S);   
+    --- 
+    M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
+    M2 := matrix {apply(3,i->random({e,0,0},U)),{y_0,y_1,y_2}};
+    ---
     J := minors(2,M1)+minors(2,M2);
-    J' := saturate(J,ideal(s,t));
+    J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
     I = sub(eliminate({s,t},J'),S)
     )
 
-T = tensor(R,S)
-
-M1 = matrix {{x_0,x_1},{s,t}}
-M2 = matrix {{y_0,y_1},{s^2,t^2}}
-
-K = minors(2,M1)+minors(2,M2);
-K' = saturate(K,ideal(s,t))
-eliminate({s,t},K')
+randomMonomialCurve = (d,e)->(
+    R := ZZ/101[s,t];
+    ---
+    S1 := ZZ/101[x_0, x_1];
+    S2 := ZZ/101[y_0,y_1,y_2];
+    S = tensor(S1,S2);
+    ---
+    U = tensor(R,S);  
+    ---
+    B = drop(drop(flatten entries basis({e,0,0},U),1),-1);
+    f = (random(B))#0;
+    ---
+    M1 := matrix {{s^d,t^d},{x_0,x_1}};
+    M2 := matrix {{s^e,t^e,f},{y_0,y_1,y_2}};
+    ---
+    J := minors(2,M1)+minors(2,M2);
+    J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
+    I = sub(eliminate({s,t},J'),S)
+    )
 
 randomCurve = (d,g) ->(
     R = ZZ/101[z_0,z_1,z_2,z_3];
