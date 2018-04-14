@@ -1,0 +1,16 @@
+
++ M2 --no-readline --print-width 39
+Macaulay2, version 1.11
+with packages: ConwayPolynomials,
+               Elimination,
+               IntegralClosure,
+               InverseSystems,
+               LLLBases,
+               PrimaryDecomposition,
+               ReesAlgebra, TangentCone
+
+i1 : 0
+
+o1 = 0
+
+i2 : 
