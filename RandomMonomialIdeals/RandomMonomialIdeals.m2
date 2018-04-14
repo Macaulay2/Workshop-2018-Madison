@@ -500,9 +500,27 @@ regStats List := o-> (ideals) -> (
 
 )
 
- randomMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => "x", IncludeZeroIdeals => true, Strategy => "ER"})
+randomMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => "x", IncludeZeroIdeals => true, Strategy => "ER"})
 
- randomMonomialIdeals (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
+randomMonomialIdeals (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
+    B :=
+      if all(pOrM,q->instance(q,RR)) then randomMonomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal")
+      else if all(pOrM,q->instance(q,ZZ)) then randomMonomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>o.Strategy);
+    idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+
+randomMonomialIdeals (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
+    B := randomMonomialSets(R,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal");
+    idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomMonomialIdeals (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
+    B := randomMonomialSets(R,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>o.Strategy);
+    idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomMonomialIdeals (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
         B:={};
         if all(pOrM,q->instance(q,RR)) then
 	    B=randomMonomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal")
@@ -510,11 +528,11 @@ regStats List := o-> (ideals) -> (
 	    B=randomMonomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName, Strategy=>o.Strategy);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
- randomMonomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
+randomMonomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
  	B:=randomMonomialSets(n,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal");
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
- randomMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
+randomMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
  	B:=randomMonomialSets(n,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
@@ -946,16 +964,24 @@ doc ///
 doc ///
  Key
   randomMonomialIdeals
+  (randomMonomialIdeals,PolynomialRing,ZZ,RR,ZZ)
+  (randomMonomialIdeals,PolynomialRing,ZZ,ZZ,ZZ)
+  (randomMonomialIdeals,PolynomialRing,ZZ,List,ZZ)
   (randomMonomialIdeals,ZZ,ZZ,RR,ZZ)
   (randomMonomialIdeals,ZZ,ZZ,ZZ,ZZ)
   (randomMonomialIdeals,ZZ,ZZ,List,ZZ)
  Headline
   generates random sets of monomial ideals
  Usage
+  randomMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
+  randomMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
+  randomMonomialIdeals(PolynomialRing,ZZ,List,ZZ)
   randomMonomialIdeals(ZZ,ZZ,RR,ZZ)
   randomMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
   randomMonomialIdeals(ZZ,ZZ,List,ZZ)
  Inputs
+  R: PolynomialRing
+    the ring to generate a random monomial ideal in, OR
   n: ZZ
     number of variables
   D: ZZ
@@ -972,7 +998,7 @@ doc ///
     the number of random monomial ideals to be generated
  Outputs
   : List
-   list of randomly generated @TO monomialIdeal@, and the number of zero ideals removed, if any
+   list of randomly generated @TO MonomialIdeal@, if @TO IncludeZeroIdeals@ is false then the output will be sequence with the first element a list of the non-zero ideals and the second element the number of zero ideals.
  Description
   Text
    randomMonomialIdeals creates $N$ random monomial ideals, with each monomial generator having degree $d$, $1\leq d\leq D$, in $n$ variables.
@@ -1258,7 +1284,7 @@ doc ///
  Description
    Text
      When the option is used with the method @TO randomMonomialIdeals@, if {\tt IncludeZeroIdeals => true} (the default), then zero ideals will be included in the list of random monomial ideals.
-     If {\tt IncludeZeroIdeals => false}, then any zero ideals produced will be excluded, along with the number of them.
+     If {\tt IncludeZeroIdeals => false}, then the output of @TO randomMonomialIdeals@ will be a sequence with the first element a list of the non-zero ideals and the second element the number of zero ideals.
    Example
      n=2;D=2;p=0.0;N=1;
      ideals = randomMonomialIdeals(n,D,p,N)
@@ -2202,8 +2228,8 @@ TEST ///
 TEST ///
   -- check the number of ideals
   n=5; D=5; p=.6; N=3;
-  B = flatten randomMonomialIdeals(n,D,p,N,IncludeZeroIdeals=>false);
-  assert (N===(#B-1+last(B))) -- B will be a sequence of nonzero ideals and the number of zero ideals in entry last(B)
+  (B,numZero) = randomMonomialIdeals(n,D,p,N,IncludeZeroIdeals=>false);
+  assert (N===(#B+numZero)) -- B will be a sequence of nonzero ideals and the number of zero ideals in entry last(B)
   C = randomMonomialIdeals(n,D,p,N,IncludeZeroIdeals=>true);
   assert (N===#C)
 ///
@@ -2211,8 +2237,19 @@ TEST ///
 TEST ///
   -- check the number of monomials in the generating set of the ideal
   n=4; D=6; M=7; N=1;
-  B = flatten randomMonomialIdeals(n,D,M,N);
+  B = randomMonomialIdeals(n,D,M,N);
   assert (M>=numgens B_0)
+///
+
+TEST ///
+  -- check that the output is in the correct ring
+  R=ZZ[x,y,z]; D=5; p=.6; N=3;
+  B = randomMonomialIdeals(R,D,p,N);
+  assert(R===ring B_0)
+  M = 7
+  B = randomMonomialIdeals(R,D,M,N);
+  assert(R===ring B_0)
+
 ///
 
 --************--
