@@ -580,8 +580,8 @@ mingenStats (List) := Sequence => o -> (ideals) -> (
         );
     numAvg:=sub((1/(#ideals))*(sum numgensHist), RR);
     comAvg:=sub((1/(#ideals))*(sum complexityHist), RR);
-    numEx2:=sub((1/(#ideals))*(sum apply(elements(tally numgensHist), i->i^2)), RR);
-    comEx2:=sub((1/(#ideals))*(sum apply(elements(tally complexityHist), i->i^2)), RR);
+    numEx2:=sub((1/(#ideals))*(sum(elements(tally numgensHist), i->i^2)), RR);
+    comEx2:=sub((1/(#ideals))*(sum(elements(tally complexityHist), i->i^2)), RR);
     numVar:= numEx2 - numAvg^2;
     comVar:= comEx2 - comAvg^2;
     numStdDev= numVar^(1/2);
