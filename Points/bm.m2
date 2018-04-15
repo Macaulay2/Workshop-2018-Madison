@@ -42,3 +42,17 @@ evaluationMap = (L,R) ->(    --R is a polynomial ring, L is list of points
     phi := f->apply(P, u->u(f));
     return phi;
     )
+
+evaluateDerivatives = (X,mu,f) -> (
+    R := ring f;
+    K := coefficientRing R;
+    L := for i to #X-1 list (
+	phi := map(K,R,X_i);
+	for m in flatten entries basis(0,mu_i,R) list phi(diff(m,f))
+	);
+    return flatten L;
+    )
+
+createEvaluationMap = (X,mu,R) -> (
+    f -> evaluateDerivatives(X,mu,f)
+    )
