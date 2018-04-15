@@ -409,13 +409,7 @@ bettiStats List :=  o-> (ideals) -> (
 degStats = method(TypicalValue =>Sequence, Options =>{ShowTally => false, Verbose => false})
 degStats List :=  o-> (ideals) -> (
     N := #ideals;
-    deg := 0;
-    degHistogram:={};
-    apply(#ideals, i->(
-        degi := degree ideals_i;
-        degHistogram = append(degHistogram, degi)
-	)
-    );
+    degHistogram:=apply(ideals, I-> degree I);
     ret:=();
     avg:=sub(1/N*(sum degHistogram), RR);
     Ex2:=sub(1/N*(sum apply(elements(tally degHistogram), i->i^2)), RR);
@@ -450,13 +444,7 @@ idealsFromGeneratingSets(List):= o -> (B) -> (
 dimStats = method(TypicalValue => Sequence, Options => {ShowTally => false, Verbose =>false})
 dimStats List := o-> (ideals) -> (
     N := #ideals;
-    dims:=0;
-    dimsHistogram:={};
-    apply(#ideals,i->(
-        dimi := dim ideals_i;
-    dimsHistogram = append(dimsHistogram, dimi)
-    )
-    );
+    dimsHistogram:= apply(ideals,I-> dim I);
     ret:= ();
     avg:=sub(1/N*(sum dimsHistogram), RR);
     Ex2:=sub(1/N*(sum apply(elements(tally dimsHistogram), i->i^2)), RR);
@@ -477,7 +465,6 @@ regStats List := o-> (ideals) -> (
     N:=#ideals;
     ideals = extractNonzeroIdeals(ideals);
     ideals = ideals_0;
-    reg := 0;
     ret := ();
     regHistogram:={};
     if set {} === set ideals then (
@@ -492,10 +479,7 @@ regStats List := o-> (ideals) -> (
 	ret = (-infinity, 0)
     )
     else (
-	apply(#ideals,i->(
-              regi := regularity ideals_i;
-              regHistogram = append(regHistogram, regi)
-	     ));
+	regHistogram := apply(ideals,I -> regularity I);
              avg := sub(1/#ideals*(sum regHistogram), RR);
     	     Ex2 := sub((1/(#ideals))*(sum apply(elements(tally regHistogram), i->i^2)), RR);
     	     var := Ex2-avg^2;
@@ -585,7 +569,7 @@ borelFixedStats (List) := QQ => o -> (ideals) -> (
     bor := 0;
     N:=#ideals;
     for i from 0 to #ideals-1 do (
-        if isBorel((ideals_i)) == true then bor = bor + 1 else bor = bor);
+        if isBorel((ideals_i)) then bor = bor + 1);
     if o.Verbose then (
        numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
        stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
@@ -594,6 +578,7 @@ borelFixedStats (List) := QQ => o -> (ideals) -> (
        );
     bor/N
 )
+
 mingenStats = method(TypicalValue => Sequence, Options => {ShowTally => false, Verbose =>false})
 mingenStats (List) := Sequence => o -> (ideals) -> (
     N:=#ideals;
