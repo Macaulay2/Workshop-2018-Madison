@@ -58,6 +58,8 @@ needsPackage "TorAlgebra";
 export {
     "randomMonomialSets",
     "randomMonomialSet",
+    "randomHomogeneousMonomialSet",
+    "randomHomogeneousMonomialSets",
     "idealsFromGeneratingSets",
     "randomMonomialIdeals",
     "Coefficients",
@@ -329,6 +331,60 @@ randomMonomialSet (PolynomialRing,ZZ,List) := List => o -> (R,D,pOrM) -> (
 )
 
 
+randomHomogeneousMonomialSets = method(TypicalValue => List, Options => {Coefficients => QQ,
+	                                                        VariableName => "x"})
+randomHomogeneousMonomialSets (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
+    x := toSymbol o.VariableName;
+    R := o.Coefficients[x_1..x_n];
+    randomHomogeneousMonomialSets(R,D,p,N)
+)
+
+randomHomogeneousMonomialSets (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
+    if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
+    if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
+    apply(N,i-> randomHomogeneousMonomialSet(R,D,p,o))
+)
+
+randomHomogeneousMonomialSets (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
+    x := toSymbol o.VariableName;
+    R := o.Coefficients[x_1..x_n];
+    randomHomogeneousMonomialSet(R,D,M,N)
+)
+
+randomHomogeneousMonomialSets (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
+    if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
+    apply(N,i-> randomHomogeneousMonomialSet(R,D,M))
+)
+
+randomHomogeneousMonomialSet = method(TypicalValue => List, Options => {Coefficients => QQ,
+	                                                       VariableName => "x"})
+randomHomogeneousMonomialSet (ZZ,ZZ,RR) := List => o -> (n,D,p) -> (
+    if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
+    x := toSymbol o.VariableName;
+    R := o.Coefficients[x_1..x_n];
+    randomHomogeneousMonomialSet(R,D,p)
+)
+
+randomHomogeneousMonomialSet (PolynomialRing,ZZ,RR) := List => o -> (R,D,p) -> (
+    if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
+    B := {};
+    B = select(flatten entries basis(D,R),m-> random(0.0,1.0)<=p);
+    if B==={} then {0_R} else B
+)
+
+randomHomogeneousMonomialSet (ZZ,ZZ,ZZ) := List => o -> (n,D,M) -> (
+    if n<1 then error "n expected to be a positive integer";
+    x := toSymbol o.VariableName;
+    R := o.Coefficients[x_1..x_n];
+    randomHomogeneousMonomialSet(R,D,M)
+)
+
+randomHomogeneousMonomialSet (PolynomialRing,ZZ,ZZ) := List => o -> (R,D,M) -> (
+    if M<0 then stderr << "warning: M expected to be a nonnegative integer" << endl;
+    allMonomials := flatten entries basis(D,R);
+    C := take(random(allMonomials), M);
+    if C==={} then {0_R} else C
+)
 
 bettiStats = method(TypicalValue =>Sequence, Options =>{IncludeZeroIdeals=>true, SaveBettis => "", CountPure => false, Verbose => false})
 bettiStats List :=  o-> (ideals) -> (
@@ -558,7 +614,7 @@ borelFixedStats (List) := QQ => o -> (ideals) -> (
     bor := 0;
     N:=#ideals;
     for i from 0 to #ideals-1 do (
-        if isBorel((ideals_i)) == true then bor = bor + 1 else bor = bor);
+        if isBorel((ideals_i)) then bor = bor + 1);
     if o.Verbose then (
        numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
        stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
@@ -641,9 +697,9 @@ pdimStats (List) := o-> (ideals) -> (
     ret=(avg, stdDev)
 )
 
---**********************************--
---  Internal methods	    	    --
---**********************************--
+--********************--
+--  Internal methods  --
+--********************--
 
 toSymbol = (p) -> (
      if instance(p,Symbol)
@@ -692,9 +748,9 @@ matrix(BettiTally, ZZ, ZZ) := opts -> (B,lowestDegree, highestDegree) -> (
 
 
 
---******************************************--
--- DOCUMENTATION     	       	    	    --
---******************************************--
+--****************--
+-- DOCUMENTATION  --
+--****************--
 beginDocumentation()
 
 doc ///
@@ -839,6 +895,48 @@ doc ///
    It does so by calling @TO randomMonomialSet@ $N$ times.
  SeeAlso
   randomMonomialSet
+  randomHomogeneousMonomialSet
+  randomHomogeneousMonomialSets
+///
+
+doc ///
+ Key
+  randomHomogeneousMonomialSets
+  (randomHomogeneousMonomialSets,ZZ,ZZ,RR,ZZ)
+  (randomHomogeneousMonomialSets,PolynomialRing,ZZ,RR,ZZ)
+  (randomHomogeneousMonomialSets,ZZ,ZZ,ZZ,ZZ)
+  (randomHomogeneousMonomialSets,PolynomialRing,ZZ,ZZ,ZZ)
+ Headline
+  randomly generates homogeneous lists of monomials in fixed number of variables of a given degree
+ Usage
+  randomHomogeneousMonomialSets(ZZ,ZZ,RR,ZZ)
+  randomHomogeneousMonomialSets(PolynomialRing,ZZ,RR,ZZ)
+  randomHomogeneousMonomialSets(ZZ,ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialSets(PolynomialRing,ZZ,ZZ,ZZ)
+ Inputs
+  n: ZZ
+    number of variables, OR
+  : PolynomialRing
+    the ring in which the monomials are to live if $n$ is not specified
+  D: ZZ
+    degree
+  p: RR
+     the probability of selecting a monomial, OR
+  M: ZZ
+     number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree $D$
+  N: ZZ
+    number of sets to be generated
+ Outputs
+  : List
+   random homogeneous generating sets of monomials
+ Description
+  Text
+   randomHomogeneousMonomialSets creates $N$ random sets of monomials of degree $D$ in $n$ variables.
+   It does so by calling @TO randomHomogeneousMonomialSet@ $N$ times.
+ SeeAlso
+  randomHomogeneousMonomialSet
+  randomMonomialSet
+  randomMonomialSets
 ///
 
 doc ///
@@ -1143,6 +1241,75 @@ doc ///
    ring oo_0
  SeeAlso
    randomMonomialSets
+   randomHomogeneousMonomialSet
+   randomHomogeneousMonomialSets
+///
+
+doc ///
+ Key
+  randomHomogeneousMonomialSet
+  (randomHomogeneousMonomialSet,ZZ,ZZ,RR)
+  (randomHomogeneousMonomialSet,PolynomialRing,ZZ,RR)
+  (randomHomogeneousMonomialSet,ZZ,ZZ,ZZ)
+  (randomHomogeneousMonomialSet,PolynomialRing,ZZ,ZZ)
+ Headline
+  randomly generates a homogeneous list of monomials in fixed number of variables of a given degree
+ Usage
+  randomHomogeneousMonomialSet(ZZ,ZZ,RR)
+  randomHomogeneousMonomialSet(PolynomialRing,ZZ,RR)
+  randomHomogeneousMonomialSet(ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialSet(PolynomialRing,ZZ,ZZ)
+ Inputs
+  n: ZZ
+    number of variables, OR
+  : PolynomialRing
+    the ring in which monomials are to live if $n$ is not specified
+  D: ZZ
+    degree
+  p: RR
+     the probability of selecting a monomial, OR
+  M: ZZ
+     number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree $D$
+ Outputs
+  : List
+   random homogeneous set of monomials
+ Description
+  Text
+   randomHomogeneousMonomialSet creates a list of monomials of a given degree $D$ in $n$ variables.
+   If $p$ is a real number, it generates the set according to the Erdos-Renyi-type model, that is, based on a Binomial distribution:
+   from the list of all monomials of degree $D$ in $n$ variables, it selects each one, independently, with probability $p$.
+  Example
+   n=2; D=3; p=0.2;
+   randomHomogeneousMonomialSet(n,D,p)
+   randomHomogeneousMonomialSet(3,2,0.6)
+  Text
+   Note that this model does not generate the monomial $1$:
+  Example
+   randomHomogeneousMonomialSet(3,2,1.0)
+  Text
+   If $M$ is an integer, then randomHomogeneousMonomialSet creates a list of monomials of size $M$:
+   randomly select $M$ monomials from the list of all monomials of degree $D$ in $n$ variables.
+  Example
+   n=10; D=5; M=4;
+   randomHomogeneousMonomialSet(n,D,M)
+  Text
+   Note that it returns a set with $M = 4$ monomials.
+  Text
+   If $M$ is greater than the total number of monomials in $n$ variables of degree $D$, then the method will simply return all those monomials (and not $M$ of them). For example:
+  Example
+   randomHomogeneousMonomialSet(2,2,10)
+  Text
+   returns 3 monomials in a generating set, and not 10, since there are fewer than 10 monomials to choose from.
+  Text
+   Sometimes we are already working in a specific ring and would like the random sets of monomials to live in the same ring:
+  Example
+   D=3;p=.5; R=ZZ/101[a,b,c];
+   randomMonomialSet(R,D,p)
+   ring oo_0
+ SeeAlso
+   randomHomogeneousMonomialSets
+   randomMonomialSets
+   randomMonomialSet
 ///
 
 doc ///
@@ -1210,6 +1377,8 @@ doc ///
     Coefficients
     [randomMonomialSet, Coefficients]
     [randomMonomialSets, Coefficients]
+    [randomHomogeneousMonomialSet, Coefficients]
+    [randomHomogeneousMonomialSets, Coefficients]
     [randomMonomialIdeals, Coefficients]
   Headline
     optional input to choose the coefficients of the ambient polynomial ring
@@ -1226,6 +1395,8 @@ doc ///
   SeeAlso
     randomMonomialSet
     randomMonomialSets
+    randomHomogeneousMonomialSet
+    randomHomogeneousMonomialSets
     randomMonomialIdeals
 ///
 
@@ -1234,6 +1405,8 @@ doc ///
     VariableName
     [randomMonomialSet, VariableName]
     [randomMonomialSets, VariableName]
+    [randomHomogeneousMonomialSet, VariableName]
+    [randomHomogeneousMonomialSets, VariableName]
     [randomMonomialIdeals, VariableName]
   Headline
     optional input to choose the variable name for the generated polynomials
@@ -1248,6 +1421,8 @@ doc ///
   SeeAlso
     randomMonomialSet
     randomMonomialSets
+    randomHomogeneousMonomialSet
+    randomHomogeneousMonomialSets
     randomMonomialIdeals
 ///
 
@@ -1478,7 +1653,7 @@ doc ///
    the fraction of Cohen-Macaulay ideals in the list
  Description
   Text
-   CMStats simply checks whether the coordinate ring of each ideal in the given sample is arithmetically Cohen-Macaulay, and returns the proportion that are.
+   CMStats simply checks whether the quotient ring of each ideal in the given sample is arithmetically Cohen-Macaulay, and returns the proportion that are.
   Example
     R=ZZ/101[a,b,c];
     ideals = {monomialIdeal"a3,b,c2", monomialIdeal"a3,b,ac"}
@@ -1497,7 +1672,7 @@ doc ///
   GorensteinStats(List)
  Inputs
   ideals: List
-    of @TO monomialIdeal@s or any object with a coordinate ring to which @TO isGorenstein@ can be applied
+    of @TO monomialIdeal@s or any object with a quotient ring to which @TO isGorenstein@ can be applied
  Outputs
   : QQ
    the fraction of Gorenstein ideals in the list
@@ -1993,13 +2168,13 @@ doc ///
       Get the histogram from the hash table returned by @TO statistics@.
 ///
 
---******************************************--
--- TESTS     	     	       	    	    --
---******************************************--
+--********--
+-- TESTS  --
+--********--
 
---************************--
+--**********************--
 --  randomMonomialSets  --
---************************--
+--**********************--
 
 TEST ///
     -- Check there are N samples
@@ -2047,9 +2222,9 @@ TEST ///
     assert(ring(L#2#0)===ring(L#1#2))
 ///
 
---***********************--
+--*********************--
 --  randomMonomialSet  --
---***********************--
+--*********************--
 
 TEST ///
     --Check monomials are in the same ring
@@ -2156,10 +2331,100 @@ TEST ///
     assert(1==min(apply(randomMonomialSet(n,D,toList(D:1)), m->first degree m)))
 ///
 
+--*********************************--
+--  randomHomogeneousMonomialSets  --
+--*********************************--
 
---*************************--
+TEST ///
+    -- Check there are N samples
+    N=10;
+    n=3; D=2; p=0.5;
+    assert (N==#randomHomogeneousMonomialSets(n,D,p,N))
+    N=10;
+    n=3; D=2; M=10;
+    assert (N==#randomHomogeneousMonomialSets(n,D,M,N))
+///
+
+TEST ///
+    -- Check multiple samples agree
+    n=4; D=3;
+    L = randomHomogeneousMonomialSets(n,D,1.0,3);
+    assert (set L#0===set L#1)
+    assert (set L#0===set L#2)
+
+///
+
+TEST ///
+    --Check monomials are in the same ring
+    n = 4; D = 3;
+    L = randomHomogeneousMonomialSets(n,D,1.0,3);
+    assert(ring(L#0#0)===ring(L#1#0))
+    assert(ring(L#1#1)===ring(L#1#2))
+    assert(ring(L#2#0)===ring(L#1#2))
+    L = randomHomogeneousMonomialSets(n,6,5,3);
+    assert(ring(L#0#0)===ring(L#1#0))
+    assert(ring(L#1#1)===ring(L#1#2))
+    assert(ring(L#2#0)===ring(L#1#2))
+///
+
+--********************************--
+--  randomHomogeneousMonomialSet  --
+--********************************--
+
+TEST ///
+    --Check monomials are in the same ring
+    n = 4; D = 3;
+    L = randomHomogeneousMonomialSet(n,D,1.0);
+    assert(ring(L#0)===ring(L#1))
+    assert(ring(L#2)===ring(L#3))
+///
+
+TEST ///
+    -- Check no terms are chosen for a probability of 0
+
+    assert (0==(randomHomogeneousMonomialSet(5,5,0.0))#0)
+    assert (0==(randomHomogeneousMonomialSet(5,4,0))#0)
+
+///
+
+TEST ///
+    -- Check all possible values are outputted with a probability of 1
+    n=4; D=3;
+    assert (binomial(n+D-1,D)==#randomHomogeneousMonomialSet(n,D,1.0))
+    n=6; D=2;
+    assert (binomial(n+D-1,D)==#randomHomogeneousMonomialSet(n,D,1.0))
+    -- Check that the precise number of monomials are generated
+    assert (#randomHomogeneousMonomialSet(4,5,5)==5)
+    assert (#randomHomogeneousMonomialSet(5,10,10)==10)
+    
+///
+
+TEST ///
+    -- Check every monomial is generated
+    L=randomHomogeneousMonomialSet(2,3,1.0)
+    R=ring(L#0)
+    assert(set L===set {R_0^3,R_0^2*R_1,R_0*R_1^2,R_1^3})
+    L=randomHomogeneousMonomialSet(2,3,4)
+    R=ring(L#0)
+    assert(set L===set {R_0^3,R_0^2*R_1,R_0*R_1^2,R_1^3})
+///
+
+TEST ///
+    -- Check degree of monomial equal to D
+    n=10; D=5;
+    assert(D==max(apply(randomMonomialSet(n,D,1.0),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,1.0),m->first degree m)))
+    M=binominal(D+n-1,D);
+    assert(D==max(apply(randomMonomialSet(n,D,M),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,M),m->first degree m)))
+    n=4; D=7;
+    assert(D==max(apply(randomMonomialSet(n,D,1.0),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,1.0),m->first degree m)))
+    M=binominal(D+n-1,D);
+    assert(D==max(apply(randomMonomialSet(n,D,M),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,M),m->first degree m)))
+///
+
+
+--**************--
 --  bettiStats  --
---*************************--
+--**************--
 TEST///
    R = ZZ/101[a..c];
    L={monomialIdeal (a^2*b,b*c), monomialIdeal(a*b,b*c^3)};
@@ -2176,9 +2441,9 @@ TEST///
 ///
 
 
---*************************--
+--************--
 --  degStats  --
---*************************--
+--************--
 TEST///
    --check for p = 0 the average degree should be 1
    listOfIdeals = idealsFromGeneratingSets(randomMonomialSets(3,4,0.0,6));
@@ -2209,9 +2474,9 @@ TEST///
 
 ///
 
---************************--
+--************--
 --  dimStats  --
---************************--
+--************--
 TEST ///
     --check for p = 0 the average Krull dimension is n
     listOfIdeals = idealsFromGeneratingSets(randomMonomialSets(3,4,0.0,6));
@@ -2296,9 +2561,9 @@ TEST ///
   assert(0.5===A_1)
   assert(2==sum(values(A_2)))
 ///
---***************--
---    CMStats    --
---***************--
+--***********--
+--  CMStats  --
+--***********--
 
 TEST ///
  L=randomMonomialSet(5,1,1.0); R=ring(L#0);
@@ -2328,9 +2593,9 @@ TEST ///
  assert(2/3==GorensteinStats(listOfIdeals))
 ///
 
---********************--
---  borrelFixedStats  --
---********************--
+--*******************--
+--  borelFixedStats  --
+--*******************--
 
 TEST ///
 L=randomMonomialSet(5,1,1.0); R=ring(L#0);
@@ -2389,9 +2654,9 @@ TEST ///
   assert(2==sum(values(A_5)))
 ///
 
---***************--
---   pdimStats   --
---***************--
+--*************--
+--  pdimStats  --
+--*************--
 
 TEST ///
   L=randomMonomialSet(3,3,1.0);
@@ -2436,9 +2701,9 @@ TEST ///
   assert (all(C#0,c->instance(c,MonomialIdeal)))
 ///
 
---****************************--
+--**************--
 --  statistics  --
---****************************--
+--**************--
 
 TEST///
   -- Check generated statistics
