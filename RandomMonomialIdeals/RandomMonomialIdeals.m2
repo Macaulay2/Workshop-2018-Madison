@@ -54,6 +54,8 @@ newPackage(
 needsPackage "Depth";
 needsPackage "BoijSoederberg";
 needsPackage "TorAlgebra";
+needsPackage "Serialization";
+needsPackage "Graphics";
 
 export {
     "polarize",
@@ -88,11 +90,10 @@ export {
     "Model",
     "ER",
     "statistics",
-    "Mean", "StdDev", "Histogram"
+    "Mean", "StdDev", "Histogram",
+    "plotTally"
 }
 
-
-needsPackage "Serialization"
 
 --***************************************--
 --  Exported methods 	     	     	 --
@@ -463,13 +464,7 @@ bettiStats List :=  o-> (ideals) -> (
 degStats = method(TypicalValue =>Sequence, Options =>{ShowTally => false, Verbose => false})
 degStats List :=  o-> (ideals) -> (
     N := #ideals;
-    deg := 0;
-    degHistogram:={};
-    apply(#ideals, i->(
-        degi := degree ideals_i;
-        degHistogram = append(degHistogram, degi)
-	)
-    );
+    degHistogram:=apply(ideals, I-> degree I);
     ret:=();
     avg:=sub(1/N*(sum degHistogram), RR);
     Ex2:=sub(1/N*(sum apply(elements(tally degHistogram), i->i^2)), RR);
@@ -490,10 +485,7 @@ idealsFromGeneratingSets =  method(TypicalValue => List, Options => {IncludeZero
 idealsFromGeneratingSets(List):= o -> (B) -> (
     N := # B;
     n := numgens ring ideal B#0; -- ring of the first monomial in the first gen set
-    ideals := {};
-    for i from 0 to #B-1 do {
-	ideals = B / (b-> monomialIdeal b);
-	};
+    ideals := B / (b-> monomialIdeal b);
     (nonzeroIdeals,numberOfZeroIdeals) := extractNonzeroIdeals(ideals);
     if o.Verbose then
      stdio <<"There are "<<#B<<" ideals in this sample. Of those, "<<numberOfZeroIdeals<<" are the zero ideal."<< endl;
@@ -504,13 +496,7 @@ idealsFromGeneratingSets(List):= o -> (B) -> (
 dimStats = method(TypicalValue => Sequence, Options => {ShowTally => false, Verbose =>false})
 dimStats List := o-> (ideals) -> (
     N := #ideals;
-    dims:=0;
-    dimsHistogram:={};
-    apply(#ideals,i->(
-        dimi := dim ideals_i;
-    dimsHistogram = append(dimsHistogram, dimi)
-    )
-    );
+    dimsHistogram:= apply(ideals,I-> dim I);
     ret:= ();
     avg:=sub(1/N*(sum dimsHistogram), RR);
     Ex2:=sub(1/N*(sum apply(elements(tally dimsHistogram), i->i^2)), RR);
@@ -531,7 +517,6 @@ regStats List := o-> (ideals) -> (
     N:=#ideals;
     ideals = extractNonzeroIdeals(ideals);
     ideals = ideals_0;
-    reg := 0;
     ret := ();
     regHistogram:={};
     if set {} === set ideals then (
@@ -546,10 +531,7 @@ regStats List := o-> (ideals) -> (
 	ret = (-infinity, 0)
     )
     else (
-	apply(#ideals,i->(
-              regi := regularity ideals_i;
-              regHistogram = append(regHistogram, regi)
-	     ));
+	regHistogram := apply(ideals,I -> regularity I);
              avg := sub(1/#ideals*(sum regHistogram), RR);
     	     Ex2 := sub((1/(#ideals))*(sum apply(elements(tally regHistogram), i->i^2)), RR);
     	     var := Ex2-avg^2;
@@ -669,6 +651,7 @@ borelFixedStats (List) := QQ => o -> (ideals) -> (
        );
     bor/N
 )
+
 mingenStats = method(TypicalValue => Sequence, Options => {ShowTally => false, Verbose =>false})
 mingenStats (List) := Sequence => o -> (ideals) -> (
     N:=#ideals;
@@ -820,7 +803,22 @@ matrix(BettiTally, ZZ, ZZ) := opts -> (B,lowestDegree, highestDegree) -> (
      )
 
 
+rectangle := (p,w,h) -> (
+    (x,y) := (p#0,p#1);
+    polygon({p,point(toRR x+w,toRR y),point(toRR x+w,toRR y+h),point(toRR x,toRR y+h)})
+)
 
+plotTally = method(TypicalValue=>Picture)
+plotTally(Tally,RR,RR) := Picture => (t,barWidth,plotHeight) -> (
+    xValues := sort keys t;
+    topY := toRR max values t;
+    scalingFactor := plotHeight/topY;
+    bars := apply(#xValues, i-> (
+            h := toRR (t#(xValues#i));
+            bottomLeft := point(toRR i*(barWidth*1.5),plotHeight);
+            rectangle(bottomLeft,barWidth,-h*scalingFactor)));
+    picture({formatGraphicPrimitives(bars,hashTable {})})
+)
 
 --****************--
 -- DOCUMENTATION  --
@@ -2965,7 +2963,7 @@ TEST ///
   assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
   listOfIdeals={monomialIdeal(R_0,R_2),monomialIdeal(0_R),monomialIdeal(R_0^2*R_1,R_1^2)};
   assert(sub(5/3,RR)==(depthStats(listOfIdeals))_0)
-  assert(sub((11/3 - 25/9)^(1/2),RR)==(depthStats(listOfIdeals))_1)
+  assert(abs( sub(((11/3) - (25/9))^(1/2),RR)-(depthStats(listOfIdeals))_1) < 0.00001 )
 ///
 
 
