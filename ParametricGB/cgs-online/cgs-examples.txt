@@ -1,0 +1,76 @@
+
+//examples from the paper "Kapur, D., Sun, Y., and Wang, D.K., 2010. A new algorithm for computing comprehensive Gr\"obner systems. In Proceedings of ISSAC'2010, ACM Press, New York, 29-36."
+
+//Nabe07 F6 
+P<x,a,b,c,d>:=PolynomialRing(RationalField(),5,"elim",[1],[2,3,4,5]);
+varlen:=1;
+ZE:=[];
+NE:=[];
+PS:=[x^4+a*x^3+b*x^2+c*x+d,4*x^3+3*a*x^2+2*b*x+c];
+
+//Nabe07 F8 
+P<x,y,z,w,a,b,c,d>:=PolynomialRing(RationalField(),8,"elim",[1,2,3,4],[5,6,7,8]);
+varlen:=4;
+ZE:=[];
+NE:=[];
+PS:=[a*x^2+b*y,c*w^2+z,(x-z)^2+(y-w)^2,2*d*x*w-2*b*y];
+
+//Montes07 E4
+P<x2,x3,y2,y3,a,b>:=PolynomialRing(RationalField(),6,"elim",[1,2,3,4],[5,6]);
+varlen:=4;
+ZE:=[];
+NE:=[];
+PS:=[(a-1)*y2-b*(x2-1),(a-1)*(x2+1)+b*y2,(a+1)*y3-b*(x3+1),(a+1)*(x3-1)+b*y3,(x3-a)^2+y3^2-(x2-a)^2-y2^2];
+
+//Montes07 E5
+P<x1,y1,x2,y2,a,b,sv,cv,sw,cw>:=PolynomialRing(RationalField(),10,"elim",[1,2,3,4],[5,6,7,8,9,10]);
+varlen:=4;
+ZE:=[];
+ZE:=[];
+NE:=[];
+H1:=[(x1-a)^2+(y1-1)^2-a^2-1,(x2+b)^2+(y2-1)^2-b^2-1,a*(x1-a)+(y1-1)+(a^2+1)*cv,-b*(x2+b)+(y2-1)+(1+b^2)*cw];
+H2:=[a*(y1-1)-(x1-a)+(a^2+1)*sv,-b*(y2-1)-(x2+b)+(b^2+1)*sw];
+T:=[x1*y2-2*x1-x2*y1+2*x2,cv^2+sv^2-1,cw^2+sw^2-1];
+PS:=H1 cat H2 cat T;
+
+//s1 MF3
+P<x,y,a,b,c,d>:=PolynomialRing(RationalField(),6,"elim",[1,2],[3,4,5,6]);
+varlen:=2;
+ZE:=[];
+NE:=[];
+PS:=[a*x^4+c*x^2+y,b*x^3+x^2+2,c*x^2+d*x+y];
+
+//s2 MF4
+P<x,y,a,b,c,d>:=PolynomialRing(RationalField(),6,"elim",[1,2],[3,4,5,6]);
+varlen:=2;
+ZE:=[];
+NE:=[];
+PS:=[a*x^3*y+c*x*y^2+b*x+y, x^4*y+3*d*y, c*x^2+b*x*y, x^2*y^2+a*x^2, x^5+y^5];
+
+//s3 MF5
+P<x,y,a,b,c>:=PolynomialRing(RationalField(),5,"elim",[1,2],[3,4,5]);
+varlen:=2;
+ZE:=[];
+NE:=[];
+PS:=[a*x^2*y+b*x^2+y^3, a*x^2*y+b*x*y+c*y^2, a*y^3+b*x^2*y+c*x*y];
+
+//s4 MF6
+P<x,y,a,b,c,d>:=PolynomialRing(RationalField(),6,"elim",[1,2],[3,4,5,6]);
+varlen:=2;
+ZE:=[];
+NE:=[];
+PS:=[x^4+a*x^3+b*x^2+c*x*y+d,4*x^3+3*a*x^2*y+2*b*x+c+y];
+
+//s5 MF8
+P<x,y,z,w,a,b,c,d>:=PolynomialRing(RationalField(),8,"elim",[1,2,3,4],[5,6,7,8]);
+varlen:=4;
+ZE:=[];
+NE:=[];
+PS:=[a*x^2+b*y*z+c*z*w,c*w^2+b*y+z,(x-z)^2+(y-w)^2,2*d*x*w-2*b*y*z];
+
+//p3pES
+P<x,y,p,q,r,a,b>:=PolynomialRing(RationalField(),7,"elim",[1,2],[3,4,5,6,7]);
+varlen:=2;
+ZE:=[];
+NE:=[];
+PS:=[(1-a)*y^2-a*x^2-p*y+a*r*x*y+1, (1-b)*x^2-b*y^2-q*x+b*r*x*y+1];
