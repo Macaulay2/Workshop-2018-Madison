@@ -223,8 +223,20 @@ statistics (Sample, Function) := HashTable => (s,f) -> (
 )
 
 
+createRing := (baseRing,varName,n) -> (
+    if varName===null
+    then (
+        x := getSymbol "x";
+        baseRing(monoid[x_1..x_n])
+        )
+    else (
+        x := toSymbol varName;
+        baseRing[x_1..x_n]
+    )
+)
+
 randomMonomialSets = method(TypicalValue => List, Options => {Coefficients => QQ,
-	                                                        VariableName => "x",
+	                                                        VariableName => null,
 								Strategy => "ER"})
 randomMonomialSets (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
     if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
@@ -238,8 +250,7 @@ randomMonomialSets (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
 
 randomMonomialSets (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
     if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     apply(N,i-> randomMonomialSet(R,D,M,o))
 )
 
@@ -251,8 +262,7 @@ randomMonomialSets (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
 randomMonomialSets (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
     if n<1 then error "n expected to be a positive integer";
     if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     apply(N,i-> randomMonomialSet(R,D,pOrM,o))
 )
 
@@ -262,7 +272,7 @@ randomMonomialSets (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
 )
 
 randomMonomialSet = method(TypicalValue => List, Options => {Coefficients => QQ,
-	                                                       VariableName => "x",
+	                                                       VariableName => null,
 							       Strategy => "ER"})
 randomMonomialSet (ZZ,ZZ,RR) := List => o -> (n,D,p) -> (
     if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
@@ -276,8 +286,7 @@ randomMonomialSet (PolynomialRing,ZZ,RR) := List => o -> (R,D,p) -> (
 
 randomMonomialSet (ZZ,ZZ,ZZ) := List => o -> (n,D,M) -> (
     if n<1 then error "n expected to be a positive integer";
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     randomMonomialSet(R,D,M)
 )
 
@@ -291,8 +300,7 @@ randomMonomialSet (PolynomialRing,ZZ,ZZ) := List => o -> (R,D,M) -> (
 
 randomMonomialSet (ZZ,ZZ,List) := List => o -> (n,D,pOrM) -> (
     if n<1 then error "n expected to be a positive integer";
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     randomMonomialSet(R,D,pOrM,o)
 )
 
@@ -502,7 +510,7 @@ regStats List := o-> (ideals) -> (
 
 )
 
-randomMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => "x", IncludeZeroIdeals => true, Strategy => "ER"})
+randomMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => null, IncludeZeroIdeals => true, Strategy => "ER"})
 
 randomMonomialIdeals (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
     B :=
@@ -2182,6 +2190,13 @@ TEST ///
     assert(1==min(apply(randomMonomialSet(n,D,toList(D:1)), m->first degree m)))
 ///
 
+TEST ///
+    --Check that we don't clobber user variables
+    S = ZZ[x_1..x_5];
+    n=8; D=6;
+    randomMonomialSet(n,D,1.0);
+    assert(ring(x_1)===S);
+///
 
 --*************************--
 --  bettiStats  --
