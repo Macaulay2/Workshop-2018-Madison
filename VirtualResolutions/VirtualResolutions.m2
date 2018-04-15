@@ -17,7 +17,11 @@ newPackage ("VirtualResolutions",
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
         {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu"}
     	},
-    PackageExports => {"TateOnProducts"},
+    PackageExports => {
+	"BGG",
+	"TateOnProducts",
+	"CompleteIntersectionResolutions"
+	},
     DebuggingMode => true,
     AuxiliaryFiles => true
     )
