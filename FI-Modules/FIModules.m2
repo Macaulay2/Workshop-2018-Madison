@@ -55,26 +55,45 @@ net FIMonomial := m -> (
 
 ring FIMonomial := m -> m.ring
 
+functionName = method()
+
+functionName FIMonomial := m -> m.FunctionName
+
+target FIMonomial := m -> m.TargetName
+
+function = method()
+
+function FIMonomial := m -> {m.FunctionName, m.TargetName}
+
 
 -- FI RING ELEMENTS
 --=====================================
 
+FIMonomial * FIMonomial := (m1, m2) -> (
+    R := ring m2;
+    if ring m1 =!= R then (error "Expected FI mononomials of the same ring.");
+    if target m1 < target m2 then return null;
+    R_(monomialCompose(function m1, function m2))
+    )
 
+monomialCompose = method()
 
-monomialCompose := (i1,i2) -> (
+monomialCompose (List, List) := (i1,i2) -> (
     j := length i2_0;
     inj := apply(toList(1..j), i -> (i1_0)_((i2_0)_(i-1)-1));
     dest := i1_1;
     return {inj,dest}
     )
 
+
 /// TEST
 
 restart
 load "FIModules.m2"
 R = FI(QQ, f)
-m = listToFIMon(R, {1,4,5},5) 
-ring m
-
+m1 = R_{{1,4,5},5}
+m2 = R_{{3,1},4} 
+ring m1
+m1*m2
 
 ///
