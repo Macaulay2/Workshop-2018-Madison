@@ -75,6 +75,7 @@ export {
     "SaveBettis",
     "CountPure",
     "Verbose",
+    "depthStats",
     "pdimStats",
     "Sample",
     "sample",
@@ -658,6 +659,33 @@ pdimStats (List) := o-> (ideals) -> (
 	);
     ret=(avg, stdDev)
 )
+
+depthStats = method(TypicalValue=>Sequence, Options => {ShowTally => false, Verbose => false})
+depthStats (List) := o-> (ideals) -> (
+    N:=#ideals;
+    dHist:={};
+    R:=ring(ideals_0);
+    apply(#ideals,i->
+	(
+        depthi := depth(R^1/ideals_i);
+	depth= append(dHist, depthi)
+	)
+    );
+    ret:=();
+    avg:=sub(((1/N)*(sum dHist)),RR);
+    Ex2:=sub(((1/N)*(sum apply(elements(tally dHist), i->i^2))), RR);
+    var:= Ex2 - avg^2;
+    stdDev:= var^(1/2);
+    if o.ShowTally
+         then(ret = (avg, stdDev, tally dHist), return ret;);
+    if o.Verbose then (
+	numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
+        stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
+	if numberOfZeroIdeals>0 then stdio <<"The depth statistics do include those for the zero ideals."<< endl
+	);
+    ret=(avg, stdDev)
+)
+
 
 --**********************************--
 --  Internal methods	    	    --
@@ -1383,6 +1411,8 @@ doc ///
    [degStats, ShowTally]
    [regStats, ShowTally]
    [pdimStats, ShowTally]
+   [depthStats, ShowTally]
+
  Headline
    optional input to choose if the tally is to be returned
  Description
@@ -1396,6 +1426,7 @@ doc ///
      mingenStats(ideals)
      degStats(ideals)
      pdimStats(ideals)
+     depthStats(ideals)
    Text
      In the example above, only the statistics are outputted since by default {\tt ShowTally => false}.
    Text
@@ -1406,12 +1437,14 @@ doc ///
      degStats(ideals,ShowTally=>true)
      regStats(ideals,ShowTally=>true)
      pdimStats(ideals,ShowTally=>true)
+     depthStats(ideals,ShowTally=>true)
  SeeAlso
    dimStats
    mingenStats
    degStats
    regStats
    pdimStats
+   depthStats
 ///
 
 doc ///
@@ -1453,6 +1486,48 @@ doc ///
  SeeAlso
    ShowTally
 ///
+
+
+doc ///
+ Key
+  depthStats
+  (depthStats,List)
+ Headline
+  statistics on depth of a list of monomial ideals
+ Usage
+  depthStats(List)
+ Inputs
+  ideals: List
+    of @TO monomialIdeal@s or @TO ideal@s
+ Outputs
+  : Sequence
+   whose first entry is the mean depth, the second entry is the standard deviation of the depth, and third entry (if option turned on) is the depth tally for quotient rings of ideals in the list {\tt ideals}.
+ Description
+  Text
+   depthStats finds the mean and standard deviation of the depth of elements in the list:
+  Example
+   R=ZZ/101[a,b,c];
+   ideals = {monomialIdeal(a^3,b,c^2), monomialIdeal(a^3,b,a*c)}
+   depthStats(ideals)
+  Text
+   depthStats will also output the depth tally using the optional input ShowTally
+  Example
+   R=ZZ/101[a,b,c];
+   ideals = {monomialIdeal(a,c),monomialIdeal(b),monomialIdeal(a^2*b,b^2)}
+   depthStats(ideals, ShowTally=>true)
+  Text
+   The following examples use the existing function @TO randomMonomialIdeals@ to automatically generate a list of ideals, rather than creating the list manually:
+  Example
+   ideals = randomMonomialIdeals(4,3,1.0,3)
+   depthStats(ideals)
+   ideals = randomMonomialIdeals(4,6,0.01,10)
+   depthStats(ideals)
+  Text
+   Note that this function can be run with a list of @TO ideal@s as well.
+ SeeAlso
+   ShowTally
+///
+
 
 doc ///
  Key
@@ -1574,6 +1649,7 @@ doc ///
    [borelFixedStats, Verbose]
    [mingenStats, Verbose]
    [bettiStats, Verbose]
+   [depthStats, Verbose]
  Headline
    optional input to request verbose feedback
  Description
@@ -1618,6 +1694,7 @@ doc ///
    GorensteinStats
    borelFixedStats
    mingenStats
+   depthStats
 ///
 
 doc ///
@@ -2448,6 +2525,31 @@ TEST ///
   listOfIdeals={monomialIdeal(R_0,R_2),monomialIdeal(0_R),monomialIdeal(R_0^2*R_1,R_1^2)};
   assert(sub(4/3,RR)==(pdimStats(listOfIdeals))_0)
   assert(sub(((8/3)-(16/9))^(1/2),RR)==(pdimStats(listOfIdeals))_1)
+///
+
+
+--**************--
+--  depthStats  --
+--**************--
+
+TEST ///
+  L=randomMonomialSet(3,3,1.0);
+  R=ring(L#0);
+  listOfIdeals={monomialIdeal(0_R)};
+  assert(sub(3,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
+  listOfIdeals={monomialIdeal(R_0,R_1,R_2)};
+  assert(sub(0,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
+  listOfIdeals={monomialIdeal(0_R),monomialIdeal(R_0*R_1^2,R_1^3,R_2)};
+  assert(sub(1.5,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub(1.5,RR)==(depthStats(listOfIdeals))_1)
+  listOfIdeals={monomialIdeal(R_0^2*R_1,R_2)};
+  assert(sub(1,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
+  listOfIdeals={monomialIdeal(R_0,R_2),monomialIdeal(0_R),monomialIdeal(R_0^2*R_1,R_1^2)};
+  assert(sub(5/3,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub((4/3)^(1/2),RR)==(depthStats(listOfIdeals))_1)
 ///
 
 
