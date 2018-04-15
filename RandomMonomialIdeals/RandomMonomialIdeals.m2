@@ -431,10 +431,7 @@ idealsFromGeneratingSets =  method(TypicalValue => List, Options => {IncludeZero
 idealsFromGeneratingSets(List):= o -> (B) -> (
     N := # B;
     n := numgens ring ideal B#0; -- ring of the first monomial in the first gen set
-    ideals := {};
-    for i from 0 to #B-1 do {
-	ideals = B / (b-> monomialIdeal b);
-	};
+    ideals := B / (b-> monomialIdeal b);
     (nonzeroIdeals,numberOfZeroIdeals) := extractNonzeroIdeals(ideals);
     if o.Verbose then
      stdio <<"There are "<<#B<<" ideals in this sample. Of those, "<<numberOfZeroIdeals<<" are the zero ideal."<< endl;
