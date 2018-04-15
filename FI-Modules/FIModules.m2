@@ -37,7 +37,8 @@ listToFIMon(FIRing, List, ZZ) := FIMonomial => (R, l, n) -> (
     m := new FIMonomial from (hashTable{
 	    (symbol ring) => R,
 	    (symbol BaseName) => R.FunctionSymbol,
-	    (symbol FunctionName) => l
+	    (symbol FunctionName) => l,
+	    (symbol TargetName) => n
 	    });
     return m
     )
@@ -46,5 +47,15 @@ FIRing_List := FIMonomial => (R, l) -> listToFIMon(R, first l, last l)
 
 
 net FIMonomial := m -> (
-    net m.BaseName | net "_" | net m.FunctionName
+    net m.BaseName | net "_{" | net m.FunctionName | net "," | net m.TargetName | net "}"
     )
+
+/// TEST
+
+restart
+load "FIModules.m2"
+R = FI(QQ, f)
+listToFIMon(R, {1,4,5},5) 
+
+
+///
