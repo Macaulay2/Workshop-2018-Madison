@@ -1,7 +1,7 @@
-needsPackage("SplendidComplexes2")
-load "CapeCod2.m2"
+needsPackage("SplendidComplexes")
+load "CapeCod.m2"
 kk = ZZ/32003
-S = kk[x_0,x_1,x_2,x_3,x_4]
+S = kk[x_0,x_1,x_2,x_3,x_4,Degrees=>{{1,0},{1,0},{0,1},{0,1},{0,1}}]
 B0 = ideal(x_0,x_1)
 B1 = ideal(x_2,x_3,x_4)
 irr = intersect(B0,B1)
@@ -130,6 +130,7 @@ load "badsaturations.m2"
 
 Jsat = paramCurve(2,4,4);
 genSat(Jsat,3) --takes a long time
+
 netList (Jsat_*)
 
 
@@ -142,9 +143,18 @@ J = paramRatCurve({2,2},{3,3},{4,2});
 genSat(J,2) -- also takes a long time
 
 
--- different possible ideas for saturating (need to check the math)
+-- different possible ideas for saturating
 sat1 = J -> saturate(saturate(J,B0),B1)
 sat2 = J -> (
     J1 := intersect(saturate(J,x_0),saturate(J,x_1));
     intersect(for i from 2 to 4 list(saturate(J1,x_i)))
+    )
+
+--faster saturation over general product
+--L is the vector n as a list
+sat3 = (J,L) -> (
+    R = ring J;
+    degs = degrees(R);
+    for i from 1 to length(L) J = intersect(for i from 1 to L_i + 1 list(saturate(J,(gens(S))_i)))
+    J;
     )
