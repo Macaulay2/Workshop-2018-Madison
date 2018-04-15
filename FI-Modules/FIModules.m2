@@ -1,4 +1,4 @@
-FIRing = new Type of HashTable
+FIRing = new Type of Ring
 globalAssignment FIRing
 
 FIMonomial = new Type of HashTable
@@ -10,6 +10,8 @@ FIMatrix = new Type of MutableHashTable
 -- FI RINGS
 --=====================================
 
+
+
 FI = method()
 
 FI (Ring, Symbol) := (R, f) -> (
@@ -17,6 +19,7 @@ FI (Ring, Symbol) := (R, f) -> (
 	    (symbol CoefficientRing) => R,
 	    (symbol FunctionSymbol) => f
 	    });
+--    FI + FI
     return FI
     ) 
 
@@ -50,12 +53,22 @@ net FIMonomial := m -> (
     net m.BaseName | net "_{" | net m.FunctionName | net "," | net m.TargetName | net "}"
     )
 
+ring FIMonomial := m -> m.ring
+
+
+-- FI RING ELEMENTS
+--=====================================
+
+
+
+
 /// TEST
 
 restart
 load "FIModules.m2"
 R = FI(QQ, f)
-listToFIMon(R, {1,4,5},5) 
+m = listToFIMon(R, {1,4,5},5) 
+ring m
 
 
 ///
