@@ -16,7 +16,7 @@ newPackage ("CurvesP1P2",
     )
 
 needsPackage "SimpleDoc"
-needsPackage "RandomSpaceCurve";
+needsPackage "RandomSpaceCurves";
 
 export{
     "randomRationalCurve",
@@ -96,7 +96,9 @@ randomMonomialCurve = (d,e)->(
 
 curveFromP3toP1P2 = (J) ->(
     R := ring J;
-    Var := flatten entries vars R;
+    Vars := flatten entries vars R;
+    ---
+   if (J+ideal(Vars#0,Vars#1)!=ideal(1_R)) and (J+ideal(Vars#1,Vars#2,Vars#3))!=ideal(1_R) then error "Given curve intersects place of projection.";
     ---
     S1 := ZZ/101[x_0, x_1];
     S2 := ZZ/101[y_0,y_1,y_2];
@@ -107,12 +109,11 @@ curveFromP3toP1P2 = (J) ->(
     M1 := matrix {{Vars#0,Vars#1},{x_0,x_1}};
     M2 := matrix {{Vars#1,Vars#2,Vars#3},{y_0,y_1,y_2}};
     --
-    C' := sub(J,U)
+    C' := sub(J,U);
     D := minors(2,M1)+minors(2,M2);
     K  := saturate(C'+D,ideal(Vars));
     I =  sub(eliminate(Vars,K),S)
-    )
-
+)
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e)=(degree,genus)
@@ -138,7 +139,7 @@ randomCurve = (d,g) ->(
     M1 = matrix {{z_0,z_1},{x_0,x_1}};
     M2 = matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
     --
-    C' = sub(J,U)
+    C' = sub(J,U);
     D = minors(2,M1)+minors(2,M2);
     K  = saturate(C'+D,ideal(z_0,z_1,z_2,z_3));
     I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
