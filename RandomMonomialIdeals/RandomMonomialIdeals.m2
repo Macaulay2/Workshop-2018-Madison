@@ -63,6 +63,7 @@ export {
     "randomHomogeneousMonomialSets",
     "idealsFromGeneratingSets",
     "randomMonomialIdeals",
+    "randomHomogeneousMonomialIdeals",
     "Coefficients",
     "VariableName",
     "mingenStats",
@@ -344,8 +345,7 @@ randomMonomialSet (PolynomialRing,ZZ,List) := List => o -> (R,D,pOrM) -> (
 randomHomogeneousMonomialSets = method(TypicalValue => List, Options => {Coefficients => QQ,
 	                                                        VariableName => "x"})
 randomHomogeneousMonomialSets (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     randomHomogeneousMonomialSets(R,D,p,N)
 )
 
@@ -356,9 +356,8 @@ randomHomogeneousMonomialSets (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N
 )
 
 randomHomogeneousMonomialSets (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
-    randomHomogeneousMonomialSet(R,D,M,N)
+    R := createRing(o.Coefficients,o.VariableName,n);
+    randomHomogeneousMonomialSets(R,D,M,N)
 )
 
 randomHomogeneousMonomialSets (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
@@ -370,8 +369,7 @@ randomHomogeneousMonomialSet = method(TypicalValue => List, Options => {Coeffici
 	                                                       VariableName => "x"})
 randomHomogeneousMonomialSet (ZZ,ZZ,RR) := List => o -> (n,D,p) -> (
     if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     randomHomogeneousMonomialSet(R,D,p)
 )
 
@@ -384,8 +382,7 @@ randomHomogeneousMonomialSet (PolynomialRing,ZZ,RR) := List => o -> (R,D,p) -> (
 
 randomHomogeneousMonomialSet (ZZ,ZZ,ZZ) := List => o -> (n,D,M) -> (
     if n<1 then error "n expected to be a positive integer";
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     randomHomogeneousMonomialSet(R,D,M)
 )
 
@@ -602,6 +599,27 @@ randomMonomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
 )
 randomMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
  	B:=randomMonomialSets(n,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomHomogeneousMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => null, IncludeZeroIdeals => true})
+
+randomHomogeneousMonomialIdeals (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
+    B := randomHomogeneousMonomialSets(R,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+    idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomHomogeneousMonomialIdeals (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
+    B := randomHomogeneousMonomialSets(R,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+    idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomHomogeneousMonomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
+ 	B:=randomHomogeneousMonomialSets(n,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+randomHomogeneousMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
+ 	B:=randomHomogeneousMonomialSets(n,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 
@@ -1207,7 +1225,66 @@ doc ///
  SeeAlso
    randomMonomialSets
    idealsFromGeneratingSets
+   randomHomogeneousMonomialIdeals
 ///
+
+doc ///
+ Key
+  randomHomogeneousMonomialIdeals
+  (randomHomogeneousMonomialIdeals,PolynomialRing,ZZ,RR,ZZ)
+  (randomHomogeneousMonomialIdeals,PolynomialRing,ZZ,ZZ,ZZ)
+  (randomHomogeneousMonomialIdeals,ZZ,ZZ,RR,ZZ)
+  (randomHomogeneousMonomialIdeals,ZZ,ZZ,ZZ,ZZ)
+ Headline
+  generates random sets of homogeneous monomial ideals
+ Usage
+  randomHomogeneousMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
+  randomHomogeneousMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialIdeals(ZZ,ZZ,RR,ZZ)
+  randomHomogeneousMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
+ Inputs
+  R: PolynomialRing
+    the ring to generate a random homogeneous monomial ideal in, OR
+  n: ZZ
+    number of variables
+  D: ZZ
+    degree of generators
+  p: RR
+     probability to select a monomial in the ER model, OR
+  M: ZZ
+     the number of monomials, up to the maximum number of monomials in $n$ variables of degree $D$, used to generate each ideal
+  N: ZZ
+    the number of random homogeneous monomial ideals to be generated
+ Outputs
+  : List
+   list of randomly generated Homogeneous @TO MonomialIdeal@, if @TO IncludeZeroIdeals@ is false then the output will be sequence with the first element a list of the non-zero ideals and the second element the number of zero ideals.
+ Description
+  Text
+   randomHomogeneousMonomialIdeals creates $N$ random monomial ideals, with each monomial generator having degree $D$, in $n$ variables.
+   If $p$ is a real number, it generates each of these ideals according to the Erdos-Renyi-type model (see @HREF"https://arxiv.org/abs/1701.07130"@):
+   from the list of all monomials of degree $D$ in $n$ variables, it selects each one, independently, with probability $p$.
+  Example
+   n=2; D=3; p=0.2; N=10;
+   randomHomogeneousMonomialIdeals(n,D,p,N)
+   randomHomogeneousMonomialIdeals(5,3,0.4,4)
+  Text
+   Note that this model does not generate the monomial $1$:
+  Example
+   randomHomogeneousMonomialIdeals(3,2,1.0,1)
+  Text
+   If $M$ is an integer, then randomHomogeneousMonomialIdeals creates $N$ random monomial ideals with minimal generating set of $M$ monomials:
+   randomly select $M$ monomials from the list of all monomials of degree $D$ in $n$ variables, then generate the ideal from this set.
+  Example
+   n=8; D=4; M=7; N=3;
+   randomHomogeneousMonomialIdeals(n,D,M,N)
+  Text
+   Note that each generating set of each ideal has exactly $M = 7$ monomials. Unlike with the @TO randomMonomialIdeals@, there is no risk of a generator being a multiple of another and thus redundant since they all have the same degree.
+ SeeAlso
+   randomHomogeneousMonomialSets
+   idealsFromGeneratingSets
+   randomMonomialIdeals
+///
+
 
 doc ///
  Key
@@ -1444,6 +1521,7 @@ doc ///
     [randomHomogeneousMonomialSet, Coefficients]
     [randomHomogeneousMonomialSets, Coefficients]
     [randomMonomialIdeals, Coefficients]
+    [randomHomogeneousMonomialIdeals, Coefficients]
   Headline
     optional input to choose the coefficients of the ambient polynomial ring
   Description
@@ -1462,6 +1540,7 @@ doc ///
     randomHomogeneousMonomialSet
     randomHomogeneousMonomialSets
     randomMonomialIdeals
+    randomHomogeneousMonomialIdeals
 ///
 
 doc ///
@@ -1472,6 +1551,7 @@ doc ///
     [randomHomogeneousMonomialSet, VariableName]
     [randomHomogeneousMonomialSets, VariableName]
     [randomMonomialIdeals, VariableName]
+    [randomHomogeneousMonomialIdeals, VariableName]
   Headline
     optional input to choose the variable name for the generated polynomials
   Description
@@ -1488,6 +1568,7 @@ doc ///
     randomHomogeneousMonomialSet
     randomHomogeneousMonomialSets
     randomMonomialIdeals
+    randomHomogeneousMonomialIdeals
 ///
 
 doc ///
@@ -1509,6 +1590,7 @@ doc ///
    IncludeZeroIdeals
    [idealsFromGeneratingSets, IncludeZeroIdeals]
    [randomMonomialIdeals, IncludeZeroIdeals]
+   [randomHomogeneousMonomialIdeals, IncludeZeroIdeals]
    [bettiStats, IncludeZeroIdeals]
  Headline
    optional input to choose whether or not zero ideals should be included
@@ -1539,6 +1621,7 @@ doc ///
      bettiStats(L,IncludeZeroIdeals=>false,Verbose=>true)
  SeeAlso
    randomMonomialIdeals
+   randomHomogeneousMonomialIdeals
    bettiStats
    idealsFromGeneratingSets
    Verbose
@@ -2307,6 +2390,7 @@ doc ///
   SeeAlso
     substitute
 ///
+
 --********--
 -- TESTS  --
 --********--
@@ -2549,23 +2633,15 @@ TEST ///
 ///
 
 TEST ///
-    --Check that we don't clobber user variables
-    S = ZZ[x_1..x_5];
-    n=8; D=6;
-    randomMonomialSet(n,D,1.0);
-    assert(ring(x_1)===S);
-///
-
-TEST ///
     -- Check degree of monomial equal to D
     n=10; D=5;
-    assert(D==max(apply(randomMonomialSet(n,D,1.0),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,1.0),m->first degree m)))
-    M=binominal(D+n-1,D);
-    assert(D==max(apply(randomMonomialSet(n,D,M),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,M),m->first degree m)))
+    assert(D==max(apply(randomHomogeneousMonomialSet(n,D,1.0),m->first degree m)) and D==min(apply(randomHomogeneousMonomialSet(n,D,1.0),m->first degree m)))
+    M=binomial(D+n-1,D);
+    assert(D==max(apply(randomHomogeneousMonomialSet(n,D,M),m->first degree m)) and D==min(apply(randomHomogeneousMonomialSet(n,D,M),m->first degree m)))
     n=4; D=7;
-    assert(D==max(apply(randomMonomialSet(n,D,1.0),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,1.0),m->first degree m)))
-    M=binominal(D+n-1,D);
-    assert(D==max(apply(randomMonomialSet(n,D,M),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,M),m->first degree m)))
+    assert(D==max(apply(randomHomogeneousMonomialSet(n,D,1.0),m->first degree m)) and D==min(apply(randomHomogeneousMonomialSet(n,D,1.0),m->first degree m)))
+    M=binomial(D+n-1,D);
+    assert(D==max(apply(randomHomogeneousMonomialSet(n,D,M),m->first degree m)) and D==min(apply(randomHomogeneousMonomialSet(n,D,M),m->first degree m)))
 ///
 
 
@@ -2680,6 +2756,37 @@ TEST ///
   assert(R===ring B_0)
   M = 7
   B = randomMonomialIdeals(R,D,M,N);
+  assert(R===ring B_0)
+
+///
+
+--***********************************--
+--  randomHomogeneousMonomialIdeals  --
+--***********************************--
+
+TEST ///
+  -- check the number of ideals
+  n=5; D=5; p=.6; N=3;
+  (B,numZero) = randomHomogeneousMonomialIdeals(n,D,p,N,IncludeZeroIdeals=>false);
+  assert (N===(#B+numZero)) -- B will be a sequence of nonzero ideals and the number of zero ideals in entry last(B)
+  C = randomHomogeneousMonomialIdeals(n,D,p,N,IncludeZeroIdeals=>true);
+  assert (N===#C)
+///
+
+TEST ///
+  -- check the number of monomials in the generating set of the ideal
+  n=4; D=6; M=7; N=1;
+  B = randomHomogeneousMonomialIdeals(n,D,M,N);
+  assert (M==numgens B_0)
+///
+
+TEST ///
+  -- check that the output is in the correct ring
+  R=ZZ[x,y,z]; D=5; p=.6; N=3;
+  B = randomHomogeneousMonomialIdeals(R,D,p,N);
+  assert(R===ring B_0)
+  M = 7
+  B = randomHomogeneousMonomialIdeals(R,D,M,N);
   assert(R===ring B_0)
 
 ///
@@ -2895,9 +3002,9 @@ TEST///
   assert(stat.StdDev == 0)
 ///
 
----************
----polarize
----************
+--************--
+--  polarize  --
+--************--
 
 TEST///
     R = QQ[x,y,z];
