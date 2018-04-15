@@ -56,6 +56,7 @@ needsPackage "BoijSoederberg";
 needsPackage "TorAlgebra";
 
 export {
+    "polarize",
     "randomMonomialSets",
     "randomMonomialSet",
     "randomHomogeneousMonomialSet",
@@ -77,6 +78,7 @@ export {
     "SaveBettis",
     "CountPure",
     "Verbose",
+    "depthStats",
     "pdimStats",
     "Sample",
     "sample",
@@ -225,8 +227,20 @@ statistics (Sample, Function) := HashTable => (s,f) -> (
 )
 
 
+createRing := (baseRing,varName,n) -> (
+    if varName===null
+    then (
+        x := getSymbol "x";
+        baseRing(monoid[x_1..x_n])
+        )
+    else (
+        x := toSymbol varName;
+        baseRing[x_1..x_n]
+    )
+)
+
 randomMonomialSets = method(TypicalValue => List, Options => {Coefficients => QQ,
-	                                                        VariableName => "x",
+	                                                        VariableName => null,
 								Strategy => "ER"})
 randomMonomialSets (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
     if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
@@ -240,8 +254,7 @@ randomMonomialSets (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
 
 randomMonomialSets (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
     if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     apply(N,i-> randomMonomialSet(R,D,M,o))
 )
 
@@ -253,8 +266,7 @@ randomMonomialSets (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
 randomMonomialSets (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
     if n<1 then error "n expected to be a positive integer";
     if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     apply(N,i-> randomMonomialSet(R,D,pOrM,o))
 )
 
@@ -264,7 +276,7 @@ randomMonomialSets (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
 )
 
 randomMonomialSet = method(TypicalValue => List, Options => {Coefficients => QQ,
-	                                                       VariableName => "x",
+	                                                       VariableName => null,
 							       Strategy => "ER"})
 randomMonomialSet (ZZ,ZZ,RR) := List => o -> (n,D,p) -> (
     if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
@@ -278,8 +290,7 @@ randomMonomialSet (PolynomialRing,ZZ,RR) := List => o -> (R,D,p) -> (
 
 randomMonomialSet (ZZ,ZZ,ZZ) := List => o -> (n,D,M) -> (
     if n<1 then error "n expected to be a positive integer";
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     randomMonomialSet(R,D,M)
 )
 
@@ -293,8 +304,7 @@ randomMonomialSet (PolynomialRing,ZZ,ZZ) := List => o -> (R,D,M) -> (
 
 randomMonomialSet (ZZ,ZZ,List) := List => o -> (n,D,pOrM) -> (
     if n<1 then error "n expected to be a positive integer";
-    x := toSymbol o.VariableName;
-    R := o.Coefficients[x_1..x_n];
+    R := createRing(o.Coefficients,o.VariableName,n);
     randomMonomialSet(R,D,pOrM,o)
 )
 
@@ -558,9 +568,27 @@ regStats List := o-> (ideals) -> (
 
 )
 
- randomMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => "x", IncludeZeroIdeals => true, Strategy => "ER"})
+randomMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => null, IncludeZeroIdeals => true, Strategy => "ER"})
 
- randomMonomialIdeals (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
+randomMonomialIdeals (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
+    B :=
+      if all(pOrM,q->instance(q,RR)) then randomMonomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal")
+      else if all(pOrM,q->instance(q,ZZ)) then randomMonomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>o.Strategy);
+    idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+
+randomMonomialIdeals (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
+    B := randomMonomialSets(R,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal");
+    idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomMonomialIdeals (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
+    B := randomMonomialSets(R,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>o.Strategy);
+    idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomMonomialIdeals (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
         B:={};
         if all(pOrM,q->instance(q,RR)) then
 	    B=randomMonomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal")
@@ -568,11 +596,11 @@ regStats List := o-> (ideals) -> (
 	    B=randomMonomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName, Strategy=>o.Strategy);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
- randomMonomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
+randomMonomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
  	B:=randomMonomialSets(n,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal");
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
- randomMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
+randomMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
  	B:=randomMonomialSets(n,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
@@ -654,8 +682,8 @@ mingenStats (List) := Sequence => o -> (ideals) -> (
         );
     numAvg:=sub((1/(#ideals))*(sum numgensHist), RR);
     comAvg:=sub((1/(#ideals))*(sum complexityHist), RR);
-    numEx2:=sub((1/(#ideals))*(sum apply(elements(tally numgensHist), i->i^2)), RR);
-    comEx2:=sub((1/(#ideals))*(sum apply(elements(tally complexityHist), i->i^2)), RR);
+    numEx2:=sub((1/(#ideals))*(sum(elements(tally numgensHist), i->i^2)), RR);
+    comEx2:=sub((1/(#ideals))*(sum(elements(tally complexityHist), i->i^2)), RR);
     numVar:= numEx2 - numAvg^2;
     comVar:= comEx2 - comAvg^2;
     numStdDev= numVar^(1/2);
@@ -674,14 +702,8 @@ mingenStats (List) := Sequence => o -> (ideals) -> (
 pdimStats = method(TypicalValue=>Sequence, Options => {ShowTally => false, Verbose => false})
 pdimStats (List) := o-> (ideals) -> (
     N:=#ideals;
-    pdHist:={};
     R:=ring(ideals_0);
-    apply(#ideals,i->
-	(
-        pdimi := pdim(R^1/ideals_i);
-	pdHist = append(pdHist, pdimi)
-	)
-    );
+    pdHist:=apply(ideals,I-> pdim(R^1/I));
     ret:=();
     avg:=sub(((1/N)*(sum pdHist)),RR);
     Ex2:=sub(((1/N)*(sum apply(elements(tally pdHist), i->i^2))), RR);
@@ -696,6 +718,40 @@ pdimStats (List) := o-> (ideals) -> (
 	);
     ret=(avg, stdDev)
 )
+
+depthStats = method(TypicalValue=>Sequence, Options => {ShowTally => false, Verbose => false})
+depthStats (List) := o-> (ideals) -> (
+    N:=#ideals;
+    R:=ring(ideals_0);
+    dHist:=apply(ideals,I-> depth(R^1/I));
+    ret:=();
+    avg:=sub(((1/N)*(sum dHist)),RR);
+    Ex2:=sub(((1/N)*(sum apply(elements(tally dHist), i->i^2))), RR);
+    var:= Ex2 - avg^2;
+    stdDev:= var^(1/2);
+    if o.ShowTally
+         then(ret = (avg, stdDev, tally dHist), return ret;);
+    if o.Verbose then (
+	numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
+        stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
+	if numberOfZeroIdeals>0 then stdio <<"The depth statistics do include those for the zero ideals."<< endl
+	);
+    ret=(avg, stdDev)
+)
+
+polarize = method(TypicalValue => MonomialIdeal);
+
+polarize (MonomialIdeal) := I -> (
+    n := numgens ring I;
+    u := apply(numgens I, i -> first exponents I_i);
+    Ilcm := max \ transpose u;
+    z := getSymbol("z");
+    Z := flatten apply(n, i -> apply(Ilcm#i, j -> z_{i,j}));
+    R := QQ(monoid[Z]);
+    G := gens R;
+    p := apply(n, i -> sum((Ilcm)_{0..i-1}));
+    monomialIdeal apply(u, e -> product apply(n, i -> product(toList(0..e#i-1), j -> G#(p#i+j))))
+    )
 
 --********************--
 --  Internal methods  --
@@ -1062,16 +1118,24 @@ doc ///
 doc ///
  Key
   randomMonomialIdeals
+  (randomMonomialIdeals,PolynomialRing,ZZ,RR,ZZ)
+  (randomMonomialIdeals,PolynomialRing,ZZ,ZZ,ZZ)
+  (randomMonomialIdeals,PolynomialRing,ZZ,List,ZZ)
   (randomMonomialIdeals,ZZ,ZZ,RR,ZZ)
   (randomMonomialIdeals,ZZ,ZZ,ZZ,ZZ)
   (randomMonomialIdeals,ZZ,ZZ,List,ZZ)
  Headline
   generates random sets of monomial ideals
  Usage
+  randomMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
+  randomMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
+  randomMonomialIdeals(PolynomialRing,ZZ,List,ZZ)
   randomMonomialIdeals(ZZ,ZZ,RR,ZZ)
   randomMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
   randomMonomialIdeals(ZZ,ZZ,List,ZZ)
  Inputs
+  R: PolynomialRing
+    the ring to generate a random monomial ideal in, OR
   n: ZZ
     number of variables
   D: ZZ
@@ -1088,7 +1152,7 @@ doc ///
     the number of random monomial ideals to be generated
  Outputs
   : List
-   list of randomly generated @TO monomialIdeal@, and the number of zero ideals removed, if any
+   list of randomly generated @TO MonomialIdeal@, if @TO IncludeZeroIdeals@ is false then the output will be sequence with the first element a list of the non-zero ideals and the second element the number of zero ideals.
  Description
   Text
    randomMonomialIdeals creates $N$ random monomial ideals, with each monomial generator having degree $d$, $1\leq d\leq D$, in $n$ variables.
@@ -1451,7 +1515,7 @@ doc ///
  Description
    Text
      When the option is used with the method @TO randomMonomialIdeals@, if {\tt IncludeZeroIdeals => true} (the default), then zero ideals will be included in the list of random monomial ideals.
-     If {\tt IncludeZeroIdeals => false}, then any zero ideals produced will be excluded, along with the number of them.
+     If {\tt IncludeZeroIdeals => false}, then the output of @TO randomMonomialIdeals@ will be a sequence with the first element a list of the non-zero ideals and the second element the number of zero ideals.
    Example
      n=2;D=2;p=0.0;N=1;
      ideals = randomMonomialIdeals(n,D,p,N)
@@ -1532,6 +1596,8 @@ doc ///
    [degStats, ShowTally]
    [regStats, ShowTally]
    [pdimStats, ShowTally]
+   [depthStats, ShowTally]
+
  Headline
    optional input to choose if the tally is to be returned
  Description
@@ -1545,6 +1611,7 @@ doc ///
      mingenStats(ideals)
      degStats(ideals)
      pdimStats(ideals)
+     depthStats(ideals)
    Text
      In the example above, only the statistics are outputted since by default {\tt ShowTally => false}.
    Text
@@ -1555,12 +1622,14 @@ doc ///
      degStats(ideals,ShowTally=>true)
      regStats(ideals,ShowTally=>true)
      pdimStats(ideals,ShowTally=>true)
+     depthStats(ideals,ShowTally=>true)
  SeeAlso
    dimStats
    mingenStats
    degStats
    regStats
    pdimStats
+   depthStats
 ///
 
 doc ///
@@ -1602,6 +1671,48 @@ doc ///
  SeeAlso
    ShowTally
 ///
+
+
+doc ///
+ Key
+  depthStats
+  (depthStats,List)
+ Headline
+  statistics on depth of a list of monomial ideals
+ Usage
+  depthStats(List)
+ Inputs
+  ideals: List
+    of @TO monomialIdeal@s or @TO ideal@s
+ Outputs
+  : Sequence
+   whose first entry is the mean depth, the second entry is the standard deviation of the depth, and third entry (if option turned on) is the depth tally for quotient rings of ideals in the list {\tt ideals}.
+ Description
+  Text
+   depthStats finds the mean and standard deviation of the depth of elements in the list:
+  Example
+   R=ZZ/101[a,b,c];
+   ideals = {monomialIdeal(a^3,b,c^2), monomialIdeal(a^3,b,a*c)}
+   depthStats(ideals)
+  Text
+   depthStats will also output the depth tally using the optional input ShowTally
+  Example
+   R=ZZ/101[a,b,c];
+   ideals = {monomialIdeal(a,c),monomialIdeal(b),monomialIdeal(a^2*b,b^2)}
+   depthStats(ideals, ShowTally=>true)
+  Text
+   The following examples use the existing function @TO randomMonomialIdeals@ to automatically generate a list of ideals, rather than creating the list manually:
+  Example
+   ideals = randomMonomialIdeals(4,3,1.0,3)
+   depthStats(ideals)
+   ideals = randomMonomialIdeals(4,6,0.01,10)
+   depthStats(ideals)
+  Text
+   Note that this function can be run with a list of @TO ideal@s as well.
+ SeeAlso
+   ShowTally
+///
+
 
 doc ///
  Key
@@ -1723,6 +1834,7 @@ doc ///
    [borelFixedStats, Verbose]
    [mingenStats, Verbose]
    [bettiStats, Verbose]
+   [depthStats, Verbose]
  Headline
    optional input to request verbose feedback
  Description
@@ -1767,6 +1879,7 @@ doc ///
    GorensteinStats
    borelFixedStats
    mingenStats
+   depthStats
 ///
 
 doc ///
@@ -2168,6 +2281,32 @@ doc ///
       Get the histogram from the hash table returned by @TO statistics@.
 ///
 
+doc ///
+  Key
+    polarize
+    (polarize, MonomialIdeal)
+  Headline
+    Given a monomial ideal, computes the squarefree monomial ideal obtained via polarization.
+  Usage
+    polarize(MonomialIdeal)
+  Inputs
+    M: MonomialIdeal
+  Outputs
+    I: MonomialIdeal
+       a squarefree monomial ideal in a new polynomial ring
+  Description
+    Text
+      Polarization takes each minimal generator of a monomial ideal to squarefree 
+      See (@HREF"http://www.mast.queensu.ca/~ggsmith/Papers/monomials_m2.pdf"@) for details.
+    Example
+      R = QQ[x,y,z];
+      I = monomialIdeal(x^2,y^3,x*y^2*z,y*z^4);
+      J = polarize(I)
+    Text
+      By default, the variables in the new rings are named $z_{i,j}$, and both $i$ and $j$ are indexed from zero. For access to the variable names, use substitute.
+  SeeAlso
+    substitute
+///
 --********--
 -- TESTS  --
 --********--
@@ -2410,6 +2549,14 @@ TEST ///
 ///
 
 TEST ///
+    --Check that we don't clobber user variables
+    S = ZZ[x_1..x_5];
+    n=8; D=6;
+    randomMonomialSet(n,D,1.0);
+    assert(ring(x_1)===S);
+///
+
+TEST ///
     -- Check degree of monomial equal to D
     n=10; D=5;
     assert(D==max(apply(randomMonomialSet(n,D,1.0),m->first degree m)) and D==min(apply(randomMonomialSet(n,D,1.0),m->first degree m)))
@@ -2513,8 +2660,8 @@ TEST ///
 TEST ///
   -- check the number of ideals
   n=5; D=5; p=.6; N=3;
-  B = flatten randomMonomialIdeals(n,D,p,N,IncludeZeroIdeals=>false);
-  assert (N===(#B-1+last(B))) -- B will be a sequence of nonzero ideals and the number of zero ideals in entry last(B)
+  (B,numZero) = randomMonomialIdeals(n,D,p,N,IncludeZeroIdeals=>false);
+  assert (N===(#B+numZero)) -- B will be a sequence of nonzero ideals and the number of zero ideals in entry last(B)
   C = randomMonomialIdeals(n,D,p,N,IncludeZeroIdeals=>true);
   assert (N===#C)
 ///
@@ -2522,8 +2669,19 @@ TEST ///
 TEST ///
   -- check the number of monomials in the generating set of the ideal
   n=4; D=6; M=7; N=1;
-  B = flatten randomMonomialIdeals(n,D,M,N);
+  B = randomMonomialIdeals(n,D,M,N);
   assert (M>=numgens B_0)
+///
+
+TEST ///
+  -- check that the output is in the correct ring
+  R=ZZ[x,y,z]; D=5; p=.6; N=3;
+  B = randomMonomialIdeals(R,D,p,N);
+  assert(R===ring B_0)
+  M = 7
+  B = randomMonomialIdeals(R,D,M,N);
+  assert(R===ring B_0)
+
 ///
 
 --************--
@@ -2679,6 +2837,31 @@ TEST ///
 ///
 
 
+--**************--
+--  depthStats  --
+--**************--
+
+TEST ///
+  L=randomMonomialSet(3,3,1.0);
+  R=ring(L#0);
+  listOfIdeals={monomialIdeal(0_R)};
+  assert(sub(3,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
+  listOfIdeals={monomialIdeal(R_0,R_1,R_2)};
+  assert(sub(0,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
+  listOfIdeals={monomialIdeal(0_R),monomialIdeal(R_0*R_1^2,R_1^3,R_2)};
+  assert(sub(1.5,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub(1.5,RR)==(depthStats(listOfIdeals))_1)
+  listOfIdeals={monomialIdeal(R_0^2*R_1,R_2)};
+  assert(sub(1,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
+  listOfIdeals={monomialIdeal(R_0,R_2),monomialIdeal(0_R),monomialIdeal(R_0^2*R_1,R_1^2)};
+  assert(sub(5/3,RR)==(depthStats(listOfIdeals))_0)
+  assert(sub((11/3 - 25/9)^(1/2),RR)==(depthStats(listOfIdeals))_1)
+///
+
+
 --****************************--
 --  idealsFromGeneratingSets  --
 --****************************--
@@ -2711,6 +2894,18 @@ TEST///
   assert(stat.Mean == 251)
   assert(stat.StdDev == 0)
 ///
+
+---************
+---polarize
+---************
+
+TEST///
+    R = QQ[x,y,z];
+    I = monomialIdeal(x^2,y^3,x*y^2*z,y*z^4);
+    J = polarize(I);
+    assert(betti res I==betti res J)
+///
+
 
 end
 
