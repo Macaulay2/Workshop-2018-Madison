@@ -1,15 +1,30 @@
-restart
+newPackage ("CurvesP1P2",
+    Version => "0.0",
+    Date => "April 14, 2018",
+    Headline => "Methods for generating curves in P1xP2",
+    Authors =>{
+    	{Name =>"Juliette Bruce"},
+    	{Name =>"Mike Loper"},
+    	},
+    DebuggingMode => true
+    )
 
+export{
+    "randomRationalCurve",
+    "randomMonomialCurve",
+    "curveFromP3toP1P2",
+    "randomCurve",
+    }
 
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e)=(degree,degree)
 ----- Output: The ideal of a random rational curve in P1xP2 of degree (d,e).
------ Description: This randomly generates 2 monomials of degree
------ d and 3 monomials of degree 3 in the ring S (locally defined), 
------ and computes the kernel of the ring map associated to the corresponding map
------ P^1---->P^1xP^2,
+----- Description: This randomly generates 2 forms of degree
+----- d and 3 forms of degree 3 in the ring S (locally defined), 
+----- and computes the ideal defining the image of the map of the
+------ associated map P^1---->P^1xP^2,
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 
@@ -30,6 +45,16 @@ randomRationalCurve = (d,e)->(
     I = sub(eliminate({s,t},J'),S)
     )
 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (d,e)=(degree,degree)
+----- Output: The ideal of a random rational curve in P1xP2 of degree (d,e).
+----- Description: This randomly generates 2 monomials of degree
+----- d and 3 monomials of degree 3 in the ring S (locally defined), 
+----- and computes the ideal defining the image of the map of the
+------ associated map P^1---->P^1xP^2,
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 randomMonomialCurve = (d,e)->(
     R := ZZ/101[s,t];
     ---
@@ -49,9 +74,47 @@ randomMonomialCurve = (d,e)->(
     J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
     I = sub(eliminate({s,t},J'),S)
     )
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (J)=(ideal of curve in P3)
+----- Output: The ideal of a corresponding curve in P1xP2.
+----- Description: Given a curve defined by the ideal J in P3
+----- this outputs the ideal I of the curve in P1xP2 given by
+----- considering the projection P3---->P1 on the first two variables.
+----- and the projection P3----->P2 on the last three variables
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 
+curveFromP3toP1P2 = (J) ->(
+    R := ring J;
+    Var := flatten entries vars R;
+    ---
+    S1 := ZZ/101[x_0, x_1];
+    S2 := ZZ/101[y_0,y_1,y_2];
+    S = tensor(S1,S2);
+    ---
+    U = tensor(R,S);   
+    --- 
+    M1 := matrix {{Vars#0,Vars#1},{x_0,x_1}};
+    M2 := matrix {{Vars#1,Vars#2,Vars#3},{y_0,y_1,y_2}};
+    --
+    C' := sub(J,U)
+    D := minors(2,M1)+minors(2,M2);
+    K  := saturate(C'+D,ideal(Vars));
+    I =  sub(eliminate(Vars,K),S)
+    )
 
-
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (d,e)=(degree,genus)
+----- Output: The ideal of a random curve in P1xP2.
+----- Description: This randomly generates a curve of degree d
+----- and genus g in P3, and then computes the ideal of the correspnding
+----- curve in P1xP2 given by considering the projection 
+----- P3---->P1 on the first two variables.
+----- and the projection P3----->P2 on the last three variables
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 
 randomCurve = (d,g) ->(
     R = ZZ/101[z_0,z_1,z_2,z_3];
@@ -71,3 +134,18 @@ randomCurve = (d,g) ->(
     K  = saturate(C'+D,ideal(z_0,z_1,z_2,z_3));
     I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
     )
+
+--------------------------
+-- Begining of the documentation
+------------------------
+beginDocumentation()
+
+
+
+--------------------------
+-- Begining of the TESTS
+------------------------
+
+
+end--
+
