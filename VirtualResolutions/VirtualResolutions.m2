@@ -20,7 +20,8 @@ newPackage ("VirtualResolutions",
     PackageExports => {
 	"BGG",
 	"TateOnProducts",
-	"CompleteIntersectionResolutions"
+	"CompleteIntersectionResolutions",
+	"NormalToricVarieties"
 	},
     DebuggingMode => true,
     AuxiliaryFiles => true
@@ -28,6 +29,7 @@ newPackage ("VirtualResolutions",
 
 export{
     "multiBetti",
+    "multiWinnow",
     "HideZeros",
     "DegreeBounds"
     }
@@ -77,6 +79,17 @@ multiBetti GradedModule := opts -> C -> (
     mbt = apply(prepend("", yAxis), mbt, prepend);
     netList(mbt, Alignment => Right, HorizontalSpace => 2, BaseRow => 1, Boxes => false)
     )
+
+multiWinnow = method();
+multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
+    if any(alphas, alpha -> #alpha =!= degreeLength ring X) then error "degree has wrong length";
+    chainComplex apply(length F, i ->(
+	    m := F.dd_(i+1);
+	    apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
+	    m
+	    )
+    	)
+    );
 
 --------------------------
 -- Begining of the documentation
@@ -130,9 +143,22 @@ I' = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
 J' = saturate(I',irr)
 hilbertPolynomial(X,J')
 r' = res J'
-betti' r'
---  This is the resolution in line (1.4.1)
-hilbertPolynomial(X,J')
---curve of bidegree (2,8)
-matrix table(7,7,(i,j) -> hilbertFunction({j,6-i},J'))
---(2,1) and (1,5) are both in regularity.
+multiBetti winnow(X, r', {2,1})
+multiWinnow(X, r', {{2,1}, {1,2}})
+
+winnow' = method();
+winnow' (NormalToricVariety, ChainComplex, List) := (X,F,alpha) ->(
+    if #alpha != degreeLength ring X then error "degree has wrong length";
+    lowDegreeSpots := for j to length F list(
+       for i to rank F_j - 1 list(
+           if termwiseLeq(degree F_j_i , alpha) then i else continue
+           ));
+    chainComplex apply(length F, i ->(
+            submatrix(F.dd_(i+1),lowDegreeSpots_i,lowDegreeSpots_(i+1))))
+    );
+
+time multiBetti winnow(X, r', {2,1});
+time multiBetti winnow(X, r', {1,2});
+time multiBetti winnow'(X, r', {2,1});
+time multiBetti winnow'(X, r', {1,2});
+
