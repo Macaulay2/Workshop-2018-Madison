@@ -71,10 +71,11 @@ CGSMainPoly = (E,N,F) -> (
     if member(1_Ry,G1st) then (
         return {E,N,{first select(G, g-> coefficient(y,g)==1_Ry)}}	
     );
-    -- Step 5
+    -- Step 5 -- huh?
     Gry:=select(G, g-> first coefficients(coefficient(y,g)) == matrix {{1_R}});
     Gr:=apply(Gry, g -> lift(coefficient(y,g),coefficientRing(R)));
-    Gr = unique join(Gr,E);
+    -- Don't know if we should add E, they don't do it in the polynomial version
+    --Gr = unique join(Gr,E);
     -- Step 6
     CGS:={};
     if isConsistent(E,prod(Gr,N)) then (
@@ -97,13 +98,14 @@ CGSMainPoly = (E,N,F) -> (
     newF:={};
     L:=for i from 0 to #H-1 list (
 	newE=append(Gr,H_i);
-	newN=prod(N,product apply(i-1, j -> H_j));
-	newF=select(Gr, g -> not member(g,Gry));
+	newN=prod(N, {product apply(i-1, j -> H_j)});
+	newF=select(G, g -> not member(g,Gry));
 	newF = apply(newF, g -> coefficient(y,g)+coefficient(1_Ry,g));
-        CGSMainPoly(newE,newN,newF)	
+        CGSMainPoly(newE,newN,newF)
     );
-    return prepend(CGS,L)
+    return join(CGS,join L)
 )
+
 
 
 end 
@@ -112,6 +114,12 @@ restart
 
 load "ParametricGB.v2.m2";
 
+-- example section 5, Kapur et al. 2013
+R = QQ[a,b,c][x1,x2]
+E = {}
+N = {1}
+F = {a*x1 - b, b*x2 - a, c*x1^2 - x2, c*x2^2 - x1}
+CGSMainPoly(E,N,F)
 
 R=QQ[c_1,c_2][x_0..x_3]
 E={c_1}
