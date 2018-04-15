@@ -54,13 +54,11 @@ genSat = (J,n) -> (
 	<< "doing " << l << endl;
 	I := ideal(J_*_l);
 	if elapsedTime saturate(I,irr) == J then (
-	    	   if (length(res I) == (dim(ring(J)) - dim(J))) then (
-		       output = append(output,l);
-		       );
-		    );
-		    )
-		);
-	    output
+	    output = append(output,l);
+	         );
+	     )
+	 );
+     output
 	    )
 
 paramCurve = method(Options => {PrintPolys => false})
@@ -154,7 +152,11 @@ sat2 = J -> (
 --L is the vector n as a list
 sat3 = (J,L) -> (
     R = ring J;
-    degs = degrees(R);
-    for i from 1 to length(L) J = intersect(for i from 1 to L_i + 1 list(saturate(J,(gens(S))_i)))
-    J;
+    count = 0;
+    for i from 0 to length(L)-1 do
+	J = intersect(for j from count to (count + L_i) list(saturate(J,(gens(R))_j));
+    	count = count + 1;	
+	);
+    J
     )
+
