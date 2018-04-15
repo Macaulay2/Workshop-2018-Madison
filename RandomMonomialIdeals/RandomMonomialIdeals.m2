@@ -2578,7 +2578,7 @@ TEST ///
   assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
   listOfIdeals={monomialIdeal(R_0,R_2),monomialIdeal(0_R),monomialIdeal(R_0^2*R_1,R_1^2)};
   assert(sub(5/3,RR)==(depthStats(listOfIdeals))_0)
-  assert(sub((11/3 - 25/9)^(1/2),RR)==(depthStats(listOfIdeals))_1)
+  assert(abs( sub(((11/3) - (25/9))^(1/2),RR)-(depthStats(listOfIdeals))_1) < 0.00001 )
 ///
 
 
