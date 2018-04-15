@@ -111,7 +111,7 @@ termwiseLeq = (d,e) -> (
 --  Caveat:  only really meaningful for a product of projective spaces
 --  CAVEAT:  No check that the output is quasisomorphic to the input.
 winnow (NormalToricVariety, ChainComplex, List) := (X,F,alpha) ->(
-    if #alpha != #degree (ring X)_0 then error "degree has wrong length";
+    if #alpha != degreeLength ring X then error "degree has wrong length";
     lowDegreeSpots := for j to length F list(
 	for i to rank F_j - 1 list(
 	    if termwiseLeq(degree F_j_i , alpha) then i else continue
@@ -129,7 +129,7 @@ winnowProducts (NormalToricVariety, ChainComplex, List) := (X,F,beta) ->(
     n := sum degrees ring F;
     m := n - apply(#n, i -> 1);
     alpha := beta + m;
-    if #alpha != #degree (ring X)_0 then error "degree has wrong length";
+    if #alpha != degreeLength ring X then error "degree has wrong length";
     lowDegreeSpots := for j to length F list(
 	for i to rank F_j - 1 list(
 	    if termwiseLeq(degree F_j_i , alpha) then i else continue

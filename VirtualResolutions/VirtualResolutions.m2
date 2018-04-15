@@ -28,6 +28,7 @@ export{
     "DegreeBounds"
     }
 
+debug Core
 
 monomial = (R, d, n) -> (
     m := 1_R * n;
@@ -67,7 +68,7 @@ multiBetti GradedModule := opts -> C -> (
     -- Making the table
     xAxis := toString \ cols;
     yAxis := (i -> toString i | ":") \ rows;
-    mbt = applyTable(mbt, n -> if n === 0 then "." else n);
+    mbt = applyTable(mbt, n -> if n === 0 then "." else toString raw n);
     mbt = prepend(xAxis, mbt);
     mbt = apply(prepend("", yAxis), mbt, prepend);
     netList(mbt, Alignment => Right, HorizontalSpace => 2, BaseRow => 1, Boxes => false)
@@ -113,3 +114,21 @@ hilbertPolynomial(X,J')
 r' = res J'
 multiBetti r'
 multiBetti(r', DegreeBounds => {3, 3})
+
+restart
+needsPackage "VirtualResolutions"
+needsPackage "SplendidComplexes"
+load "CapeCod.m2"
+X = projectiveSpace(1)**projectiveSpace(1)
+S = ring X
+irr = ideal X
+I' = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
+J' = saturate(I',irr)
+hilbertPolynomial(X,J')
+r' = res J'
+betti' r'
+--  This is the resolution in line (1.4.1)
+hilbertPolynomial(X,J')
+--curve of bidegree (2,8)
+matrix table(7,7,(i,j) -> hilbertFunction({j,6-i},J'))
+--(2,1) and (1,5) are both in regularity.
