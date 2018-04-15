@@ -15,6 +15,9 @@ newPackage ("CurvesP1P2",
     DebuggingMode => true
     )
 
+needsPackage "SimpleDoc"
+needsPackage "RandomSpaceCurves";
+
 export{
     "randomRationalCurve",
     "randomMonomialCurve",
@@ -93,7 +96,9 @@ randomMonomialCurve = (d,e)->(
 
 curveFromP3toP1P2 = (J) ->(
     R := ring J;
-    Var := flatten entries vars R;
+    Vars := flatten entries vars R;
+    ---
+   if (J+ideal(Vars#0,Vars#1)!=ideal(1_R)) and (J+ideal(Vars#1,Vars#2,Vars#3))!=ideal(1_R) then error "Given curve intersects place of projection.";
     ---
     S1 := ZZ/101[x_0, x_1];
     S2 := ZZ/101[y_0,y_1,y_2];
@@ -104,12 +109,11 @@ curveFromP3toP1P2 = (J) ->(
     M1 := matrix {{Vars#0,Vars#1},{x_0,x_1}};
     M2 := matrix {{Vars#1,Vars#2,Vars#3},{y_0,y_1,y_2}};
     --
-    C' := sub(J,U)
+    C' := sub(J,U);
     D := minors(2,M1)+minors(2,M2);
     K  := saturate(C'+D,ideal(Vars));
     I =  sub(eliminate(Vars,K),S)
-    )
-
+)
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e)=(degree,genus)
@@ -135,7 +139,7 @@ randomCurve = (d,g) ->(
     M1 = matrix {{z_0,z_1},{x_0,x_1}};
     M2 = matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
     --
-    C' = sub(J,U)
+    C' = sub(J,U);
     D = minors(2,M1)+minors(2,M2);
     K  = saturate(C'+D,ideal(z_0,z_1,z_2,z_3));
     I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
@@ -183,11 +187,102 @@ doc ///
 	    randomRationalCurve(2,3)	
 ///
 
+doc ///
+    Key
+    	randomMonomialCurve
+    Headline
+    	creates the Ideal of a random monomial curve of degree (d,e) in P1xP2
+    Usage
+    	randomMonomialCurve(d,e)
+    Inputs
+    	d:ZZ
+	    degree of curve on the P1 factor of P1xP2
+	e:ZZ
+	    degree of curve on the P2 factor of P1xP2
+    Outputs
+    	I:Ideal
+    Description
+    	Text
+	    This randomly generates 2 mnomials of degree
+	    d and 3 monomials of degree 3 in the ring S (locally defined), 
+	    and computes the ideal defining the image of the map of the
+	    associated map P^1 to P^1xP^2.
+	    
+	Example
+	    randomMonomialCurve(2,3)	
+///
+
+doc ///
+    Key
+    	curveFromP3toP1P2
+    Headline
+    	creates the Ideal of a random monomial curve of degree (d,e) in P1xP2
+    Usage
+    	curveFromP3toP1P2(J)
+    Inputs
+    	J:Ideal
+	    defining curve in P3.
+    Outputs
+    	I:Ideal
+	    definin curve in P1xP2.
+    Description
+    	Text
+	    Given a curve defined by the ideal J in P3
+     	    this outputs the ideal I of the curve in P1xP2 given by
+ 	    considering the projection from P3 to P1 on the 
+	    first two variables and the projection from P3
+	    to P2 on the last three variables.
+	    
+	Example
+	    curveFromP3toP1P2(J)
+	Caveat
+             If the curve intersections the point or line
+	     we are projecting from returns an error.
+///
+
+doc ///
+    Key
+    	randomCurve
+    Headline
+    	creates the Ideal of a random  curve of degree d and genus g in P1xP2
+    Usage
+    	randomCurve(d,g)
+    Inputs
+    	d:ZZ
+	    degree of the curve.
+	g:ZZ
+	    genus of the curve.
+    Outputs
+    	I:Ideal
+	    definin curve in P1xP2.
+    Description
+    	Text
+	    Given a curve defined by the ideal J in P3
+     	    this outputs the ideal I of the curve in P1xP2 given by
+ 	    considering the projection from P3 to P1 on the 
+	    first two variables and the projection from P3
+	    to P2 on the last three variables.
+	    
+	Example
+	    randomCurve(3,0)
+
+///
 
 --------------------------
 -- Begining of the TESTS
 ------------------------
 
-
+TEST ///
+    assert (dim randomRationalCurve(2,3) == 3)
+    ///
+    
+TEST ///
+    assert (dim randomMonomialCurve(2,3) == 3)
+    ///
+ 
+TEST ///
+    assert (dim randomCurve(3,0) == 3)
+    ///  
+    
 end--
 
