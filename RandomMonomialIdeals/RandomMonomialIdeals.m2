@@ -54,6 +54,8 @@ newPackage(
 needsPackage "Depth";
 needsPackage "BoijSoederberg";
 needsPackage "TorAlgebra";
+needsPackage "Serialization";
+needsPackage "Graphics";
 
 export {
     "polarize",
@@ -85,11 +87,10 @@ export {
     "Model",
     "ER",
     "statistics",
-    "Mean", "StdDev", "Histogram"
+    "Mean", "StdDev", "Histogram",
+    "plotTally"
 }
 
-
-needsPackage "Serialization"
 
 --***************************************--
 --  Exported methods 	     	     	 --
@@ -728,7 +729,22 @@ matrix(BettiTally, ZZ, ZZ) := opts -> (B,lowestDegree, highestDegree) -> (
      )
 
 
+rectangle := (p,w,h) -> (
+    (x,y) := (p#0,p#1);
+    polygon({p,point(toRR x+w,toRR y),point(toRR x+w,toRR y+h),point(toRR x,toRR y+h)})
+)
 
+plotTally = method(TypicalValue=>Picture)
+plotTally(Tally,RR,RR) := Picture => (t,barWidth,plotHeight) -> (
+    xValues := sort keys t;
+    topY := toRR max values t;
+    scalingFactor := plotHeight/topY;
+    bars := apply(#xValues, i-> (
+            h := toRR (t#(xValues#i));
+            bottomLeft := point(toRR i*(barWidth*1.5),plotHeight);
+            rectangle(bottomLeft,barWidth,-h*scalingFactor)));
+    picture({formatGraphicPrimitives(bars,hashTable {})})
+)
 
 --******************************************--
 -- DOCUMENTATION     	       	    	    --
@@ -2575,7 +2591,7 @@ TEST ///
   assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
   listOfIdeals={monomialIdeal(R_0,R_2),monomialIdeal(0_R),monomialIdeal(R_0^2*R_1,R_1^2)};
   assert(sub(5/3,RR)==(depthStats(listOfIdeals))_0)
-  assert(sub((11/3 - 25/9)^(1/2),RR)==(depthStats(listOfIdeals))_1)
+  assert(abs( sub(((11/3) - (25/9))^(1/2),RR)-(depthStats(listOfIdeals))_1) < 0.00001 )
 ///
 
 
