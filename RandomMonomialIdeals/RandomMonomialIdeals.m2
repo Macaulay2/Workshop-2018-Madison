@@ -645,14 +645,8 @@ mingenStats (List) := Sequence => o -> (ideals) -> (
 pdimStats = method(TypicalValue=>Sequence, Options => {ShowTally => false, Verbose => false})
 pdimStats (List) := o-> (ideals) -> (
     N:=#ideals;
-    pdHist:={};
     R:=ring(ideals_0);
-    apply(#ideals,i->
-	(
-        pdimi := pdim(R^1/ideals_i);
-	pdHist = append(pdHist, pdimi)
-	)
-    );
+    pdHist:=apply(ideals,I-> pdim(R^1/I));
     ret:=();
     avg:=sub(((1/N)*(sum pdHist)),RR);
     Ex2:=sub(((1/N)*(sum apply(elements(tally pdHist), i->i^2))), RR);
@@ -671,14 +665,8 @@ pdimStats (List) := o-> (ideals) -> (
 depthStats = method(TypicalValue=>Sequence, Options => {ShowTally => false, Verbose => false})
 depthStats (List) := o-> (ideals) -> (
     N:=#ideals;
-    dHist:={};
     R:=ring(ideals_0);
-    apply(#ideals,i->
-	(
-        depthi := depth(R^1/ideals_i);
-	depth= append(dHist, depthi)
-	)
-    );
+    dHist:=apply(ideals,I-> depth(R^1/I));
     ret:=();
     avg:=sub(((1/N)*(sum dHist)),RR);
     Ex2:=sub(((1/N)*(sum apply(elements(tally dHist), i->i^2))), RR);
@@ -2564,7 +2552,7 @@ TEST ///
   assert(sub(0,RR)==(depthStats(listOfIdeals))_1)
   listOfIdeals={monomialIdeal(R_0,R_2),monomialIdeal(0_R),monomialIdeal(R_0^2*R_1,R_1^2)};
   assert(sub(5/3,RR)==(depthStats(listOfIdeals))_0)
-  assert(sub((4/3)^(1/2),RR)==(depthStats(listOfIdeals))_1)
+  assert(sub((11/3 - 25/9)^(1/2),RR)==(depthStats(listOfIdeals))_1)
 ///
 
 
