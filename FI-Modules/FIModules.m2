@@ -50,6 +50,13 @@ net FIMonomial := m -> (
     net m.BaseName | net "_{" | net m.FunctionName | net "," | net m.TargetName | net "}"
     )
 
+monomialCompose := (i1,i2) -> (
+    j := length i2_0;
+    inj := apply(toList(1..j), i -> (i1_0)_((i2_0)_(i-1)-1));
+    dest := i1_1;
+    return {inj,dest}
+    )
+
 /// TEST
 
 restart
