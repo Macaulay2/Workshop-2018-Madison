@@ -56,6 +56,7 @@ needsPackage "BoijSoederberg";
 needsPackage "TorAlgebra";
 
 export {
+    "polarize",
     "randomMonomialSets",
     "randomMonomialSet",
     "idealsFromGeneratingSets",
@@ -667,6 +668,19 @@ depthStats (List) := o-> (ideals) -> (
     ret=(avg, stdDev)
 )
 
+polarize = method(TypicalValue => MonomialIdeal);
+
+polarize (MonomialIdeal) := I -> (
+    n := numgens ring I;
+    u := apply(numgens I, i -> first exponents I_i);
+    Ilcm := max \ transpose u;
+    z := getSymbol("z");
+    Z := flatten apply(n, i -> apply(Ilcm#i, j -> z_{i,j}));
+    R := QQ(monoid[Z]);
+    G := gens R;
+    p := apply(n, i -> sum((Ilcm)_{0..i-1}));
+    monomialIdeal apply(u, e -> product apply(n, i -> product(toList(0..e#i-1), j -> G#(p#i+j))))
+    )
 
 --**********************************--
 --  Internal methods	    	    --
@@ -2077,6 +2091,33 @@ doc ///
       Get the histogram from the hash table returned by @TO statistics@.
 ///
 
+doc ///
+  Key
+    polarize
+    (polarize, MonomialIdeal)
+  Headline
+    Given a monomial ideal, computes the squarefree monomial ideal obtained via polarization.
+  Usage
+    polarize(MonomialIdeal)
+  Inputs
+    M: MonomialIdeal
+  Outputs
+    I: MonomialIdeal
+       a squarefree monomial ideal in a new polynomial ring
+  Description
+    Text
+      Polarization takes each minimal generator of a monomial ideal to squarefree 
+      See (@HREF"http://www.mast.queensu.ca/~ggsmith/Papers/monomials_m2.pdf"@) for details.
+    Example
+      R = QQ[x,y,z];
+      I = monomialIdeal(x^2,y^3,x*y^2*z,y*z^4);
+      J = polarize(I)
+    Text
+      By default, the variables in the new rings are named $z_{i,j}$, and both $i$ and $j$ are indexed from zero. For access to the variable names, use substitute.
+  SeeAlso
+    substitute
+///
+
 --******************************************--
 -- TESTS     	     	       	    	    --
 --******************************************--
@@ -2573,6 +2614,18 @@ TEST///
   assert(stat.Mean == 251)
   assert(stat.StdDev == 0)
 ///
+
+---************
+---polarize
+---************
+
+TEST///
+    R = QQ[x,y,z];
+    I = monomialIdeal(x^2,y^3,x*y^2*z,y*z^4);
+    J = polarize(I);
+    assert(betti res I==betti res J)
+///
+
 
 end
 
