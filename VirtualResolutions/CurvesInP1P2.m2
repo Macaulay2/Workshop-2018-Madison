@@ -3,8 +3,14 @@ newPackage ("CurvesP1P2",
     Date => "April 14, 2018",
     Headline => "Methods for generating curves in P1xP2",
     Authors =>{
-    	{Name =>"Juliette Bruce"},
-    	{Name =>"Mike Loper"},
+    	{
+	    Name => "Juliette Bruce", 
+	    Email => "juliette.bruce@math.wisc.edu", 
+	    HomePage => "http://www.math.wisc.edu/~juliettebruce/"},
+	{
+	    Name => "Mike Loper",
+	    Email => "loper012@umn.edu",
+	    HomePage => "http://www.math.umn.edu/~loper012"}
     	},
     DebuggingMode => true
     )
@@ -140,6 +146,42 @@ randomCurve = (d,g) ->(
 ------------------------
 beginDocumentation()
 
+doc ///
+    Key
+    	CurvesInP1P2
+    Headline
+    	Methods for generating curves in P1xP2
+    Description
+    	Text
+	    This package contains methods for generating examples of curves in P1xP2.
+    Caveat
+        This package is underdevelopment.
+///
+
+doc ///
+    Key
+    	randomRationalCurve
+    Headline
+    	creates the Ideal of a random rational curve of degree (d,e) in P1xP2
+    Usage
+    	randomRationalCurve(d,e)
+    Inputs
+    	d:ZZ
+	    degree of curve on the P1 factor of P1xP2
+	e:ZZ
+	    degree of curve on the P2 factor of P1xP2
+    Outputs
+    	I:Ideal
+    Description
+    	Text
+	    This randomly generates 2 forms of degree
+	    d and 3 forms of degree 3 in the ring S (locally defined), 
+	    and computes the ideal defining the image of the map of the
+	    associated map P^1 to P^1xP^2.
+	    
+	Example
+	    randomRationalCurve(2,3)	
+///
 
 
 --------------------------
