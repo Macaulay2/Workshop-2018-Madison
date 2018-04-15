@@ -808,17 +808,30 @@ rectangle := (p,w,h) -> (
     polygon({p,point(toRR x+w,toRR y),point(toRR x+w,toRR y+h),point(toRR x,toRR y+h)})
 )
 
-plotTally = method(TypicalValue=>Picture)
-plotTally(Tally,RR,RR) := Picture => (t,barWidth,plotHeight) -> (
+plotTally = method(TypicalValue=>Picture, Options => {xAxisLabel => null})
+plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
     xValues := sort keys t;
     topY := toRR max values t;
     scalingFactor := plotHeight/topY;
+    yLabel := textTag(point(0.0, plotHeight*0.5), "#");
+    xMargin := 20;
     bars := apply(#xValues, i-> (
             h := toRR (t#(xValues#i));
-            bottomLeft := point(toRR i*(barWidth*1.5),plotHeight);
-            rectangle(bottomLeft,barWidth,-h*scalingFactor)));
-    picture({formatGraphicPrimitives(bars,hashTable {})})
+            bottomLeft := point(toRR i*(barWidth*1.5) + xMargin, plotHeight);
+            rectangle(bottomLeft, barWidth, -h*scalingFactor)));
+    xLabels := apply(#xValues, i-> (
+            labelText := toString(xValues#i);
+            location := point(toRR i*(barWidth*1.5) + 0.4*barWidth + xMargin, plotHeight*1.1);
+            textTag(location,labelText)));
+    primitives := {yLabel}|bars|xLabels;
+    if instance(o.xAxisLabel, String) then(
+	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.xAxisLabel);
+	    primitives = append(primitives, xAxisTag);
+	    )
+	else if o.xAxisLabel=!=null then error("xAxisLabel must be a string!");
+    picture({formatGraphicPrimitives(primitives, hashTable {})})
 )
+
 
 --****************--
 -- DOCUMENTATION  --
