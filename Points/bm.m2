@@ -34,3 +34,11 @@ affineBM = (R,phi,s) -> (
     return (G,inG,O);
     )
 
+evaluationMap = (L,R) ->(    --R is a polynomial ring, L is list of points
+    K := coefficientRing R;  --P is a list of evaluation maps
+    P := for p in L list(    --phi applies a polynomial f to the list of evalution maps P
+	map(K,R,p)    	     --and returns phi
+	);
+    phi := f->apply(P, u->u(f));
+    return phi;
+    )
