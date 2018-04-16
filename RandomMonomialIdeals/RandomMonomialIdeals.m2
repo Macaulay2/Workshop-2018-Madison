@@ -82,6 +82,7 @@ export {
     "Verbose",
     "depthStats",
     "pdimStats",
+    "isProjDimMaximal",
     "Sample",
     "sample",
     "ModelName", "Parameters", "SampleSize", "getData",
@@ -321,16 +322,16 @@ randomMonomialSet (PolynomialRing,ZZ,List) := List => o -> (R,D,pOrM) -> (
         if any(pOrM,q-> q<0.0 or 1.0<q) then error "pOrM expected to be a list of real numbers between 0.0 and 1.0";
         if o.Strategy === "Minimal" then (
             currentRing := R;
-            apply(D, d->(
+            B = flatten apply(D, d-> (
                 chosen := select(flatten entries basis(d+1, currentRing), m->random(0.0,1.0)<=pOrM_d);
-                B = flatten append(B, chosen/(i->sub(i, R)));
-                currentRing = currentRing/promote(ideal(chosen), currentRing)
-            )))
+                if chosen!={} then currentRing = currentRing/ideal(chosen); 
+                chosen/(i->sub(i, R))
+            ))
+        )
         else
             B = flatten apply(toList(1..D),d-> select(flatten entries basis(d,R),m-> random(0.0,1.0)<=pOrM_(d-1)));
 	);
-    B = apply(B,m->sub(m,R));
-    if B==={} then {0_R} else B
+    if B==={} then {0_R} eltten append(B, chosen/(i->sub(i, R)));se B
 )
 
 
@@ -728,6 +729,41 @@ depthStats (List) := o-> (ideals) -> (
 	);
     ret=(avg, stdDev)
 )
+
+isProjDimMaximal = method(TypicalValue=>Boolean);
+isProjDimMaximal (MonomialIdeal) := M -> (
+    n := #gens(ring M);
+    G := apply(flatten entries mingens M, e -> flatten exponents e);
+    subsetsG := subsets(G,n);
+    for ss in subsetsG do(
+	--check whether ss is a dominant set
+	b := true;
+	Dom := {};
+	LCM := {};
+	for i from 0 to n-1 do (
+            iMax := max(apply(ss, e -> e_i));
+            iDom := select(ss, g -> g_i == iMax);
+            if #iDom>1 then(
+		b = false;
+		);
+            Dom = append(Dom, flatten iDom);
+	    LCM = append(LCM, iMax);
+            );
+        if #Dom>#(unique Dom) then(
+	    b = false;
+	    );
+	--if it was dominant, check for a strong divisor
+	if b then (
+	    if (
+	        all(G, g -> member(g,ss) or not g <= apply(LCM, a -> max(0, a-1)))
+	        ) 
+	    then (
+	        return true;
+	        );
+	    );
+	);
+    false
+    )
 
 polarize = method(TypicalValue => MonomialIdeal);
 
@@ -1598,6 +1634,7 @@ doc ///
    idealsFromGeneratingSets
    Verbose
 ///
+
 doc ///
  Key
   dimStats
@@ -2338,6 +2375,36 @@ doc ///
 
 doc ///
   Key
+    isProjDimMaximal
+    (isProjDimMaximal, MonomialIdeal)
+  Headline
+    Checks whether projective dimension is maximum without computing a resolution.
+  Usage
+    isProjDimMaximal(MonomialIdeal)
+  Inputs
+    M: MonomialIdeal
+  Outputs
+    b: Boolean
+  Description
+    Text
+      Let $n$ be the number of variables of the polynomial ring, $S$, in which $M$ is defined.
+      This function checks whether $pdim(S/M)=n$, using the criterion proved by Guillermo
+      Alesandroni (@HREF"https://arxiv.org/abs/1710.05124"@). This criterion depends on checking
+      certain properties of the exponents of minimal generators, so the answer can be determined
+      without having to construct a minimal free resolution.
+    Example
+      R = QQ[x,y,z,w];
+      M1 = monomialIdeal(x^3*y*z*w,x*y^3*z*w,x*y*z^3*w,x*y*z*w^3,x^4*y^4);
+      isProjDimMaximal M1
+      M2 = monomialIdeal(x^3*y*z,y^3*z*w,x*z^3*w,x*y*w^3,x*y*z*w);
+      isProjDimMaximal M2
+  SeeAlso
+    pdim
+///
+
+
+doc ///
+  Key
     polarize
     (polarize, MonomialIdeal)
   Headline
@@ -2982,6 +3049,17 @@ TEST///
   assert(stat.StdDev == 0)
 ///
 
+--********************--
+--  isProjDimMaximal  --
+--********************--
+
+TEST///
+    R = QQ[x,y,z,w];
+    M1 = monomialIdeal(x^3*y*z*w,x*y^3*z*w,x*y*z^3*w,x*y*z*w^3,x^4*y^4);
+    assert(isProjDimMaximal M1 == true)
+    M2 = monomialIdeal(x^3*y*z,y^3*z*w,x*z^3*w,x*y*w^3,x*y*z*w);
+    assert(isProjDimMaximal M2 == false)
+///
 --************--
 --  polarize  --
 --************--
@@ -2993,14 +3071,14 @@ TEST///
     assert(betti res I==betti res J)
 ///
 
-
 end
 
 
 restart;
 uninstallPackage"RandomMonomialIdeals";
+needsPackage("RandomMonomialIdeals");
 installPackage("RandomMonomialIdeals",RemakeAllDocumentation=>true);
 
 check RandomMonomialIdeals 
 viewHelp RandomMonomialIdeals
-viewHelp bettiStats
+
