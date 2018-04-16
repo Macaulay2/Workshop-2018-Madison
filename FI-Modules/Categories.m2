@@ -1,5 +1,5 @@
 FIMorphism = new Type of BasicList
-FIRingElement = new Type of HashTable
+FIMatrix = new Type of HashTable
 FIRingElement = new Type of HashTable
 FIRing = new Type of Type
 
@@ -100,11 +100,10 @@ net FIRingElement := f -> (
 		)
 	    )
 	)
+    else net 0
     )
 
-    
-
-
+  
 coefficientRing FIRing := R -> last R.baseRings
 
 
@@ -140,6 +139,10 @@ mapsbetween (FIRingElement,Thing,Thing) := (m,a,b) -> (
 
 ring (FIRingElement) := m -> m.ring
 
+
+-- FI MATRICES
+--================================
+
 fiMatrix = method()
 
 fiMatrix List := fiEntries -> (
@@ -158,14 +161,40 @@ fiMatrix List := fiEntries -> (
 	(symbol cache, new CacheTable from {})};
     )
 
+net FIMatrix := M -> net expression M
+expression FIMatrix := M -> MatrixExpression applyTable(M.matrix, expression)
+entries FIMatrix := M -> M.matrix
+numRows FIMatrix := M -> #(entries M)
+numColumns FIMatrix := M -> #(first entries M)
+ring FIMatrix := M -> M.ring
+
+FIMatrix * FIMatrix := (M, N) -> (
+    entriesM := entries M;
+    entriesN := entries N;
+    if numColumns M == numRows N then (
+	new FIMatrix from hashTable{
+	    (symbol ring) => ring M,
+	    (symbol matrix) => apply(numRows M, 
+		i -> apply(numColumns N, 
+		    j -> sum apply(numColumns M, k -> entriesM#i#k*entriesN#k#j)
+		    )
+		),
+	    (symbol cache) => new CacheTable from {}
+	    }
+	)
+    )
+
 /// TEST 
 
 restart
 load "Categories.m2"
 S = fiRing(ZZ/3)
-f = S_{2,1,3}+S_{2,1,3}+S_{2,1,4}
+f = S_{2,1,3}+S_{2,1,3}+S_{2,1,3}
 g = S_{1,4,5,6}
 f*g
+
+M = fiMatrix{{S_{2,1,3}, S_{2,1,3}, S_{2,1,4}}}
+N = fiMatrix{{S_{1,2,3,5}},{S_{1,4,2,6}},{S_{4,3,2,1,7}}}
 x = m+n
 y = m+m
 z = n+p
