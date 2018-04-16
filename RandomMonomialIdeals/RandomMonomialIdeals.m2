@@ -93,7 +93,7 @@ export {
     "generateStatistics",
     "Mean", "StdDev", "Histogram",
     "plotTally",
-    "xAxisLabel"
+    "xAxisLabel","FillZeros"
 }
 
 
@@ -858,15 +858,20 @@ rectangle := (p,w,h) -> (
     polygon({p,point(toRR x+w,toRR y),point(toRR x+w,toRR y+h),point(toRR x,toRR y+h)})
 )
 
-plotTally = method(TypicalValue=>Picture, Options => {xAxisLabel => null})
+plotTally = method(TypicalValue=>Picture, Options => {xAxisLabel => null,FillZeros => true})
 plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
     xValues := sort keys t;
-    topY := toRR max values t;
+    if o.FillZeros then (
+        smallest := min xValues;
+        largest := max xValues;
+        xValues = toList(smallest..largest));
+    topY := toRR max(0,max values t);
     scalingFactor := plotHeight/topY;
     yLabel := textTag(point(0.0, plotHeight*0.5), "#");
     xMargin := 20;
     bars := apply(#xValues, i-> (
-            h := toRR (t#(xValues#i));
+            xVal := (xValues#i);
+            h := if t#?xVal then toRR t#xVal else 0_RR;
             bottomLeft := point(toRR i*(barWidth*1.5) + xMargin, plotHeight);
             rectangle(bottomLeft, barWidth, -h*scalingFactor)));
     xLabels := apply(#xValues, i-> (
@@ -879,7 +884,7 @@ plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
 	    primitives = append(primitives, xAxisTag);
 	    )
 	else if o.xAxisLabel=!=null then error("xAxisLabel must be a string!");
-    picture({formatGraphicPrimitives(primitives, hashTable {})})
+    picture({formatGraphicPrimitives(primitives, hashTable{"stroke-width"=>0})})
 )
 
 
