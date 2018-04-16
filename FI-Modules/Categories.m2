@@ -20,7 +20,11 @@ FIMorphism * FIMorphism := (g, f) -> (
 
 target FIMorphism := f -> last f
 
-source FIMorphism := f -> length f -1 
+source FIMorphism := f -> (length first f) 
+
+mapsbetween = method()
+
+mapsbetween (FIMorphism,Thing,Thing) := (f,a,b) -> target f == b and source f == a
 
 net FIMorphism := l -> net "f_" | net toList l
 
@@ -51,9 +55,15 @@ fiRing (Ring) := R -> (
 			 ))	
 	    }
 	);
+    R * F := (r,m) -> (
+        new F from hashTable{
+            (symbol ring) => F;
+            (symbol terms) => hashTable apply( keys terms m, key -> key => r*coefficient(m,key))
+        }
+    );
+    F * R := (m,r) -> r*m;
     return F
     ) 
-
 
 coefficientRing FIRing := R -> last R.baseRings
 
@@ -63,7 +73,7 @@ fiRingElement (FIMorphism,FIRing) := (l,R) ->(
     L := new R from hashTable{
 	(symbol ring) => R,
 	(symbol terms) => hashTable{
-	    l => 1
+	    l => 1  -- TODO we need the 1 from _(coefficientRing R)
 	    }
 	};
     return L
@@ -71,7 +81,11 @@ fiRingElement (FIMorphism,FIRing) := (l,R) ->(
 
 
 
+mapsbetween (FIRingElement,Thing,Thing) := (m,a,b) -> (
+        all(keys terms m, key-> mapsbetween(key,a,b))
+    )
 
+--ring (FIRingElement) := m -> m#Ring
 
 
 
@@ -87,5 +101,16 @@ S = fiRing(ZZ[x])
 coefficientRing S
 m = fiRingElement(f,R)
 n = fiRingElement(g,R)
-m+n
+p = fiRingElement(h,R)
+x = m+n
+y = m+m
+z = n+p
+mapsbetween(m,2,5)
+mapsbetween(x,2,5)
+mapsbetween(y,2,5)
+mapsbetween(z,5,7)
+y === 2*m
+y === 2/1*m
+y === m*(2/1)
+
 ///
