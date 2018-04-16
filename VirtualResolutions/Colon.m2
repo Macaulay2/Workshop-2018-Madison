@@ -73,9 +73,11 @@ intersectionByElimination(Ideal, Ideal) := (I,J) -> (
      ideal fback p1
     )
 
+intersectionByElimination List := (L) -> fold(intersectionByElimination, L)
+
 saturateByElimination(Ideal, Ideal) := (I, J) -> (
-    L := for g in J_* list elapsedTime saturateByElimination(I, g);
-    elapsedTime intersect L
+    L := for g in J_* list saturateByElimination(I, g);
+    intersectionByElimination L
     )
 
 beginDocumentation()
@@ -170,3 +172,22 @@ J1' == J2'
 
 betti J2
 betti J1
+
+restart
+needsPackage "Colon"
+load "badsaturations.m2"
+
+J = paramRatCurve({2,2},{3,3},{4,2});
+elapsedTime genSat(J,2) -- 200 sec
+elapsedTime genSat2(J,2) -- 50 sec
+elapsedTime genSat3(J,2) -- 35 sec
+
+J = paramRatCurve({2,2},{3,3},{5,2});
+elapsedTime genSat(J,2) -- 691 sec
+elapsedTime genSat2(J,2) -- 104 sec
+elapsedTime genSat3(J,2) -- 71 sec
+
+J = paramRatCurve({2,2},{3,4},{4,3});
+elapsedTime genSat(J,2) --  sec
+elapsedTime genSat2(J,2) --  sec
+elapsedTime genSat3(J,2) -- 75 sec

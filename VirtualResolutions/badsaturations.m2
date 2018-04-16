@@ -61,6 +61,42 @@ genSat = (J,n) -> (
      output
 	    )
 
+genSat2 = (J,n) -> (
+-- Input: saturated ideal J and ZZ n
+-- Output: all subsets of size n of the generators of J that
+--         give the same saturated ideal as J
+    use ring(J);
+    lists := subsets(numgens(J),n);
+    output = {};
+    apply(lists, l -> (
+	<< "doing " << l << endl;
+	I := ideal(J_*_l);
+	if elapsedTime saturateByElimination(saturateByElimination(I,B0),B1) == J then (
+	    output = append(output,l);
+	         );
+	     )
+	 );
+     output
+	    )
+
+genSat3 = (J,n) -> (
+-- Input: saturated ideal J and ZZ n
+-- Output: all subsets of size n of the generators of J that
+--         give the same saturated ideal as J
+    use ring(J);
+    lists := subsets(numgens(J),n);
+    output = {};
+    apply(lists, l -> (
+	<< "doing " << l << endl;
+	I := ideal(J_*_l);
+	if elapsedTime saturateByElimination(saturateByElimination(I,B1),B0) == J then (
+	    output = append(output,l);
+	         );
+	     )
+	 );
+     output
+	    )
+
 paramCurve = method(Options => {PrintPolys => false})
 paramCurve(ZZ,ZZ,ZZ) := paramCurve => opts -> (a,b,c) -> (
 -- Input: the three degrees of polynomials that parametrize
