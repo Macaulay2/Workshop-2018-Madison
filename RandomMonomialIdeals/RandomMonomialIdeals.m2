@@ -83,7 +83,7 @@ export {
     "Verbose",
     "depthStats",
     "pdimStats",
-    "isProjDimMaximum",
+    "isProjDimMaximal",
     "Sample",
     "sample",
     "ModelName", "Parameters", "SampleSize", "getData",
@@ -742,8 +742,8 @@ depthStats (List) := o-> (ideals) -> (
     ret=(avg, stdDev)
 )
 
-isProjDimMaximum = method(TypicalValue=>Boolean);
-isProjDimMaximum (MonomialIdeal) := M -> (
+isProjDimMaximal = method(TypicalValue=>Boolean);
+isProjDimMaximal (MonomialIdeal) := M -> (
     n := #gens(ring M);
     G := apply(flatten entries mingens M, e -> flatten exponents e);
     subsetsG := subsets(G,n);
@@ -2415,12 +2415,12 @@ doc ///
 
 doc ///
   Key
-    isProjDimMaximum
-    (isProjDimMaximum, MonomialIdeal)
+    isProjDimMaximal
+    (isProjDimMaximal, MonomialIdeal)
   Headline
     Checks whether projective dimension is maximum without computing a resolution.
   Usage
-    isProjDimMaximum(MonomialIdeal)
+    isProjDimMaximal(MonomialIdeal)
   Inputs
     M: MonomialIdeal
   Outputs
@@ -2435,9 +2435,9 @@ doc ///
     Example
       R = QQ[x,y,z,w];
       M1 = monomialIdeal(x^3*y*z*w,x*y^3*z*w,x*y*z^3*w,x*y*z*w^3,x^4*y^4);
-      isProjDimMaximum M1
+      isProjDimMaximal M1
       M2 = monomialIdeal(x^3*y*z,y^3*z*w,x*z^3*w,x*y*w^3,x*y*z*w);
-      isProjDimMaximum M2
+      isProjDimMaximal M2
   SeeAlso
     pdim
 ///
@@ -3082,15 +3082,15 @@ TEST///
 ///
 
 --********************--
---  isProjDimMaximum  --
+--  isProjDimMaximal  --
 --********************--
 
 TEST///
     R = QQ[x,y,z,w];
     M1 = monomialIdeal(x^3*y*z*w,x*y^3*z*w,x*y*z^3*w,x*y*z*w^3,x^4*y^4);
-    assert(isProjDimMaximum M1 == true)
+    assert(isProjDimMaximal M1 == true)
     M2 = monomialIdeal(x^3*y*z,y^3*z*w,x*z^3*w,x*y*w^3,x*y*z*w);
-    assert(isProjDimMaximum M2 == false)
+    assert(isProjDimMaximal M2 == false)
 ///
 --************--
 --  polarize  --
@@ -3113,4 +3113,4 @@ installPackage("RandomMonomialIdeals",RemakeAllDocumentation=>true);
 
 check RandomMonomialIdeals 
 viewHelp RandomMonomialIdeals
-viewHelp isProjDimMaximum
+
