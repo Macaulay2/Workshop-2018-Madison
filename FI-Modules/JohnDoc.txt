@@ -165,7 +165,7 @@ multidoc ///
  Node
   Key
    (FIStructureMap, FIMatrix, FIMatrix)
-   Divide
+   Matrix
   Headline
    The structure maps of a finitely presented FI-module
   Usage
@@ -188,7 +188,7 @@ multidoc ///
    as well as by forming block matrices.
    Example
     f = LinFI(QQ)
-    m = matrix({1},{{f_{12}-f{21}}},{2})
+    m = matrix({2},{{f_{12}-f{21}}},{2})
     o = matrix({4},{{f_{1234}+8f_{5432}}},{5})
     FIStructureMap(m, o)
     
@@ -199,6 +199,34 @@ multidoc ///
     [0 0 0 0 1 0 0 8 0 0]
     [0 0 0 0 0 9 0 0 0 0]
     [0 0 0 0 8 0 0 1 0 0]
+
+ Node
+  Key
+   (Ext, ZZ, FIMatrix, FIMatrix)
+   Module
+  Headline
+   Ext for FI-modules
+  Usage
+   Ext(i, first, second)
+  Inputs
+   i: A nonnegative integer giving cohomological degree
+   first: An FIMatrix presenting some FI-module W as its cokernel
+   second: An FIMatrix presenting some FI-module V as its cokernel
+   
+  Outputs
+   :
+    The module Ext^i(W,V)
+  Description
+   Given two finitely presented FI-modules V and W, this function returns Ext^i(V, W)
+   considered as a module over the coefficient ring.  
+  Example
+    f = LinFI(QQ)
+    m = matrix({1},{{f_{2}-f{1}}},{2})
+    o = matrix({2},{{f_{12}+f_{21},f_{12}}},{2,3})
+    Ext^1(m, o)
+    
+  Output
+    QQ^1
 
 ///
 
