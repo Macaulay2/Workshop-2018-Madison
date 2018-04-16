@@ -60,6 +60,32 @@ multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
     chainComplex L
     );
 
+-- TODO: change cohomologyTable to return a Tally, then redo this.
+findCorners = m -> (
+    corners = {};
+    (rows, cols) = (new MutableList, new MutableList);
+    for r to numrows m - 1 do (
+    	for c to numcols m - 1 do (
+	    if m_(r, c) != 0 then (
+	    	if not rows#?r or rows#r === null then rows#r = 0;
+	    	if not cols#?c or cols#c === null then cols#c = infinity;
+	    	rows#r = max(c + 1, rows#r);
+	    	cols#c = min(r - 1, cols#c);
+    	    	)));
+    for r to numrows m - 2 do (
+    	if rows#r > rows#(r+1) then rows#(r+1) = rows#r;
+    	for c from 1 to numcols m - 1 do (
+	    if cols#(c-1) > cols#c then cols#(c-1) = cols#c;
+	    ));
+    for r to numrows m - 2 do (
+    	if rows#r < rows#(r+1) then (
+	    for c from 1 to numcols m - 1 do (
+	    	if cols#(c-1) < cols#c then (
+		    if r === cols#c and rows#r === c then corners = append(corners, (r, c));
+		    ))));
+    corners
+    )
+
 isVirtual = method();
 -*
 isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->( 
@@ -191,16 +217,18 @@ multiGradedRegularity(S^1/I, {0,0}, {2,2}, 3)
 multiGradedRegularity(S^1, {0,0}, {0,0}, 5)
 multiGradedRegularity(S^1 ++ S^{{2,3}}, {0,0}, {0,0}, 4)
 
+-- Finding Multi Graded Regularity
 H = multiGradedRegularity(S^1/I', {0,0}, {2,3}, 4)
 m = diff((ring H)_0, H)
-(rows, cols) = (new MutableList, new MutableList);
-for r to numrows m - 1 do (
-    (maxR, maxC) := (0, 0);
-    for c to numcols m - 1 do (
-	if m_(r, c) =!= 0 then (maxC = max(c, maxC); maxR = max(c, maxC));
-    	))
+findCorners m
 
-
+m' = new MutableMatrix from m
+m'_(2,4) = 0
+m'_(3,5) = 0
+m'_(5,6) = 0
+m'_(6,7) = 0
+m'
+findCorners matrix m'
 
 ---------------------
 --Mike's Playspace--
