@@ -868,6 +868,8 @@ plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
     topY := toRR max(0,max values t);
     scalingFactor := plotHeight/topY;
     yLabel := textTag(point(0.0, plotHeight*0.5), "#");
+    yStepSize := max(floor (topY/20),1);
+    yTickValues := yStepSize*toList(0..19);
     xMargin := 20;
     bars := apply(#xValues, i-> (
             xVal := (xValues#i);
@@ -878,7 +880,11 @@ plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
             labelText := toString(xValues#i);
             location := point(toRR i*(barWidth*1.5) + 0.4*barWidth + xMargin, plotHeight*1.1);
             textTag(location,labelText)));
-    primitives := {yLabel}|bars|xLabels;
+    yLabels := apply(yTickValues, v-> (
+            labelText := toString v;
+            location := point(0.0,plotHeight-v*scalingFactor);
+            textTag(location,labelText)));
+    primitives := {yLabel}|bars|xLabels|yLabels;
     if instance(o.xAxisLabel, String) then(
 	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.xAxisLabel);
 	    primitives = append(primitives, xAxisTag);
