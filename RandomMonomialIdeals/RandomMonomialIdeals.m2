@@ -355,7 +355,7 @@ randomMonomialSet (PolynomialRing,ZZ,List) := List => o -> (R,D,pOrM) -> (
         else
             B = flatten apply(toList(1..D),d-> select(flatten entries basis(d,R),m-> random(0.0,1.0)<=pOrM_(d-1)));
 	);
-    if B==={} then {0_R} eltten append(B, chosen/(i->sub(i, R)));se B
+    if B==={} then {0_R} else B;
 )
 
 
