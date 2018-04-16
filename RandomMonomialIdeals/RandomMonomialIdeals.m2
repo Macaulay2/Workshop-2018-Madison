@@ -91,7 +91,8 @@ export {
     "ER",
     "statistics",
     "Mean", "StdDev", "Histogram",
-    "plotTally"
+    "plotTally",
+    "xAxisLabel"
 }
 
 
