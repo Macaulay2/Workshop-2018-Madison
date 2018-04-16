@@ -32,6 +32,38 @@ net FIMorphism := l -> net "f_" | net toList l
 -- FI RINGS
 --================================
 
+fiRing = method()
+
+fiRing (Ring) := R -> (
+    RFI := new FIRing of FIRingElement from hashTable{
+        baseRings => (R.baseRings)|{R}
+	};
+    RFI + RFI := (m,n) -> (
+    	new RFI from hashTable{
+    	    (symbol ring) => RFI,
+    	    (symbol terms) => hashTable	apply(unique( keys terms m| keys terms n), key ->(
+    			 coefsum = coefficient(m,key) + coefficient(n,key);
+    			 if coefsum =!= 0 then key => coefsum
+    			 ))	
+    	    }
+	);
+    R * RFI := (r,m) -> (
+        new RFI from hashTable{
+            (symbol ring) => F;
+            (symbol terms) => hashTable apply( keys terms m, key -> key => r*coefficient(m,key))
+        }
+    );
+    RFI * R := (m,r) -> r*m;
+    RFI * RFI := (m,n) -> (
+        eltsum = 0_RFI;
+        for mkey in keys terms m do
+            for nkey in keys terms n do
+                if target mkey === source nkey then
+                    eltsum = eltsum + (coefficient(m,mkey)*coefficient(n,nkey))*fiRingElement(mkey*nkey,RFI);
+        return eltsum
+    );
+    return RFI
+    ) 
 
 coefficient (FIRingElement, FIMorphism) := (m,f) -> (
     if (terms m)#?f then return (terms m)#f
@@ -40,45 +72,13 @@ coefficient (FIRingElement, FIMorphism) := (m,f) -> (
 
 terms FIRingElement := g -> g.terms
 
-fiRing = method()
-
-fiRing (Ring) := R -> (
-    F := new FIRing of FIRingElement from hashTable{
-	baseRings => (R.baseRings)|{R}
-	};
-    F + F := (m,n) -> (
-	new F from hashTable{
-	    (symbol ring) => F;
-	    (symbol terms) => hashTable	apply(unique( keys terms m| keys terms n), key ->(
-			 coefsum = coefficient(m,key) + coefficient(n,key);
-			 if coefsum =!= 0 then key => coefsum
-			 ))	
-	    }
-	);
-    R * F := (r,m) -> (
-        new F from hashTable{
-            (symbol ring) => F;
-            (symbol terms) => hashTable apply( keys terms m, key -> key => r*coefficient(m,key))
-        }
-    );
-    F * R := (m,r) -> r*m;
-    F * F := (m,n) -> (
-        eltsum = 0_F;
-        for mkey in keys terms m do
-            for nkey in keys terms n do
-                if target mkey === source nkey then
-                    eltsum = eltsum + (coefficient(m,mkey)*coefficient(n,nkey))*fiRingElement(mkey*nkey,F);
-        return eltsum
-    );
-    return F
-    ) 
 
 coefficientRing FIRing := R -> last R.baseRings
 
 ZZ _ FIRing := (n,R) -> (
     if n =!= 0 then error "ZZ_FIRing is only defined for 0_FIRing"
     else return new R from hashTable{
-        symbol ring => F;
+        symbol ring => R;
         symbol terms => hashTable{}
     }
     )
@@ -112,15 +112,15 @@ load "Categories.m2"
 f = FI{1,2,5}
 g = FI{3,1,2,4,6,7}
 h = FI{4,2,1,5,6,7}
-R = fiRing(QQ)
+QQFI = fiRing(QQ)
 coefficientRing R
 S = fiRing(ZZ[x])
 coefficientRing S
-0_R
+0_QQFI
 0_S
-m = fiRingElement(f,R)
-n = fiRingElement(g,R)
-p = fiRingElement(h,R)
+m = fiRingElement(f,QQFI)
+n = fiRingElement(g,QQFI)
+p = fiRingElement(h,QQFI)
 x = m+n
 y = m+m
 z = n+p
