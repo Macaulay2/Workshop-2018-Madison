@@ -26,7 +26,7 @@ mapsbetween = method()
 
 mapsbetween (FIMorphism,Thing,Thing) := (f,a,b) -> target f == b and source f == a
 
-net FIMorphism := l -> net "f_" | net toList l
+net FIMorphism := l -> net "["|net l#0|net ","|net l#1|net"]"
 
 
 -- FI RINGS
@@ -43,7 +43,7 @@ fiRing (Ring) := R -> (
     	    (symbol ring) => RFI,
     	    (symbol terms) => hashTable	apply(unique( keys terms m| keys terms n), key ->(
     			 coefsum = coefficient(m,key) + coefficient(n,key);
-    			 if coefsum =!= 0 then key => coefsum
+    			 if coefsum =!= 0_R then key => coefsum
     			 ))	
     	    }
 	);
@@ -62,6 +62,7 @@ fiRing (Ring) := R -> (
                     eltsum = eltsum + (coefficient(m,mkey)*coefficient(n,nkey))*fiRingElement(mkey*nkey,RFI);
         return eltsum
     );
+    RFI - RFI := (m, n) -> m + (-1)_R*n;
     return RFI
     ) 
 
@@ -143,22 +144,10 @@ ring (FIRingElement) := m -> m.ring
 
 restart
 load "Categories.m2"
-f = FI{1,2,5}
-g = FI{3,1,2,4,6,7}
-h = FI{4,2,1,5,6,7}
-QQFI = fiRing(QQ)
-coefficientRing R
-S = fiRing(ZZ[x])
-coefficientRing S
-0_QQFI
-0_S
-m = fiRingElement(f,QQFI)
-n = fiRingElement(g,QQFI)
-p = fiRingElement(h,QQFI)
-f+g
-2*f
-S = fiRing(ZZ/2)
-S_{2,1,3}+S_{2,1,3}+S_{2,1,4}
+S = fiRing(ZZ/3)
+f = S_{2,1,3}+S_{2,1,3}+S_{2,1,4}
+g = S_{1,4,5,6}
+f*g
 x = m+n
 y = m+m
 z = n+p
