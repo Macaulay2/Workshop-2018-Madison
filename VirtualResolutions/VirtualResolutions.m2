@@ -1,3 +1,14 @@
+-*
+restart
+loadPackage("VirtualResolutions", Reload =>true)
+installPackage "VirtualResolutions"
+installPackage "CompleteIntersectionResolutions"
+installPackage "BGG"
+viewHelp "VirtualResolutions"
+viewHelp "TateOnProducts"
+viewHelp CompleteIntersectionResolutions
+check "VirtualResolutions"
+*-
 ---------------------------------------------------------------------------
 -- PURPOSE : 
 --           
@@ -24,7 +35,7 @@ newPackage ("VirtualResolutions",
 	"NormalToricVarieties"
 	},
     DebuggingMode => true,
-    AuxiliaryFiles => true
+    AuxiliaryFiles => false
     )
 
 export{
