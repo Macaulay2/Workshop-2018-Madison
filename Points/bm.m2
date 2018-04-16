@@ -127,7 +127,7 @@ I=ideal G;
 time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
 I==J
 
---here our method is marginally faster
+--here our method is marginally faster (55 vs 75 seconds)
 restart
 R=QQ[x_1..x_5]
 X=entries random(QQ^8,QQ^5);
@@ -137,6 +137,15 @@ time (G,inG,O)=affineFatPoints(X,mu,R);
 I=ideal G;
 time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
 I==J --takes too long!
+
+--here our method is marginally faster (66 vs 81 seconds)
+restart
+R=QQ[x_1..x_5]
+X=entries random(QQ^10,QQ^5);
+mu={2,3,4,2,3,4,2,3,1,1};
+load "bm.m2"
+time (G,inG,O)=affineFatPoints(X,mu,R);
+time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
 
 --integer points (our method is slower)
 restart
@@ -149,7 +158,7 @@ I=ideal G;
 time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
 I==J --takes too long!
 
---more integer points
+--more integer points (still slower)
 restart
 R=QQ[x_1..x_5]
 X=entries random(ZZ^10,ZZ^5);
@@ -168,6 +177,8 @@ load "bm.m2"
 time (G,inG,O)=affineFatPoints(X,mu,R);
 time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
 
+---------------------------------------------------------
+---------------------------------------------------------
 ---------------------------------------------------------
 --below is some code used in earlier version of this file
 evaluationMap = (L,R) ->(    --R is a polynomial ring, L is list of points
