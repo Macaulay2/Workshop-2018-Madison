@@ -187,7 +187,7 @@ sat2 = J -> (
 --faster saturation of a module over a general toric variety
 -- Input : M-module irr-irrelevant
 -- Output: N- a irr-saturated module
-genSat = (M,irr) -> (
+-*moduleSat = (M,irr) -> (
     compts = decompose irr;
     for i from 0 to length(compts)-1 do (
 	N = intersect(apply(numgens(compts_i), j-> saturate(M,compts_i_j)));
@@ -195,12 +195,13 @@ genSat = (M,irr) -> (
 	);
     N
     )
-
+*-
 
 isVirtual = (C, M, irr) -> (
-    if not(genSat(M,irr) == genSat(HH_0(C),irr)) then return (false,0);
+    if not(genSat(image((presentation M).dd_1),irr) == genSat(image(C.dd_1),irr)) then return (false,0);
+-- check pres M
     for i from 1 to length(C) do (
-	if not(genSat(HH_i(C),irr) == 0) then return (false,i);
+	if not(genSat(ann(HH_i(C)),irr) == 0) then return (false,i);
 	);
     return true
     )
