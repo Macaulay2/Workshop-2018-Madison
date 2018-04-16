@@ -21,7 +21,8 @@ newPackage ("VirtualResolutions",
 	"BGG",
 	"TateOnProducts",
 	"CompleteIntersectionResolutions",
-	"NormalToricVarieties"
+	"NormalToricVarieties",
+	"Colon"
 	},
     DebuggingMode => true,
     AuxiliaryFiles => true
@@ -31,7 +32,8 @@ export{
     "multiBetti",
     "multiWinnow",
     "HideZeros",
-    "DegreeBounds"
+    "DegreeBounds",
+    "isVirtual"
     }
 
 debug Core
@@ -90,6 +92,39 @@ multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
 	    )
     	)
     );
+
+isVirtual = method();
+-*
+isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->( 
+    annM := ann(M);
+    annHH0 := ann(HH_0(C));
+    annMsat := saturateByElimination(annM,irr);
+    annHH0sat := saturateByElimination(annHH0,irr);
+    if not(annMsat == annHH0sat) then return (false,0);    
+    for i from 1 to length(C) do (
+	annHHi := ann HH_i(C);
+	if not(saturateByElimination(annHHi,irr) == 0) then return (false,i);
+	);
+    true
+    )
+*-
+
+isVirtual (ChainComplex, Ideal, Ideal) := Boolean=> (C, I, irr) ->( 
+    annHH0 := ideal(image(C.dd_1));
+    Isat := saturateByElimination(I,irr);
+    annHH0sat := saturateByElimination(annHH0,irr);
+    if not(Isat == annHH0sat) then return (false,0);    
+    for i from 1 to length(C) do (
+	annHHi := ann prune HH_i(C);
+	if annHHi != ideal(sub(1,ring I)) then (
+	    	if  saturateByElimination(annHHi,irr) != 0 then (
+		    return (false,i);
+		    )
+		)
+	);
+    true
+    )
+
 
 --------------------------
 -- Begining of the documentation
@@ -162,3 +197,31 @@ time multiBetti winnow(X, r', {1,2});
 time multiBetti winnow'(X, r', {2,1});
 time multiBetti winnow'(X, r', {1,2});
 
+
+
+
+---------------------
+--Mike's Playspace--
+---------------------
+restart
+needsPackage "Colon"
+needsPackage "VirtualResolutions"
+needsPackage "SplendidComplexes"
+load "CapeCod.m2"
+load "badsaturations.m2"
+
+S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}]
+irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4))
+I = paramCurve(1,3,4);
+numgens I
+genSat(I,2)
+J = ideal(I_2,I_3);
+r = res J
+betti' r
+isVirtual(r,J,irr)
+
+
+I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
+J' = saturateByElimination(I',irr)
+J' == saturate(I',irr)
+q1 = winnowProducts(X,r',{2,1})
