@@ -151,21 +151,31 @@ ring (FIRingElement) := m -> m.ring
 
 fiMatrix = method()
 
-fiMatrix List := fiEntries -> (
-    if #fiEntries == 0 then error "Expected a nonempty list of entries.";
+fiMatrix (List,List,List) := (rowdeglist,fiEntries,coldeglist) -> (
     if not isTable fiEntries then error "Expected a rectangular matrix.";
     -- number of rows, cols
-    rows := #fiEntries;
-    cols := #(fiEntries#0);
-    if cols == 0 then error "mapping to/from zero module not implemented yet";
+    if 1 != fiEntries // flatten / class // unique // length then error "Expected all entries to be from the same FIRing.";
+    if #rowdeglist =!= #fiEntries then error "Row degrees don't match matrix";
+    if #coldeglist =!= #(fiEntries#0) then error "Col degrees don't match matrix";
+    if not all(#rowdeglist, i -> all(fiEntries#i, m->isFromSource(m,rowdeglist#i))) then error "The sources of the entries don't match the degrees in the rows.";
+    if not all(fiEntries, row -> all(#coldeglist, i->isFromTarget(row#i,coldeglist#i))) then error "The targets of the entries don't match the degrees in the columns.";
     -- find a common ring to promote all entries to. For now, just
     -- expect them to be from the same ring. If not, throw an error.
-    if 1 != fiEntries // flatten / class // unique // length then error "Expected all entries to be from the same FIRing.";
-    -- more tests here eventually. But for now:
-    return new FIMatrix from hashTable {(symbol ring, (fiEntries#0#0).ring),
+    return new FIMatrix from hashTable {
+    (symbol ring, (fiEntries#0#0).ring),
+    (symbol rowdegs, rowdeglist),
 	(symbol matrix, fiEntries),
+    (symbol coldegs, coldeglist),
 	(symbol cache, new CacheTable from {})};
     )
+
+rowDegrees = method()
+
+rowDegrees FIMatrix := M -> M.rowdegs
+
+colDegrees = method()
+
+colDegrees FIMatrix := M -> M.coldegs
 
 /// TEST 
 
@@ -199,6 +209,7 @@ h = FI{5,2,6,1,3,7}
 x = fiRingElement(f,R);
 y = fiRingElement(g,R);
 z = fiRingElement(h,R);
-mat = fiMatrix {{x,y,z}}
+mat = fiMatrix ({2,5},{{x,0_R},{0_R,y+z}},{5,7})
+rowDegrees mat
 
 ///
