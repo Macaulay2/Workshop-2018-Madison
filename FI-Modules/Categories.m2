@@ -1,6 +1,6 @@
 FIMorphism = new Type of BasicList
 FIRingElement = new Type of HashTable
-FIRingElement = new Type of HashTable
+FIMatrix = new Type of MutableHashTable
 FIRing = new Type of Type
 
 globalAssignment FIRing
