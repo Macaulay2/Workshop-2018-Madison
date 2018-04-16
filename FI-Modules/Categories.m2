@@ -1,6 +1,10 @@
 FIMorphism = new Type of BasicList
 FIRingElement = new Type of HashTable
 FIRing = new Type of Type
+globalAssignment FIRing
+
+-- FI MORPHISMS
+--================================
 
 FI = method()
 
@@ -20,16 +24,23 @@ source FIMorphism := f -> length f -1
 
 net FIMorphism := l -> net "f_" | net toList l
 
+
+-- FI RINGS
+--================================
+
+
 coefficient (FIRingElement, FIMorphism) := (m,f) -> (
     if (terms m)#?f then return (terms m)#f
     else return 0
     )
 
+terms FIRingElement := g -> g.terms
+
 fiRing = method()
 
 fiRing (Ring) := R -> (
     F := new FIRing of FIRingElement from hashTable{
-	(symbol CoefficientRing) => R;
+	baseRings => (R.baseRings)|{R}
 	};
     F + F := (m,n) -> (
 	new F from hashTable{
@@ -44,6 +55,8 @@ fiRing (Ring) := R -> (
     ) 
 
 
+coefficientRing FIRing := R -> last R.baseRings
+
 fiRingElement = method()
 
 fiRingElement (FIMorphism,FIRing) := (l,R) ->(
@@ -56,7 +69,7 @@ fiRingElement (FIMorphism,FIRing) := (l,R) ->(
     return L
     )
 
-terms FIRingElement := g -> g.terms
+
 
 
 
@@ -68,9 +81,10 @@ restart
 load "Categories.m2"
 f = FI{1,2,5}
 g = FI{3,1,2,4,6,7}
---f*g
---g*f
 R = fiRing(QQ)
+coefficientRing R
+S = fiRing(ZZ[x])
+coefficientRing S
 m = fiRingElement(f,R)
 n = fiRingElement(g,R)
 m+n
