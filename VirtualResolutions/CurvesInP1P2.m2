@@ -168,7 +168,59 @@ randomCurve (ZZ,ZZ) := (d,g) ->(
     I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
     )
 
+    S1 = ZZ/101[x_0, x_1];
+    S2 = ZZ/101[y_0,y_1,y_2];
+    S = tensor(S1,S2);
+    B2 = ideal(x_0,x_1);
+    B3 = ideal(y_0,y_1,y_2);
+    B = intersect(B2,B3)
+    
+grobnerSatZero = (M,B) ->(
+    
+    T1 = ZZ/101[x_0, x_1];
+    T2 = ZZ/101[y_0,y_1,y_2];
+    T = tensor(S1,S2);
+    ---
+    Vars1 = apply(flatten entries vars T1,i->sub(i,T));
+    Vars2 = apply(flatten entries vars T2,i->sub(i,T));
+    ---
+    t = true;
+    apply(Vars1,i->(apply(Vars2,j->(
+	  if t == true then (
+	      R = ZZ/101[delete(i,Vars1)|delete(j,Vars2),i,j,MonomialOrder=>{#Vars1+#Vars2-2,2}];
+	      M' = sub(M,R);
+	      --- Check about sub....
+	      F' = gb image presentation module M' ;
+	      L1 = delete(,apply(entries transpose leadTerm(F'),p->(if (unique(p%(sub(i,R)*sub(j,R)))=={0}) then p)));
+	      if (gcd(L1)%(sub(i,R)*sub(j,R)))!=0 then t = false);
+	 if t == false then break;
+    ))));
+    t 
+)
 
+    
+    T1 = ZZ/101[x_0, x_1];
+    T2 = ZZ/101[y_0,y_1,y_2];
+    T = tensor(T1,T2);
+    B2 = ideal(x_0,x_1);
+    B3 = ideal(y_0,y_1,y_2);
+    B = intersect(B2,B3)
+    
+grobnerSatZero = (M,B) ->(
+    t = true;
+    apply(flatten entries mingens B,b->(
+	  bVars = flatten apply(decompose(ideal(b)),i->flatten entries mingens i);
+	  if t == true then (
+	      R = ZZ/101[delete(bVars#1,delete(bVars#0,flatten entries vars ring B))|bVars,MonomialOrder=>{#bVars-2,2}];
+	      M' = sub(M,R);
+	      --- Check about sub....
+	      F' = gb image presentation module M' ;
+	      L1 = delete(,apply(entries transpose leadTerm(F'),p->(if (unique(p%(sub(bVars#0,R)*sub(bVars#1,R)))=={0}) then p)));
+	      if (gcd(L1)%(sub(bVars#0,R)*sub(bVars#1,R)))!=0 then t = false);
+	 if t == false then break;
+    ));
+    t 
+)
 --------------------------
 -- Begining of the documentation
 ------------------------
