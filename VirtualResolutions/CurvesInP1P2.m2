@@ -17,13 +17,13 @@ newPackage ("CurvesP1P2",
 
 needsPackage "SimpleDoc"
 needsPackage "RandomSpaceCurves";
-
+load "Colon.m2"
 export{
     "randomRationalCurve",
     "randomMonomialCurve",
     "curveFromP3toP1P2",
     "randomCurve",
-    "saterationZero",
+    "saturationZero",
     }
 
 
@@ -101,8 +101,8 @@ curveFromP3toP1P2 = (J) ->(
     ---
     if (saturate((J+ideal(Vars#0,Vars#1)))==ideal(Vars)) or (saturate((J+ideal(Vars#1,Vars#2,Vars#3)))==ideal(Vars)) then error "Given curve intersects places of projection.";
     ---
-    S1 := ZZ/101[x_0, x_1];
-    S2 := ZZ/101[y_0,y_1,y_2];
+    S1 := coefficientRing ring J [x_0, x_1];
+    S2 := coefficientRing ring J [y_0,y_1,y_2];
     S = tensor(S1,S2);
     ---
     U = tensor(R,S);   
@@ -180,20 +180,22 @@ randomCurve (ZZ,ZZ) := (d,g) ->(
 ----- the module M. We do this generator by generator.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-saterationZero = method() 
-saterationZero (Module,Ideal) := (M,B) ->(
+
+saturationZero = method() 
+saturationZero (Module,Ideal) := (M,B) ->(
     Vars := flatten entries vars ring B;
-    apply(flatten entries mingens B,b->(
+    bGens := flatten entries mingens B;
+    for i from 0 to #bGens-1 do (
+    	  b := bGens#i;
 	  bVars := support b;
 	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
-	      R := ZZ/101[rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
+	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
 	      P := sub(presentation M,R);
-	      G := gb P; 
-	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then break false;
-    ));
+	      G = gb P; 
+	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
+    );
     true
 )
-
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (I,B)=(Ideal,Ideal)
@@ -204,17 +206,19 @@ saterationZero (Module,Ideal) := (M,B) ->(
 ----- the module M. We do this generator by generator.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-saterationZero (Ideal,Ideal) := (I,B) ->(
+saturationZero (Ideal,Ideal) := (I,B) ->(
     M := comodule I;
     Vars := flatten entries vars ring B;
-    apply(flatten entries mingens B,b->(
+    bGens := flatten entries mingens B;
+    for i from 0 to #bGens-1 do (
+    	  b := bGens#i;
 	  bVars := support b;
-	      rVars = delete(bVars#1,delete(bVars#0,Vars))|bVars;
-	      R := ZZ/101[rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
+	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
+	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
 	      P := sub(presentation M,R);
-	      G := gb P; 
-	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then break false;
-    ));
+	      G = gb P; 
+	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
+    );
     true
 )
 
