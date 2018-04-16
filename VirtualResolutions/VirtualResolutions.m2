@@ -226,4 +226,14 @@ isVirtual(r,J,irr)
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
 J' = saturateByElimination(I',irr)
 J' == saturate(I',irr)
-q1 = winnowProducts(X,r',{2,1})
+r' = res J'
+betti' r'
+q1 = winnowProducts(S,r',{2,1})
+isVirtual(q1,I',irr)
+q2 = winnowProducts(S,r',{1,1})
+isVirtual(q2,I',irr)
+saturate(ideal(image(q2.dd_1)),irr) == J'
+prune HH q2
+
+q3 = winnowProducts(S,r',{1,0})
+isVirtual(q3,I',irr)
