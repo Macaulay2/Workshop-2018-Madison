@@ -78,6 +78,98 @@ reduceVector = (w,M,H) -> (
     return (w,flatten entries a,p);
     )
 
+--we want the linear map K[x_1..x_n] -> K^s that evaluates a
+--polynomial and all its partials up to a given order at set
+--X of given fat points (with multiplicities mu)
+--this is a K-linear map whose kernel is the ideal of fat points
+--NOTE: this map is constructed as an M2 function
+--that will take as input a polynomial f in the ring R (of the
+--ambient affine space) and output f and its partials evaluated at
+--the points (partials are only computed up to order given by mu)
+createEvaluationMap = (X,mu,R) -> (
+    K := coefficientRing R;
+    f -> flatten for i to #X-1 list (
+	phi := map(K,R,X_i);
+	for m in flatten entries basis(0,mu_i-1,R) list phi(diff(m,f))
+	)
+    )
+
+--wrapper function calling the affine Buchberger-Möller algorithm
+--for a finite set of points X in the affine space Spec(R)
+affinePoints = (X,R) -> (
+    --set multiplicities to 1
+    mu := toList(#X:1);
+    phi := createEvaluationMap(X,mu,R);
+    affineBM(R,phi)
+    )
+
+--wrapper function calling the affine Buchberger-Möller algorithm
+--for a finite set of fat points X in the affine space Spec(R)
+--with list of multiplicities mu
+affineFatPoints = (X,mu,R) -> (
+    phi := createEvaluationMap(X,mu,R);
+    affineBM(R,phi)
+    )
+
+end
+
+--some sample computations for fat points
+--and comparison with the intersection method
+
+--in small dimension our method is a lot slower
+restart
+R=QQ[x,y]
+X={{0,0},{0,-1},{1,0},{1,1},{-1,1}}
+mu={6,7,8,9,10}
+load "bm.m2"
+time (G,inG,O)=affineFatPoints(X,mu,R);
+I=ideal G;
+time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
+I==J
+
+--here our method is marginally faster
+restart
+R=QQ[x_1..x_5]
+X=entries random(QQ^8,QQ^5);
+mu={2,3,4,2,3,4,2,3};
+load "bm.m2"
+time (G,inG,O)=affineFatPoints(X,mu,R);
+I=ideal G;
+time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
+I==J --takes too long!
+
+--integer points (our method is slower)
+restart
+R=QQ[x_1..x_5]
+X=entries random(ZZ^8,ZZ^5);
+mu={2,3,4,2,3,4,2,3};
+load "bm.m2"
+time (G,inG,O)=affineFatPoints(X,mu,R);
+I=ideal G;
+time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
+I==J --takes too long!
+
+--more integer points
+restart
+R=QQ[x_1..x_5]
+X=entries random(ZZ^10,ZZ^5);
+mu={2,3,4,2,3,4,2,3,4,1};
+load "bm.m2"
+time (G,inG,O)=affineFatPoints(X,mu,R);
+time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
+
+--a finite field (our method is a lot worse! :-( )
+restart
+K=ZZ/32003
+R=K[x_1..x_5]
+X=entries random(K^20,K^5);
+mu={2,3,4,2,1,2,3,4,2,1,2,3,4,2,1,2,3,4,2,1};
+load "bm.m2"
+time (G,inG,O)=affineFatPoints(X,mu,R);
+time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
+
+---------------------------------------------------------
+--below is some code used in earlier version of this file
 evaluationMap = (L,R) ->(    --R is a polynomial ring, L is list of points
     K := coefficientRing R;  --P is a list of evaluation maps
     P := for p in L list(    --phi applies a polynomial f to the list of evalution maps P
@@ -96,39 +188,4 @@ evaluateDerivatives = (X,mu,f) -> (
 	);
     return flatten L;
     )
-
-createEvaluationMap = (X,mu,R) -> (
-    f -> evaluateDerivatives(X,mu,f)
-    )
-
-affinePoints = (X,R) -> (
-    
-    )
-
-end
-
---some sample computations for fat points
---and comparison with the intersection method
-
-R=QQ[x,y]
-X={{0,0},{0,-1},{1,0},{1,1},{-1,1}}
-mu={6,7,8,9,10}
-load "bm.m2"
-phi=createEvaluationMap(X,mu,R)
-time (G,inG,O)=affineBM(R,phi);
-I=ideal G;
-time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
-I==J
-
-restart
-R=QQ[x_1..x_5]
-X=entries random(QQ^10,QQ^5);
-mu={2,3,4,2,3,4,2,3,4,1};
-load "bm.m2"
-phi=createEvaluationMap(X,mu,R)
-time (G,inG,O)=affineBM(R,phi);
-g=forceGB matrix{G};
-I=ideal G;
-time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
-I==J
 
