@@ -67,7 +67,6 @@ export {
     "randomMonomialIdeals",
     "randomHomogeneousMonomialIdeals",
     "Coefficients",
-    "VariableName",
     "mingenStats",
     "IncludeZeroIdeals",
     "dimStats",
@@ -230,21 +229,13 @@ statistics (Sample, Function) := HashTable => (s,f) -> (
 )
 
 
-createRing := (baseRing,varName,n) -> (
-    if varName===null
-    then (
-        x := getSymbol "x";
-        baseRing(monoid[x_1..x_n])
-        )
-    else (
-        x := toSymbol varName;
-        baseRing[x_1..x_n]
-    )
+createRing := (baseRing,n) -> (
+    x := getSymbol "x";
+    baseRing(monoid[x_1..x_n])
 )
 
 randomMonomialSets = method(TypicalValue => List, Options => {Coefficients => QQ,
-	                                                        VariableName => null,
-								Strategy => "ER"})
+							      Strategy => "ER"})
 randomMonomialSets (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
     if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
     randomMonomialSets(n,D,toList(D:p),N,o)
@@ -257,7 +248,7 @@ randomMonomialSets (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
 
 randomMonomialSets (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
     if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
-    R := createRing(o.Coefficients,o.VariableName,n);
+    R := createRing(o.Coefficients,n);
     apply(N,i-> randomMonomialSet(R,D,M,o))
 )
 
@@ -269,7 +260,7 @@ randomMonomialSets (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
 randomMonomialSets (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
     if n<1 then error "n expected to be a positive integer";
     if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
-    R := createRing(o.Coefficients,o.VariableName,n);
+    R := createRing(o.Coefficients,n);
     apply(N,i-> randomMonomialSet(R,D,pOrM,o))
 )
 
@@ -279,8 +270,7 @@ randomMonomialSets (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
 )
 
 randomMonomialSet = method(TypicalValue => List, Options => {Coefficients => QQ,
-	                                                       VariableName => null,
-							       Strategy => "ER"})
+                                                             Strategy => "ER"})
 randomMonomialSet (ZZ,ZZ,RR) := List => o -> (n,D,p) -> (
     if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
     randomMonomialSet(n,D,toList(D:p),o)
@@ -293,7 +283,7 @@ randomMonomialSet (PolynomialRing,ZZ,RR) := List => o -> (R,D,p) -> (
 
 randomMonomialSet (ZZ,ZZ,ZZ) := List => o -> (n,D,M) -> (
     if n<1 then error "n expected to be a positive integer";
-    R := createRing(o.Coefficients,o.VariableName,n);
+    R := createRing(o.Coefficients,n);
     randomMonomialSet(R,D,M)
 )
 
@@ -307,7 +297,7 @@ randomMonomialSet (PolynomialRing,ZZ,ZZ) := List => o -> (R,D,M) -> (
 
 randomMonomialSet (ZZ,ZZ,List) := List => o -> (n,D,pOrM) -> (
     if n<1 then error "n expected to be a positive integer";
-    R := createRing(o.Coefficients,o.VariableName,n);
+    R := createRing(o.Coefficients,n);
     randomMonomialSet(R,D,pOrM,o)
 )
 
@@ -344,10 +334,9 @@ randomMonomialSet (PolynomialRing,ZZ,List) := List => o -> (R,D,pOrM) -> (
 )
 
 
-randomHomogeneousMonomialSets = method(TypicalValue => List, Options => {Coefficients => QQ,
-	                                                        VariableName => "x"})
+randomHomogeneousMonomialSets = method(TypicalValue => List, Options => {Coefficients => QQ})
 randomHomogeneousMonomialSets (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
-    R := createRing(o.Coefficients,o.VariableName,n);
+    R := createRing(o.Coefficients,n);
     randomHomogeneousMonomialSets(R,D,p,N)
 )
 
@@ -358,7 +347,7 @@ randomHomogeneousMonomialSets (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N
 )
 
 randomHomogeneousMonomialSets (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
-    R := createRing(o.Coefficients,o.VariableName,n);
+    R := createRing(o.Coefficients,n);
     randomHomogeneousMonomialSets(R,D,M,N)
 )
 
@@ -367,11 +356,10 @@ randomHomogeneousMonomialSets (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N
     apply(N,i-> randomHomogeneousMonomialSet(R,D,M))
 )
 
-randomHomogeneousMonomialSet = method(TypicalValue => List, Options => {Coefficients => QQ,
-	                                                       VariableName => "x"})
+randomHomogeneousMonomialSet = method(TypicalValue => List, Options => {Coefficients => QQ})
 randomHomogeneousMonomialSet (ZZ,ZZ,RR) := List => o -> (n,D,p) -> (
     if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
-    R := createRing(o.Coefficients,o.VariableName,n);
+    R := createRing(o.Coefficients,n);
     randomHomogeneousMonomialSet(R,D,p)
 )
 
@@ -384,7 +372,7 @@ randomHomogeneousMonomialSet (PolynomialRing,ZZ,RR) := List => o -> (R,D,p) -> (
 
 randomHomogeneousMonomialSet (ZZ,ZZ,ZZ) := List => o -> (n,D,M) -> (
     if n<1 then error "n expected to be a positive integer";
-    R := createRing(o.Coefficients,o.VariableName,n);
+    R := createRing(o.Coefficients,n);
     randomHomogeneousMonomialSet(R,D,M)
 )
 
@@ -548,61 +536,61 @@ regStats List := o-> (ideals) -> (
 
 )
 
-randomMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => null, IncludeZeroIdeals => true, Strategy => "ER"})
+randomMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, IncludeZeroIdeals => true, Strategy => "ER"})
 
 randomMonomialIdeals (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
     B :=
-      if all(pOrM,q->instance(q,RR)) then randomMonomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal")
-      else if all(pOrM,q->instance(q,ZZ)) then randomMonomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>o.Strategy);
+      if all(pOrM,q->instance(q,RR)) then randomMonomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,Strategy=>"Minimal")
+      else if all(pOrM,q->instance(q,ZZ)) then randomMonomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,Strategy=>o.Strategy);
     idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 
 
 randomMonomialIdeals (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
-    B := randomMonomialSets(R,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal");
+    B := randomMonomialSets(R,D,p,N,Coefficients=>o.Coefficients,Strategy=>"Minimal");
     idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 
 randomMonomialIdeals (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
-    B := randomMonomialSets(R,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>o.Strategy);
+    B := randomMonomialSets(R,D,M,N,Coefficients=>o.Coefficients,Strategy=>o.Strategy);
     idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 
 randomMonomialIdeals (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
         B:={};
         if all(pOrM,q->instance(q,RR)) then
-	    B=randomMonomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal")
+	    B=randomMonomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients,Strategy=>"Minimal")
 	else if all(pOrM,q->instance(q,ZZ)) then
-	    B=randomMonomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName, Strategy=>o.Strategy);
+	    B=randomMonomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients, Strategy=>o.Strategy);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 randomMonomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
- 	B:=randomMonomialSets(n,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName,Strategy=>"Minimal");
+	B:=randomMonomialSets(n,D,p,N,Coefficients=>o.Coefficients, Strategy=>"Minimal");
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 randomMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
- 	B:=randomMonomialSets(n,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+	B:=randomMonomialSets(n,D,M,N,Coefficients=>o.Coefficients);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 
-randomHomogeneousMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, VariableName => null, IncludeZeroIdeals => true})
+randomHomogeneousMonomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, IncludeZeroIdeals => true})
 
 randomHomogeneousMonomialIdeals (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
-    B := randomHomogeneousMonomialSets(R,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+    B := randomHomogeneousMonomialSets(R,D,p,N,Coefficients=>o.Coefficients);
     idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 
 randomHomogeneousMonomialIdeals (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
-    B := randomHomogeneousMonomialSets(R,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+    B := randomHomogeneousMonomialSets(R,D,M,N,Coefficients=>o.Coefficients);
     idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 
 randomHomogeneousMonomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
- 	B:=randomHomogeneousMonomialSets(n,D,p,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+	B:=randomHomogeneousMonomialSets(n,D,p,N,Coefficients=>o.Coefficients);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 randomHomogeneousMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
- 	B:=randomHomogeneousMonomialSets(n,D,M,N,Coefficients=>o.Coefficients,VariableName=>o.VariableName);
+	B:=randomHomogeneousMonomialSets(n,D,M,N,Coefficients=>o.Coefficients);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
 
@@ -919,11 +907,11 @@ doc ///
    statistics(sample(ER(CC[z_1..z_8],5,0.1),100), degree@@ideal)
   Text
   
-   Most of the methods in this package offer various options, such as selecting a specific ring with which to work, or change variable names, coefficients, etc. Here is a simple example:
+   Most of the methods in this package offer various options, such as selecting a specific ring with which to work, or coefficients, etc. Here is a simple example:
   Example
    R=ZZ/101[a..e];
    randomMonomialSets(R,D,p,N)
-   randomMonomialSets(n,D,p,N,VariableName=>"t")
+   randomMonomialSets(n,D,p,N,Coefficients=>CC)
   Text
    In some cases, we may want to work directly with the sets of randomly chosen monomials, while at other times it may be more convenient to pass directly to the random monomial ideals.
    Both options induce the same distribution on monomial ideals:
@@ -1546,34 +1534,6 @@ doc ///
       ring ideal oo
       randomMonomialSet(n,D,p,Coefficients=>ZZ/101)
       ring ideal oo
-  SeeAlso
-    randomMonomialSet
-    randomMonomialSets
-    randomHomogeneousMonomialSet
-    randomHomogeneousMonomialSets
-    randomMonomialIdeals
-    randomHomogeneousMonomialIdeals
-///
-
-doc ///
-  Key
-    VariableName
-    [randomMonomialSet, VariableName]
-    [randomMonomialSets, VariableName]
-    [randomHomogeneousMonomialSet, VariableName]
-    [randomHomogeneousMonomialSets, VariableName]
-    [randomMonomialIdeals, VariableName]
-    [randomHomogeneousMonomialIdeals, VariableName]
-  Headline
-    optional input to choose the variable name for the generated polynomials
-  Description
-    Text
-      Put {\tt VariableName => x} for a choice of string or symbol x as an argument in
-      the function @TO randomMonomialSet@, @TO randomMonomialSets@ or @TO randomMonomialIdeals@
-    Example
-      n=2; D=3; p=0.2;
-      randomMonomialSet(n,D,p)
-      randomMonomialSet(n,D,p,VariableName => y)
   SeeAlso
     randomMonomialSet
     randomMonomialSets
@@ -2467,6 +2427,14 @@ TEST ///
     L = randomMonomialSet(n,D,1.0);
     assert(ring(L#0)===ring(L#1))
     assert(ring(L#2)===ring(L#3))
+///
+
+TEST ///
+    --Check that we don't clobber user variables
+    R = QQ[x_1..x_6];
+    n = 4; D = 3;
+    L = randomMonomialSet(n,D,1.0);
+    assert(ring(x_1)===R);
 ///
 
 TEST ///
