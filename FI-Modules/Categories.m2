@@ -48,10 +48,10 @@ fiRing (Ring) := R -> (
 	};
     F + F := (m,n) -> (
 	new F from hashTable{
-	    (symbol ring) => F;
+	    (symbol ring) => F,
 	    (symbol terms) => hashTable	apply(unique( keys terms m| keys terms n), key ->(
 			 coefsum = coefficient(m,key) + coefficient(n,key);
-			 if coefsum =!= 0 then key => coefsum
+			 if coefsum =!= 0_R then key => coefsum
 			 ))	
 	    }
 	);
@@ -65,15 +65,45 @@ fiRing (Ring) := R -> (
     return F
     ) 
 
+net FIRingElement := f -> (
+    termsf := terms f;
+    keysf := keys termsf;
+    kk := coefficientRing ring f;
+    N := #(keysf);
+    printCoefficient := m -> (
+	c := coefficient(f,m);
+	if c == 1_kk then net ""
+	else net c
+	);
+    local m;
+    if N == 1 then (
+	m = first keysf;
+	return printCoefficient(m)|net m
+	)
+    else if N > 1 then (
+	horizontalJoin apply(N, i -> (
+		m := keysf#i;
+		if i < N-1 then printCoefficient(m)|net m|net " + "
+		else printCoefficient(m)|net m
+		)
+	    )
+	)
+    )
+
+    
+
 coefficientRing FIRing := R -> last R.baseRings
+
+FIRing_List := (R, l) -> fiRingElement(FI l, R)
 
 fiRingElement = method()
 
 fiRingElement (FIMorphism,FIRing) := (l,R) ->(
+    kk := coefficientRing R;
     L := new R from hashTable{
 	(symbol ring) => R,
 	(symbol terms) => hashTable{
-	    l => 1  -- TODO we need the 1 from _(coefficientRing R)
+	    l => 1_kk  -- TODO we need the 1 from _(coefficientRing R)
 	    }
 	};
     return L
@@ -85,7 +115,7 @@ mapsbetween (FIRingElement,Thing,Thing) := (m,a,b) -> (
         all(keys terms m, key-> mapsbetween(key,a,b))
     )
 
---ring (FIRingElement) := m -> m#Ring
+ring (FIRingElement) := m -> m.ring
 
 
 
@@ -93,12 +123,14 @@ mapsbetween (FIRingElement,Thing,Thing) := (m,a,b) -> (
 
 restart
 load "Categories.m2"
-f = FI{1,2,5}
-g = FI{3,1,2,4,6,7}
 R = fiRing(QQ)
 coefficientRing R
-S = fiRing(ZZ[x])
-coefficientRing S
+f = R_{1,2,5}
+g = R_{2,3,1,4}
+f+g
+2*f
+S = fiRing(ZZ/2)
+S_{2,1,3}+S_{2,1,3}+S_{2,1,4}
 m = fiRingElement(f,R)
 n = fiRingElement(g,R)
 p = fiRingElement(h,R)
