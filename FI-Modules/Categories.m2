@@ -24,11 +24,7 @@ target FIMorphism := f -> last f
 
 source FIMorphism := f -> (length first f) 
 
-mapsbetween = method()
-
-mapsbetween (FIMorphism,Thing,Thing) := (f,a,b) -> target f == b and source f == a
-
-net FIMorphism := l -> net "f_" | net toList l
+net FIMorphism := l -> net "["|net l#0|net ","|net l#1|net"]"
 
 
 -- FI RINGS
@@ -45,7 +41,7 @@ fiRing (Ring) := R -> (
     	    (symbol ring) => RFI,
     	    (symbol terms) => hashTable	apply(unique( keys terms m| keys terms n), key ->(
     			 coefsum = coefficient(m,key) + coefficient(n,key);
-    			 if coefsum =!= 0 then key => coefsum
+    			 if coefsum =!= 0_R then key => coefsum
     			 ))	
     	    }
 	);
@@ -64,6 +60,7 @@ fiRing (Ring) := R -> (
                     eltsum = eltsum + (coefficient(m,mkey)*coefficient(n,nkey))*fiRingElement(mkey*nkey,RFI);
         return eltsum
     );
+    RFI - RFI := (m, n) -> m + (-1)_R*n;
     return RFI
     ) 
 
@@ -101,7 +98,24 @@ net FIRingElement := f -> (
 	)
     )
 
-    
+isFromTarget=method()
+
+isFromTarget (FIRingElement,Thing) := (m,b) -> (
+        if m === 0_(ring m) then return true
+        else return all (keys terms m,key ->target key == b)
+    )    
+
+isFromSource=method()
+
+isFromSource (FIRingElement, Thing) := (m,a) -> (
+        if m === 0_(ring m) then return true
+        else return all (keys terms m,key -> source key == a)
+    )
+
+isHomogeneous FIRingElement := m -> (
+        if m === 0_(ring m) then return true
+        else return all (keys terms m,key -> source key == source first keys terms m and target key == target first keys terms m)
+    )
 
 
 coefficientRing FIRing := R -> last R.baseRings
@@ -112,7 +126,7 @@ FIRing_List := (R, l) -> fiRingElement(FI l, R)
 ZZ _ FIRing := (n,R) -> (
     if n =!= 0 then error "ZZ_FIRing is only defined for 0_FIRing"
     else return new R from hashTable{
-        symbol ring => R;
+        symbol ring => R,
         symbol terms => hashTable{}
     }
     )
@@ -132,10 +146,6 @@ fiRingElement (FIMorphism,FIRing) := (l,R) ->(
     )
 
 
-
-mapsbetween (FIRingElement,Thing,Thing) := (m,a,b) -> (
-        all(keys terms m, key-> mapsbetween(key,a,b))
-    )
 
 ring (FIRingElement) := m -> m.ring
 
@@ -161,33 +171,21 @@ fiMatrix List := fiEntries -> (
 
 restart
 load "Categories.m2"
-f = FI{1,2,5}
-g = FI{3,1,2,4,6,7}
-h = FI{4,2,1,5,6,7}
-QQFI = fiRing(QQ)
-coefficientRing R
-S = fiRing(ZZ[x])
-coefficientRing S
-0_QQFI
-0_S
-m = fiRingElement(f,QQFI)
-n = fiRingElement(g,QQFI)
-p = fiRingElement(h,QQFI)
-f+g
-2*f
-S = fiRing(ZZ/2)
-S_{2,1,3}+S_{2,1,3}+S_{2,1,4}
+S = fiRing(ZZ/3)
+f = S_{2,1,3}+S_{2,1,3}+S_{2,1,4}
+g = S_{1,4,5,6}
+f*g
 x = m+n
 y = m+m
 z = n+p
 x*z
-mapsbetween(m,2,5)
-mapsbetween(x,2,5)
-mapsbetween(y,2,5)
-mapsbetween(z,5,7)
 y === 2*m
 y === 2/1*m
 y === m*(2/1)
+isFromSource(x*z,2)
+isHomogeneous(x*z)
+isHomogeneous(0_RFI)
+isHomogeneous x
 
 -- FIMatrix Tests
 
