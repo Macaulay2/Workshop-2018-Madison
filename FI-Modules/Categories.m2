@@ -65,6 +65,7 @@ fiRing (Ring) := R -> (
     return RFI
     ) 
 
+
 coefficient (FIRingElement, FIMorphism) := (m,f) -> (
     if (terms m)#?f then return (terms m)#f
     else return 0
@@ -73,7 +74,38 @@ coefficient (FIRingElement, FIMorphism) := (m,f) -> (
 terms FIRingElement := g -> g.terms
 
 
+net FIRingElement := f -> (
+    termsf := terms f;
+    keysf := keys termsf;
+    kk := coefficientRing ring f;
+    N := #(keysf);
+    printCoefficient := m -> (
+	c := coefficient(f,m);
+	if c == 1_kk then net ""
+	else net c
+	);
+    local m;
+    if N == 1 then (
+	m = first keysf;
+	return printCoefficient(m)|net m
+	)
+    else if N > 1 then (
+	horizontalJoin apply(N, i -> (
+		m := keysf#i;
+		if i < N-1 then printCoefficient(m)|net m|net " + "
+		else printCoefficient(m)|net m
+		)
+	    )
+	)
+    )
+
+    
+
+
 coefficientRing FIRing := R -> last R.baseRings
+
+
+FIRing_List := (R, l) -> fiRingElement(FI l, R)
 
 ZZ _ FIRing := (n,R) -> (
     if n =!= 0 then error "ZZ_FIRing is only defined for 0_FIRing"
@@ -83,13 +115,15 @@ ZZ _ FIRing := (n,R) -> (
     }
     )
 
+
 fiRingElement = method()
 
 fiRingElement (FIMorphism,FIRing) := (l,R) ->(
+    kk := coefficientRing R;
     L := new R from hashTable{
 	(symbol ring) => R,
 	(symbol terms) => hashTable{
-	    l => promote(1,coefficientRing R)  -- TODO we need the 1 from _(coefficientRing R)
+	    l => 1_kk
 	    }
 	};
     return L
@@ -101,7 +135,7 @@ mapsbetween (FIRingElement,Thing,Thing) := (m,a,b) -> (
         all(keys terms m, key-> mapsbetween(key,a,b))
     )
 
---ring (FIRingElement) := m -> m#Ring
+ring (FIRingElement) := m -> m.ring
 
 
 
@@ -121,6 +155,10 @@ coefficientRing S
 m = fiRingElement(f,QQFI)
 n = fiRingElement(g,QQFI)
 p = fiRingElement(h,QQFI)
+f+g
+2*f
+S = fiRing(ZZ/2)
+S_{2,1,3}+S_{2,1,3}+S_{2,1,4}
 x = m+n
 y = m+m
 z = n+p
