@@ -331,16 +331,16 @@ randomMonomialSet (PolynomialRing,ZZ,List) := List => o -> (R,D,pOrM) -> (
         if any(pOrM,q-> q<0.0 or 1.0<q) then error "pOrM expected to be a list of real numbers between 0.0 and 1.0";
         if o.Strategy === "Minimal" then (
             currentRing := R;
-            apply(D, d->(
+            B = flatten apply(D, d-> (
                 chosen := select(flatten entries basis(d+1, currentRing), m->random(0.0,1.0)<=pOrM_d);
-                B = flatten append(B, chosen/(i->sub(i, R)));
-                currentRing = currentRing/promote(ideal(chosen), currentRing)
-            )))
+                if chosen!={} then currentRing = currentRing/ideal(chosen); 
+                chosen/(i->sub(i, R))
+            ))
+        )
         else
             B = flatten apply(toList(1..D),d-> select(flatten entries basis(d,R),m-> random(0.0,1.0)<=pOrM_(d-1)));
 	);
-    B = apply(B,m->sub(m,R));
-    if B==={} then {0_R} else B
+    if B==={} then {0_R} eltten append(B, chosen/(i->sub(i, R)));se B
 )
 
 
