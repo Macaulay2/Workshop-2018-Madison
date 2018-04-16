@@ -98,21 +98,31 @@ curveFromP3toP1P2 = (J) ->(
     R := ring J;
     Vars := flatten entries vars R;
     ---
-   if (J+ideal(Vars#0,Vars#1)!=ideal(1_R)) and (J+ideal(Vars#1,Vars#2,Vars#3))!=ideal(1_R) then error "Given curve intersects place of projection.";
+    if (saturate((J+ideal(Vars#0,Vars#1)))==ideal(Vars)) or (saturate((J+ideal(Vars#1,Vars#2,Vars#3)))==ideal(Vars)) then error "Given curve intersects places of projection.";
     ---
     S1 := ZZ/101[x_0, x_1];
     S2 := ZZ/101[y_0,y_1,y_2];
     S = tensor(S1,S2);
     ---
     U = tensor(R,S);   
+    Var := apply(Vars,i->sub(i,U));
+    VarU := flatten entries vars U;
     --- 
-    M1 := matrix {{Vars#0,Vars#1},{x_0,x_1}};
-    M2 := matrix {{Vars#1,Vars#2,Vars#3},{y_0,y_1,y_2}};
-    --
-    C' := sub(J,U);
-    D := minors(2,M1)+minors(2,M2);
-    K  := saturate(C'+D,ideal(Vars));
-    I =  sub(eliminate(Vars,K),S)
+    M1 := matrix {{Var#0,Var#1},{x_0,x_1}};
+    M2 := matrix {{Var#1,Var#2,Var#3},{y_0,y_1,y_2}};
+    ---
+    C' = sub(J,U);
+    D = minors(2,M1)+minors(2,M2);
+    ---
+    BL1 := ideal(Var#0,Var#1);
+    BL2 := ideal(Var#1,Var#2,Var#3);
+    B1 := apply(4,i->VarU#i);
+    B2 := apply(2,i->VarU#(4+i));
+    B3 := apply(3,i->VarU#(6+i));
+    B := intersect(ideal(B1),ideal(B2),ideal(B3),BL1,BL2);
+    ---
+    K  := saturate(C'+D,B);
+    I =  sub(eliminate(Var,K),S)
 )
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -125,10 +135,15 @@ curveFromP3toP1P2 = (J) ->(
 ----- and the projection P3----->P2 on the last three variables
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-
-randomCurve = (d,g) ->(
+randomCurve = method() 
+randomCurve (ZZ,ZZ) := (d,g) ->(
     R = ZZ/101[z_0,z_1,z_2,z_3];
-    C = (random spaceCurve)(d,g,R);
+    apply(1000,i->(
+	    N = i;
+	    C = (random spaceCurve)(d,g,R);
+	    if (saturate(C+ideal(z_0,z_1))!=ideal(z_0,z_1,z_2,z_3)) and (saturate(C+ideal(z_1,z_2,z_3))!=ideal(z_0,z_1,z_2,z_3)) then break C
+	    ));
+    if (saturate(C+ideal(z_0,z_1))==ideal(z_0,z_1,z_2,z_3)) or (saturate(C+ideal(z_1,z_2,z_3))==ideal(z_0,z_1,z_2,z_3)) then error "Unable to find curve not intersecting places of projection.";
     ---
     S1 = ZZ/101[x_0, x_1];
     S2 = ZZ/101[y_0,y_1,y_2];
@@ -138,13 +153,74 @@ randomCurve = (d,g) ->(
     --- 
     M1 = matrix {{z_0,z_1},{x_0,x_1}};
     M2 = matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
-    --
-    C' = sub(J,U);
+    ---
+    C' = sub(C,U);
     D = minors(2,M1)+minors(2,M2);
-    K  = saturate(C'+D,ideal(z_0,z_1,z_2,z_3));
+    ---
+    BL1 := ideal(z_0,z_1);
+    BL2 := ideal(z_1,z_2,z_3);
+    B1 := ideal(z_0,z_1,z_2,z_3);
+    B2 := ideal(x_0,x_1);
+    B3 := ideal(y_0,y_1,y_2);
+    B := intersect(B1,B2,B3,BL1,BL2);
+    ---
+    K  = saturate(C'+D,B);
     I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
     )
 
+    S1 = ZZ/101[x_0, x_1];
+    S2 = ZZ/101[y_0,y_1,y_2];
+    S = tensor(S1,S2);
+    B2 = ideal(x_0,x_1);
+    B3 = ideal(y_0,y_1,y_2);
+    B = intersect(B2,B3)
+    
+grobnerSatZero = (M,B) ->(
+    
+    T1 = ZZ/101[x_0, x_1];
+    T2 = ZZ/101[y_0,y_1,y_2];
+    T = tensor(S1,S2);
+    ---
+    Vars1 = apply(flatten entries vars T1,i->sub(i,T));
+    Vars2 = apply(flatten entries vars T2,i->sub(i,T));
+    ---
+    t = true;
+    apply(Vars1,i->(apply(Vars2,j->(
+	  if t == true then (
+	      R = ZZ/101[delete(i,Vars1)|delete(j,Vars2),i,j,MonomialOrder=>{#Vars1+#Vars2-2,2}];
+	      M' = sub(M,R);
+	      --- Check about sub....
+	      F' = gb image presentation module M' ;
+	      L1 = delete(,apply(entries transpose leadTerm(F'),p->(if (unique(p%(sub(i,R)*sub(j,R)))=={0}) then p)));
+	      if (gcd(L1)%(sub(i,R)*sub(j,R)))!=0 then t = false);
+	 if t == false then break;
+    ))));
+    t 
+)
+
+    
+    T1 = ZZ/101[x_0, x_1];
+    T2 = ZZ/101[y_0,y_1,y_2];
+    T = tensor(T1,T2);
+    B2 = ideal(x_0,x_1);
+    B3 = ideal(y_0,y_1,y_2);
+    B = intersect(B2,B3)
+    
+grobnerSatZero = (M,B) ->(
+    t = true;
+    apply(flatten entries mingens B,b->(
+	  bVars = flatten apply(decompose(ideal(b)),i->flatten entries mingens i);
+	  if t == true then (
+	      R = ZZ/101[delete(bVars#1,delete(bVars#0,flatten entries vars ring B))|bVars,MonomialOrder=>{#bVars-2,2}];
+	      M' = sub(M,R);
+	      --- Check about sub....
+	      F' = gb image presentation module M' ;
+	      L1 = delete(,apply(entries transpose leadTerm(F'),p->(if (unique(p%(sub(bVars#0,R)*sub(bVars#1,R)))=={0}) then p)));
+	      if (gcd(L1)%(sub(bVars#0,R)*sub(bVars#1,R)))!=0 then t = false);
+	 if t == false then break;
+    ));
+    t 
+)
 --------------------------
 -- Begining of the documentation
 ------------------------
@@ -273,16 +349,21 @@ doc ///
 ------------------------
 
 TEST ///
-    assert (dim randomRationalCurve(2,3) == 3)
+    try assert (dim randomRationalCurve(2,3) == 3 then true==true else true==true)
     ///
     
 TEST ///
-    assert (dim randomMonomialCurve(2,3) == 3)
+    try assert (dim randomMonomialCurve(2,3) == 3 then true==true else true==true)
     ///
- 
+    
 TEST ///
-    assert (dim randomCurve(3,0) == 3)
+    R = ZZ/101[z_0,z_1,z_2,z_3];
+    C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
+    dim curveFromP3toP1P2(C)
+    ///
+    
+TEST ///
+    try assert (dim randomCurve(2,3) == 3 then true==true else true==true)
     ///  
     
 end--
-

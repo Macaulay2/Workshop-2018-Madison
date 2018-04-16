@@ -31,7 +31,8 @@ newPackage ("VirtualResolutions",
     PackageExports => {
 	"BGG",
 	"TateOnProducts",
-	"CompleteIntersectionResolutions"
+	"CompleteIntersectionResolutions",
+	"NormalToricVarieties"
 	},
     DebuggingMode => true,
     AuxiliaryFiles => false
@@ -39,10 +40,12 @@ newPackage ("VirtualResolutions",
 
 export{
     "multiBetti",
+    "multiWinnow",
     "HideZeros",
     "DegreeBounds"
     }
 
+debug Core
 
 monomial = (R, d, n) -> (
     m := 1_R * n;
@@ -82,11 +85,22 @@ multiBetti GradedModule := opts -> C -> (
     -- Making the table
     xAxis := toString \ cols;
     yAxis := (i -> toString i | ":") \ rows;
-    mbt = applyTable(mbt, n -> if n === 0 then "." else n);
+    mbt = applyTable(mbt, n -> if n === 0 then "." else toString raw n);
     mbt = prepend(xAxis, mbt);
     mbt = apply(prepend("", yAxis), mbt, prepend);
     netList(mbt, Alignment => Right, HorizontalSpace => 2, BaseRow => 1, Boxes => false)
     )
+
+multiWinnow = method();
+multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
+    if any(alphas, alpha -> #alpha =!= degreeLength ring X) then error "degree has wrong length";
+    chainComplex apply(length F, i ->(
+	    m := F.dd_(i+1);
+	    apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
+	    m
+	    )
+    	)
+    );
 
 --------------------------
 -- Begining of the documentation
@@ -128,3 +142,34 @@ hilbertPolynomial(X,J')
 r' = res J'
 multiBetti r'
 multiBetti(r', DegreeBounds => {3, 3})
+
+restart
+needsPackage "VirtualResolutions"
+needsPackage "SplendidComplexes"
+load "CapeCod.m2"
+X = projectiveSpace(1)**projectiveSpace(1)
+S = ring X
+irr = ideal X
+I' = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
+J' = saturate(I',irr)
+hilbertPolynomial(X,J')
+r' = res J'
+multiBetti winnow(X, r', {2,1})
+multiWinnow(X, r', {{2,1}, {1,2}})
+
+winnow' = method();
+winnow' (NormalToricVariety, ChainComplex, List) := (X,F,alpha) ->(
+    if #alpha != degreeLength ring X then error "degree has wrong length";
+    lowDegreeSpots := for j to length F list(
+       for i to rank F_j - 1 list(
+           if termwiseLeq(degree F_j_i , alpha) then i else continue
+           ));
+    chainComplex apply(length F, i ->(
+            submatrix(F.dd_(i+1),lowDegreeSpots_i,lowDegreeSpots_(i+1))))
+    );
+
+time multiBetti winnow(X, r', {2,1});
+time multiBetti winnow(X, r', {1,2});
+time multiBetti winnow'(X, r', {2,1});
+time multiBetti winnow'(X, r', {1,2});
+

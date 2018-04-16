@@ -111,16 +111,11 @@ termwiseLeq = (d,e) -> (
 --  Caveat:  only really meaningful for a product of projective spaces
 --  CAVEAT:  No check that the output is quasisomorphic to the input.
 winnow (NormalToricVariety, ChainComplex, List) := (X,F,alpha) ->(
-    if #alpha != #degree (ring X)_0 then error "degree has wrong length";
-    lowDegreeSpots := for j to length F list(
-	for i to rank F_j - 1 list(
-	    if termwiseLeq(degree F_j_i , alpha) then i else continue
-	    ));
+    if #alpha != degreeLength ring X then error "degree has wrong length";
     chainComplex apply(length F, i ->(
-	     submatrix(F.dd_(i+1),lowDegreeSpots_i,lowDegreeSpots_(i+1))))
+	     submatrixByDegrees(F.dd_(i+1),(,alpha),(,alpha))))
      );
- 
- 
+
 --  Same as above code, but Beilinson window is taken into account
 --  so that alpha itself is in the regularity.
 --  Primarily used for Christine's Eau Claire presentation.
@@ -129,7 +124,7 @@ winnowProducts (NormalToricVariety, ChainComplex, List) := (X,F,beta) ->(
     n := sum degrees ring F;
     m := n - apply(#n, i -> 1);
     alpha := beta + m;
-    if #alpha != #degree (ring X)_0 then error "degree has wrong length";
+    if #alpha != degreeLength ring X then error "degree has wrong length";
     lowDegreeSpots := for j to length F list(
 	for i to rank F_j - 1 list(
 	    if termwiseLeq(degree F_j_i , alpha) then i else continue
@@ -143,7 +138,7 @@ rank (ChainComplex) := F ->(
     );
 
 --dotProduct of two lists:
-dotProduct = (L,L') ->(sum apply(length L,i->( L#i*L'#i )));
+--dotProduct = (L,L') ->(sum apply(length L,i->( L#i*L'#i )));
 
 
 --
