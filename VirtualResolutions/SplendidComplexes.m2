@@ -38,6 +38,8 @@ export {
   "pointsIdeal"
   }
 
+debug Core;
+
 ------------------------------------------------------------------------------
 -- CODE THAT BELONGS SOMEWHERE ELSE
 ------------------------------------------------------------------------------
@@ -81,21 +83,41 @@ MultigradedBettiTally Array := (B,A) -> (
   applyKeys(B, (i,h,d) -> (i-n,h,d)))
 
 net MultigradedBettiTally := B -> ( 
-  H := new MutableHashTable;
-  if keys B == {} then return 0;
-  scan(sort keys B, key -> (
-      (i,h,d) := key;
-      s := toString(B#key) | ":" | toString(d);
-      if H#?i then H#i = H#i | {s} else H#i = {s}));
-  rows := max apply(values H, v -> #v);
-  T := table(toList(0..rows-1), sort keys H, 
-    (i,k) -> if i < #H#k then H#k#i else null);
-  T = prepend(sort keys H,T);  
-  netList(T, 
-    Alignment => Left, 
-    HorizontalSpace => 1,
-    BaseRow => 1,
-    Boxes => false))
+    if keys B == {} then return 0;
+    N := max apply(pairs B, (key, n) -> ((i,h,d) := key; length d));
+    R := ZZ[vars(0..N-1)];
+    H := new MutableHashTable;
+    (rows, cols) := ({}, {});
+    scan(pairs B,
+        (key, n) -> (
+	    (i,h,d) := key;
+	    key = (h, i);
+	    (rows, cols) = (append(rows, h), append(cols, i));
+	    if compactMatrixForm then (
+		m := monomial(R, d, n);
+	        if H#?key then H#key = H#key + m else H#key = m;
+		) else (
+		s := toString n | ":" | toString d;
+                if H#?i then H#i = H#i | {s} else H#i = {s};
+		);
+	    ));
+    (rows, cols) = (sort unique rows, sort unique cols);
+    if compactMatrixForm then (
+        T := table(toList (0 .. length rows - 1), toList (0 .. length cols - 1),
+            (i,j) -> if H#?(rows#i,cols#j) then H#(rows#i,cols#j) else 0);
+        -- Making the table
+        xAxis := toString \ cols;
+        yAxis := (i -> toString i | ":") \ rows;
+        T = applyTable(T, n -> if n === 0 then "." else toString raw n);
+        T = prepend(xAxis, T);
+        T = apply(prepend("", yAxis), T, prepend);
+        ) else (
+        T = table(toList (0 .. length rows - 1), sort keys H,
+            (i,k) -> if i < #H#k then H#k#i else null);
+        T = prepend(sort keys H,T);
+        );
+    netList(T, Alignment => Right, HorizontalSpace => 1, BaseRow => 1, Boxes => false)
+    )
 
 poincare (NormalToricVariety, MultigradedBettiTally) := (X,B) -> (
   R := degreesRing ring X;
@@ -110,9 +132,18 @@ heftFunction := (wt1,wt2) -> (
   else if wt2 =!= null then heftFunction0 wt2
   else d -> 0)
 
+monomial = (R, d, n) -> (
+    m := 1_R * n;
+    apply(pairs d, (i, e) -> m = m * R_i ^ e);
+    m
+    )
+
 -- our new method for displaying degrees
-betti' = method(TypicalValue => MultigradedBettiTally, 
-  Options => {Weights => null});
+-- TODO: incorporate Minimize and Weights options
+betti' = method(
+    TypicalValue => MultigradedBettiTally,
+    Options => options betti
+    )
 betti' MultigradedBettiTally := opts -> B -> (
   if opts.Weights === null then B 
   else ( 

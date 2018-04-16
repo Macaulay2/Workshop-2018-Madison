@@ -1,3 +1,14 @@
+-*
+restart
+loadPackage("VirtualResolutions", Reload =>true)
+installPackage "VirtualResolutions"
+installPackage "CompleteIntersectionResolutions"
+installPackage "BGG"
+viewHelp "VirtualResolutions"
+viewHelp "TateOnProducts"
+viewHelp CompleteIntersectionResolutions
+check "VirtualResolutions"
+*-
 ---------------------------------------------------------------------------
 -- PURPOSE : 
 --           
@@ -25,11 +36,11 @@ newPackage ("VirtualResolutions",
 	"Colon"
 	},
     DebuggingMode => true,
-    AuxiliaryFiles => true
+    AuxiliaryFiles => false
     )
 
 export{
-    "multiBetti",
+--    "multiGradedRegularity"
     "multiWinnow",
     "HideZeros",
     "DegreeBounds",
@@ -38,59 +49,15 @@ export{
 
 debug Core
 
-monomial = (R, d, n) -> (
-    m := 1_R * n;
-    apply(pairs d, (i, e) -> m = m * R_i ^ e);
-    m
-    )
-
--- TODO: incorporate Minimize and Weights options
-multiBetti = method(Options => 
-    options betti ++ {
-	HideZeros => false,
-	DegreeBounds => null,
-	})
-multiBetti GradedModule := opts -> C -> (
-    complete C;
-    N := degreeLength ring C;
-    R := ZZ[vars(0..N-1)];
-    bt := betti(C, Weights => if opts.?Weights then opts.Weights else apply(N, i->1));
-    ht := new MutableHashTable;
-    (rows, cols) := ({}, {});
-    scan(pairs bt,
-	(key,n) -> (
-	    (i,d,h) := key;
-	    key = (h, i);
-	    (rows, cols) = (append(rows, h), append(cols, i));
-	    m := if opts.DegreeBounds === null or all(N, i->d#i<=opts.DegreeBounds#i)
-	        then monomial(R, d, n) else 0;
-	    if ht#?key then ht#key = ht#key + m else ht#key = m;
-	    ));
-    (rows, cols) = if opts.HideZeros === true then (
-	sort unique rows, sort unique cols
-	) else (
-	toList (min rows .. max rows), toList (min cols .. max cols)
-	);
-    mbt := table(toList (0 .. length rows - 1), toList (0 .. length cols - 1),
-	(i,j) -> if ht#?(rows#i,cols#j) then ht#(rows#i,cols#j) else 0);
-    -- Making the table
-    xAxis := toString \ cols;
-    yAxis := (i -> toString i | ":") \ rows;
-    mbt = applyTable(mbt, n -> if n === 0 then "." else toString raw n);
-    mbt = prepend(xAxis, mbt);
-    mbt = apply(prepend("", yAxis), mbt, prepend);
-    netList(mbt, Alignment => Right, HorizontalSpace => 2, BaseRow => 1, Boxes => false)
-    )
-
 multiWinnow = method();
 multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength ring X) then error "degree has wrong length";
-    chainComplex apply(length F, i ->(
+    L := apply(length F, i ->(
 	    m := F.dd_(i+1);
 	    apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
 	    m
-	    )
-    	)
+	    ));
+    chainComplex L
     );
 
 isVirtual = method();
@@ -133,9 +100,9 @@ beginDocumentation()
 
 
 
---------------------------
--- Begining of the TESTS
-------------------------
+-------------------------
+-- Beginning of the TESTS
+-------------------------
 
 
 end--
@@ -146,12 +113,19 @@ viewHelp "VirtualResolutions"
 viewHelp "TateOnProducts"
 check "VirtualResolutions"
 
+---------------------------------
+
 restart
-loadPackage("VirtualResolutions", Reload =>true)
+needsPackage "SplendidComplexes"
+needsPackage "VirtualResolutions"
 R = ZZ/32003[a,b, Degrees => {{1,0}, {0,1}}]
 I = ideal"a2,b2,ab"
 C = res I
-multiBetti C
+betti' C
+compactMatrixForm = false
+betti' C
+
+---------------------------------
 
 restart
 needsPackage "VirtualResolutions"
@@ -164,39 +138,67 @@ I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
 J' = saturate(I',irr);
 hilbertPolynomial(X,J')
 r' = res J'
-multiBetti r'
-multiBetti(r', DegreeBounds => {3, 3})
+betti' r'
+compactMatrixForm = false
+betti' r'
+
+---------------------------------
 
 restart
 needsPackage "VirtualResolutions"
 needsPackage "SplendidComplexes"
+needsPackage "BGG"
+needsPackage "TateOnProducts"
 load "CapeCod.m2"
 X = projectiveSpace(1)**projectiveSpace(1)
 S = ring X
 irr = ideal X
-I' = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
+
+-- Correct
+E = (coefficientRing S)[A_(0)..A_(3), SkewCommutative => true, Degrees=>degrees S]
+Q = presentation(S^1)
+D = res image symExt(Q, E)
+cohomologyTable(D, {-3,-3},{3,3})
+
+-- Not complete
+I = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
+J = saturate(I,irr)
+
+Q = presentation(S^1/I)
+D = res image symExt(Q, E)
+cohomologyTable(D, {-3,-3},{3,3})
+
+-- Better
+I' = ideal(x_0^2*x_2^3)
 J' = saturate(I',irr)
-hilbertPolynomial(X,J')
-r' = res J'
-multiBetti winnow(X, r', {2,1})
-multiWinnow(X, r', {{2,1}, {1,2}})
 
-winnow' = method();
-winnow' (NormalToricVariety, ChainComplex, List) := (X,F,alpha) ->(
-    if #alpha != degreeLength ring X then error "degree has wrong length";
-    lowDegreeSpots := for j to length F list(
-       for i to rank F_j - 1 list(
-           if termwiseLeq(degree F_j_i , alpha) then i else continue
-           ));
-    chainComplex apply(length F, i ->(
-            submatrix(F.dd_(i+1),lowDegreeSpots_i,lowDegreeSpots_(i+1))))
-    );
+-- This is a temporary function, inputs and outputs are changing
+multiGradedRegularity = method();
+multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
+    S := ring M;
+    P := presentation(truncate(T, M ** (ring M)^{D}));
+    E := (coefficientRing S)[A_(0)..A_(numgens S - 1), SkewCommutative => true, Degrees=>degrees S];
+    C := res image symExt(P, E);
+    C = C;
+    C' := res(coker transpose C.dd_(length C + min C), LengthLimit => 2 * length C);
+    C'' := beilinsonWindow C';
+    C''' := (sloppyTateExtension C'')[N];
+    cohomologyTable(C''' ** E^{{-1,-1}}, {-5,-5},{5,5})
+    )
 
-time multiBetti winnow(X, r', {2,1});
-time multiBetti winnow(X, r', {1,2});
-time multiBetti winnow'(X, r', {2,1});
-time multiBetti winnow'(X, r', {1,2});
+multiGradedRegularity(S^1/I, {0,0}, {2,2}, 3)
 
+multiGradedRegularity(S^1, {0,0}, {0,0}, 5)
+multiGradedRegularity(S^1 ++ S^{{2,3}}, {0,0}, {0,0}, 4)
+
+H = multiGradedRegularity(S^1/I', {0,0}, {2,3}, 4)
+m = diff((ring H)_0, H)
+(rows, cols) = (new MutableList, new MutableList);
+for r to numrows m - 1 do (
+    (maxR, maxC) := (0, 0);
+    for c to numcols m - 1 do (
+	if m_(r, c) =!= 0 then (maxC = max(c, maxC); maxR = max(c, maxC));
+    	))
 
 
 
