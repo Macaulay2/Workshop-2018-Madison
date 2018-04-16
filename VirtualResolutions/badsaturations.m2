@@ -137,7 +137,7 @@ genSat(Jsat,3) -- also takes a long time
 
 
 
-J = paramRatCurve({2,2},{3,3},{4,2});
+J = paramRatCurve({2,2},{3,3},{5,4});
 genSat(J,2) -- also takes a long time
 
 
@@ -148,15 +148,24 @@ sat2 = J -> (
     intersect(for i from 2 to 4 list(saturate(J1,x_i)))
     )
 
---faster saturation over general product
---L is the vector n as a list
-sat3 = (J,L) -> (
-    R = ring J;
-    count = 0;
-    for i from 0 to length(L)-1 do
-	J = intersect(for j from count to (count + L_i) list(saturate(J,(gens(R))_j));
-    	count = count + 1;	
+--faster saturation of a module over a general toric variety
+-- Input : M-module irr-irrelevant
+-- Output: N- a irr-saturated module
+genSat = (M,irr) -> (
+    compts = decompose irr;
+    for i from 0 to length(compts)-1 do (
+	N = intersect(apply(numgens(compts_i), j-> saturate(M,compts_i_j)));
+	M = N
 	);
-    J
+    N
+    )
+
+
+isVirtual = (C, M, irr) -> (
+    if not(genSat(M,irr) == genSat(HH_0(C),irr)) then return (false,0);
+    for i from 1 to length(C) do (
+	if not(genSat(HH_i(C),irr) == 0) then return (false,i);
+	);
+    return true
     )
 
