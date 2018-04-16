@@ -62,6 +62,14 @@ fiRing (Ring) := R -> (
         }
     );
     F * R := (m,r) -> r*m;
+    F * F := (m,n) -> (
+        eltsum = 0_F;
+        for mkey in keys terms m do
+            for nkey in keys terms n do
+                if target mkey === source nkey then
+                    eltsum = eltsum + (coefficient(m,mkey)*coefficient(n,nkey))*fiRingElement(mkey*nkey,F);
+        return eltsum
+    );
     return F
     ) 
 
@@ -94,7 +102,17 @@ net FIRingElement := f -> (
 
 coefficientRing FIRing := R -> last R.baseRings
 
+
 FIRing_List := (R, l) -> fiRingElement(FI l, R)
+
+ZZ _ FIRing := (n,R) -> (
+    if n =!= 0 then error "ZZ_FIRing is only defined for 0_FIRing"
+    else return new R from hashTable{
+        symbol ring => F;
+        symbol terms => hashTable{}
+    }
+    )
+
 
 fiRingElement = method()
 
@@ -103,7 +121,7 @@ fiRingElement (FIMorphism,FIRing) := (l,R) ->(
     L := new R from hashTable{
 	(symbol ring) => R,
 	(symbol terms) => hashTable{
-	    l => 1_kk  -- TODO we need the 1 from _(coefficientRing R)
+	    l => 1_kk
 	    }
 	};
     return L
@@ -137,6 +155,7 @@ p = fiRingElement(h,R)
 x = m+n
 y = m+m
 z = n+p
+x*z
 mapsbetween(m,2,5)
 mapsbetween(x,2,5)
 mapsbetween(y,2,5)
