@@ -1,6 +1,6 @@
 FIMorphism = new Type of BasicList
-FIMatrix = new Type of HashTable
 FIRingElement = new Type of HashTable
+FIMatrix = new Type of MutableHashTable
 FIRing = new Type of Type
 
 globalAssignment FIRing
@@ -23,10 +23,6 @@ FIMorphism * FIMorphism := (g, f) -> (
 target FIMorphism := f -> last f
 
 source FIMorphism := f -> (length first f) 
-
-mapsbetween = method()
-
-mapsbetween (FIMorphism,Thing,Thing) := (f,a,b) -> target f == b and source f == a
 
 net FIMorphism := l -> net "["|net l#0|net ","|net l#1|net"]"
 
@@ -103,7 +99,27 @@ net FIRingElement := f -> (
     else net 0
     )
 
-  
+
+isFromTarget=method()
+
+isFromTarget (FIRingElement,Thing) := (m,b) -> (
+        if m === 0_(ring m) then return true
+        else return all (keys terms m,key ->target key == b)
+    )    
+
+isFromSource=method()
+
+isFromSource (FIRingElement, Thing) := (m,a) -> (
+        if m === 0_(ring m) then return true
+        else return all (keys terms m,key -> source key == a)
+    )
+
+isHomogeneous FIRingElement := m -> (
+        if m === 0_(ring m) then return true
+        else return all (keys terms m,key -> source key == source first keys terms m and target key == target first keys terms m)
+    )
+
+
 coefficientRing FIRing := R -> last R.baseRings
 
 
@@ -112,7 +128,7 @@ FIRing_List := (R, l) -> fiRingElement(FI l, R)
 ZZ _ FIRing := (n,R) -> (
     if n =!= 0 then error "ZZ_FIRing is only defined for 0_FIRing"
     else return new R from hashTable{
-        symbol ring => R;
+        symbol ring => R,
         symbol terms => hashTable{}
     }
     )
@@ -133,10 +149,6 @@ fiRingElement (FIMorphism,FIRing) := (l,R) ->(
 
 
 
-mapsbetween (FIRingElement,Thing,Thing) := (m,a,b) -> (
-        all(keys terms m, key-> mapsbetween(key,a,b))
-    )
-
 ring (FIRingElement) := m -> m.ring
 
 
@@ -145,21 +157,24 @@ ring (FIRingElement) := m -> m.ring
 
 fiMatrix = method()
 
-fiMatrix List := fiEntries -> (
-    if #fiEntries == 0 then error "Expected a nonempty list of entries.";
+fiMatrix (List,List,List) := (rowdeglist,fiEntries,coldeglist) -> (
     if not isTable fiEntries then error "Expected a rectangular matrix.";
     -- number of rows, cols
-    rows := #fiEntries;
-    cols := #(fiEntries#0);
-    if cols == 0 then error "mapping to/from zero module not implemented yet";
+    if 1 != fiEntries // flatten / class // unique // length then error "Expected all entries to be from the same FIRing.";
+    if #rowdeglist =!= #fiEntries then error "Row degrees don't match matrix";
+    if #coldeglist =!= #(fiEntries#0) then error "Col degrees don't match matrix";
+    if not all(#rowdeglist, i -> all(fiEntries#i, m->isFromSource(m,rowdeglist#i))) then error "The sources of the entries don't match the degrees in the rows.";
+    if not all(fiEntries, row -> all(#coldeglist, i->isFromTarget(row#i,coldeglist#i))) then error "The targets of the entries don't match the degrees in the columns.";
     -- find a common ring to promote all entries to. For now, just
     -- expect them to be from the same ring. If not, throw an error.
-    if 1 != fiEntries // flatten / class // unique // length then error "Expected all entries to be from the same FIRing.";
-    -- more tests here eventually. But for now:
-    return new FIMatrix from hashTable {(symbol ring, (fiEntries#0#0).ring),
+    return new FIMatrix from hashTable {
+    (symbol ring, (fiEntries#0#0).ring),
+    (symbol rowdegs, rowdeglist),
 	(symbol matrix, fiEntries),
+    (symbol coldegs, coldeglist),
 	(symbol cache, new CacheTable from {})};
     )
+
 
 net FIMatrix := M -> net expression M
 expression FIMatrix := M -> MatrixExpression applyTable(M.matrix, expression)
@@ -184,6 +199,15 @@ FIMatrix * FIMatrix := (M, N) -> (
 	)
     )
 
+rowDegrees = method()
+
+rowDegrees FIMatrix := M -> M.rowdegs
+
+colDegrees = method()
+
+colDegrees FIMatrix := M -> M.coldegs
+
+
 /// TEST 
 
 restart
@@ -199,13 +223,13 @@ x = m+n
 y = m+m
 z = n+p
 x*z
-mapsbetween(m,2,5)
-mapsbetween(x,2,5)
-mapsbetween(y,2,5)
-mapsbetween(z,5,7)
 y === 2*m
 y === 2/1*m
 y === m*(2/1)
+isFromSource(x*z,2)
+isHomogeneous(x*z)
+isHomogeneous(0_RFI)
+isHomogeneous x
 
 -- FIMatrix Tests
 
@@ -219,6 +243,7 @@ h = FI{5,2,6,1,3,7}
 x = fiRingElement(f,R);
 y = fiRingElement(g,R);
 z = fiRingElement(h,R);
-mat = fiMatrix {{x,y,z}}
+mat = fiMatrix ({2,5},{{x,0_R},{0_R,y+z}},{5,7})
+rowDegrees mat
 
 ///
