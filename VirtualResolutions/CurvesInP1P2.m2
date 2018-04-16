@@ -17,13 +17,13 @@ newPackage ("CurvesP1P2",
 
 needsPackage "SimpleDoc"
 needsPackage "RandomSpaceCurves";
-load "Colon.m2"
---load "badsaturations.m2"
+
 export{
     "randomRationalCurve",
     "randomMonomialCurve",
     "curveFromP3toP1P2",
     "randomCurve",
+    "saterationZero",
     }
 
 
@@ -125,6 +125,7 @@ curveFromP3toP1P2 = (J) ->(
     K  := saturate(C'+D,B);
     I =  sub(eliminate(Var,K),S)
 )
+
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e)=(degree,genus)
@@ -168,19 +169,55 @@ randomCurve (ZZ,ZZ) := (d,g) ->(
     K  = saturate(C'+D,B);
     I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
     )
-    
-saterationZero = (M,B) ->(
-    Vars = flatten entries vars ring B;
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (M,B)=(Module,Ideal)
+----- Output: Returns true if saturate(M,B)==0 and false otherwise
+----- Description: This checks whether the saturation of a module M
+----- with respects to an ideal B is zero. This is done by checking 
+----- whether for each generator of B some power of it annihilates
+----- the module M. We do this generator by generator.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+saterationZero = method() 
+saterationZero (Module,Ideal) := (M,B) ->(
+    Vars := flatten entries vars ring B;
     apply(flatten entries mingens B,b->(
-	  bVars = support b;
-	      rVars = delete(bVars#1,delete(bVars#0,Vars))|bVars;
-	      R = ZZ/101[rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
-	      M' = sub(presentation M,R);
-	      G' = gb M' ; 
-	      if (ann coker selectInSubring(1,leadTerm G')) == 0 then break false;
+	  bVars := support b;
+	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
+	      R := ZZ/101[rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
+	      P := sub(presentation M,R);
+	      G := gb P; 
+	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then break false;
     ));
     true
 )
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (I,B)=(Ideal,Ideal)
+----- Output: Returns true if saturate(comodule I,B)==0 and false otherwise
+----- Description: This checks whether the saturation of a module M
+----- with respects to an ideal B is zero. This is done by checking 
+----- whether for each generator of B some power of it annihilates
+----- the module M. We do this generator by generator.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+saterationZero (Ideal,Ideal) := (I,B) ->(
+    M := comodule I;
+    Vars := flatten entries vars ring B;
+    apply(flatten entries mingens B,b->(
+	  bVars := support b;
+	      rVars = delete(bVars#1,delete(bVars#0,Vars))|bVars;
+	      R := ZZ/101[rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
+	      P := sub(presentation M,R);
+	      G := gb P; 
+	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then break false;
+    ));
+    true
+)
+
 --------------------------
 -- Begining of the documentation
 ------------------------
@@ -283,6 +320,34 @@ doc ///
     	creates the Ideal of a random  curve of degree d and genus g in P1xP2
     Usage
     	randomCurve(d,g)
+    Inputs
+    	d:ZZ
+	    degree of the curve.
+	g:ZZ
+	    genus of the curve.
+    Outputs
+    	I:Ideal
+	    definin curve in P1xP2.
+    Description
+    	Text
+	    Given a curve defined by the ideal J in P3
+     	    this outputs the ideal I of the curve in P1xP2 given by
+ 	    considering the projection from P3 to P1 on the 
+	    first two variables and the projection from P3
+	    to P2 on the last three variables.
+	    
+	Example
+	    randomCurve(3,0)
+
+///
+
+doc ///
+    Key
+    	saterationZero
+    Headline
+    	creates the Ideal of a random  curve of degree d and genus g in P1xP2
+    Usage
+    	saterationZero(d,g)
     Inputs
     	d:ZZ
 	    degree of the curve.
