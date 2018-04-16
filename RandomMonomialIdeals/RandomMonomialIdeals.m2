@@ -755,36 +755,31 @@ depthStats (List) := o-> (ideals) -> (
     ret=(avg, stdDev)
 )
 
-isProjDimMaximal = method(TypicalValue=>Boolean);
-isProjDimMaximal (MonomialIdeal) := M -> (
+
+isProjDimMaximum = method(TypicalValue=>Boolean);
+isProjDimMaximum (MonomialIdeal) := M -> (
     n := #gens(ring M);
     G := apply(flatten entries mingens M, e -> flatten exponents e);
-    subsetsG := subsets(G,n);
-    for ss in subsetsG do(
-	--check whether ss is a dominant set
-	b := true;
-	Dom := {};
-	LCM := {};
-	for i from 0 to n-1 do (
-            iMax := max(apply(ss, e -> e_i));
-            iDom := select(ss, g -> g_i == iMax);
-            if #iDom>1 then(
-		b = false;
-		);
-            Dom = append(Dom, flatten iDom);
-	    LCM = append(LCM, iMax);
-            );
-        if #Dom>#(unique Dom) then(
-	    b = false;
-	    );
-	--if it was dominant, check for a strong divisor
-	if b then (
-	    if (
-	        all(G, g -> member(g,ss) or not g <= apply(LCM, a -> max(0, a-1)))
-	        ) 
-	    then (
-	        return true;
-	        );
+    if #G < n then return false;
+    possibleExponents := for i from 0 to n-1 list(
+	X := sort apply(G, e -> e_i);
+	tooSmall := X_(n-2);
+	X = unique drop(X, n-1);
+	if X_0 == tooSmall then X = drop(X, 1) else X
+	);
+    possibleLCMs := apply(toList fold(cartesianProduct, apply(possibleExponents, set)), toList@@deepSplice);
+    --given LCM, find dominant set with that LCM
+    for LCM in possibleLCMs do(
+        bad := false;
+        domSet := for i from 0 to n-1 list (
+	    A := select(1, G, e -> (
+	        all(n, j -> (if j == i then e_j == LCM_j else e_j < LCM_j))
+	        ));
+	    if A === {} then bad = true;
+	    flatten A
+        );
+        if not bad then(
+	    if all(G, g -> not all(n, j -> g_j < LCM_j)) then return true
 	    );
 	);
     false
@@ -807,6 +802,8 @@ polarize (MonomialIdeal) := I -> (
 --********************--
 --  Internal methods  --
 --********************--
+
+cartesianProduct = (x,y) -> (x)**(y)
 
 toSymbol = (p) -> (
      if instance(p,Symbol)
