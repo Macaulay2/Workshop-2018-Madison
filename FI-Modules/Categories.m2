@@ -1,6 +1,8 @@
 FIMorphism = new Type of BasicList
 FIRingElement = new Type of HashTable
+FIRingElement = new Type of HashTable
 FIRing = new Type of Type
+
 globalAssignment FIRing
 
 -- FI MORPHISMS
@@ -137,7 +139,23 @@ mapsbetween (FIRingElement,Thing,Thing) := (m,a,b) -> (
 
 ring (FIRingElement) := m -> m.ring
 
+fiMatrix = method()
 
+fiMatrix List := fiEntries -> (
+    if #fiEntries == 0 then error "Expected a nonempty list of entries.";
+    if not isTable fiEntries then error "Expected a rectangular matrix.";
+    -- number of rows, cols
+    rows := #fiEntries;
+    cols := #(fiEntries#0);
+    if cols == 0 then error "mapping to/from zero module not implemented yet";
+    -- find a common ring to promote all entries to. For now, just
+    -- expect them to be from the same ring. If not, throw an error.
+    if 1 != fiEntries // flatten / class // unique // length then error "Expected all entries to be from the same FIRing.";
+    -- more tests here eventually. But for now:
+    return new FIMatrix from hashTable {(symbol ring, (fiEntries#0#0).ring),
+	(symbol matrix, fiEntries),
+	(symbol cache, new CacheTable from {})};
+    )
 
 /// TEST 
 
@@ -170,5 +188,19 @@ mapsbetween(z,5,7)
 y === 2*m
 y === 2/1*m
 y === m*(2/1)
+
+-- FIMatrix Tests
+
+restart
+load "Categories.m2"
+
+R = fiRing(ZZ/3)
+f = FI{1,2,5}
+g = FI{3,1,2,4,6,7}
+h = FI{5,2,6,1,3,7}
+x = fiRingElement(f,R);
+y = fiRingElement(g,R);
+z = fiRingElement(h,R);
+mat = fiMatrix {{x,y,z}}
 
 ///
