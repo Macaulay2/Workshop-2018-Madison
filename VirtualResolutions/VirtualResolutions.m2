@@ -41,6 +41,7 @@ newPackage ("VirtualResolutions",
 
 export{
 --    "multiGradedRegularity"
+    "findCorners",
     "multiWinnow",
     "HideZeros",
     "DegreeBounds",
@@ -62,8 +63,8 @@ multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
 
 -- TODO: change cohomologyTable to return a Tally, then redo this.
 findCorners = m -> (
-    corners = {};
-    (rows, cols) = (new MutableList, new MutableList);
+    corners := {};
+    (rows, cols) := (new MutableList, new MutableList);
     for r to numrows m - 1 do (
     	for c to numcols m - 1 do (
 	    if m_(r, c) != 0 then (
