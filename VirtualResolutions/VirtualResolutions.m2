@@ -108,8 +108,9 @@ isVirtual (ChainComplex, Ideal, Ideal) := Boolean=> (C, I, irr) ->(
     annHH0sat := saturateByElimination(annHH0,irr);
     if not(Isat == annHH0sat) then return (false,0);    
     for i from 1 to length(C) do (
-	annHHi := ann prune HH_i(C);
+	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring I)) then (
+		if annHHi == 0 then return (false,i);
 	    	if  saturateByElimination(annHHi,irr) != 0 then (
 		    return (false,i);
 		    )
@@ -254,4 +255,13 @@ isVirtual(r,J,irr)
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
 J' = saturateByElimination(I',irr)
 J' == saturate(I',irr)
-q1 = winnowProducts(X,r',{2,1})
+r' = res J'
+betti' r'
+q1 = winnowProducts(S,r',{2,1})
+prune HH q1
+isVirtual(q1,I',irr)
+q2 = winnowProducts(S,r',{1,1})
+isVirtual(q2,I',irr)
+
+q3 = winnowProducts(S,r',{1,0})
+isVirtual(q3,I',irr)

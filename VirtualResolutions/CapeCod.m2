@@ -132,6 +132,20 @@ winnowProducts (NormalToricVariety, ChainComplex, List) := (X,F,beta) ->(
     chainComplex apply(length F, i ->(
 	     submatrix(F.dd_(i+1),lowDegreeSpots_i,lowDegreeSpots_(i+1))))
      );
+--added
+winnowProducts (Ring, ChainComplex, List) := (S,F,beta) ->(
+    n := sum degrees ring F;
+    m := n - apply(#n, i -> 1);
+    alpha := beta + m;
+    if #alpha != degreeLength S then error "degree has wrong length";
+    lowDegreeSpots := for j to length F list(
+	for i to rank F_j - 1 list(
+	    if termwiseLeq(degree F_j_i , alpha) then i else continue
+	    ));
+    chainComplex apply(length F, i ->(
+	     submatrix(F.dd_(i+1),lowDegreeSpots_i,lowDegreeSpots_(i+1))))
+     );
+--add ends here
 
 rank (ChainComplex) := F ->(
     sum apply(toList(min F .. max F), i -> rank F_i)
