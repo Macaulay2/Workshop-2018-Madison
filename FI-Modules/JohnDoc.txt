@@ -162,6 +162,43 @@ multidoc ///
     [0 3 0 3 0 0 0 3 0 3 0 0 0 3 0 3 0 0 1 1 1 1 1 1]
 
 
+ Node
+  Key
+   (FIStructureMap, FIMatrix, FIMatrix)
+   Divide
+  Headline
+   The structure maps of a finitely presented FI-module
+  Usage
+   FIStructureMap(presentation, matrix)
+  Inputs
+   presentation: An FIMatrix presenting some FI-module V as its cokernel
+   matrix: An FIMatrix at which to evaluate V
+   
+  Outputs
+   :
+    A matrix over the coefficient ring giving the action of \tt{matrix} on the
+    cokernel of \tt{presentation}
+  Description
+   An FI-module consists of a vector space for each natural number, and a structure map for
+   each injection.  This function provides the structure maps of the FI-module with presentation
+   matrix \tt{presentation}.  Taking \tt{matrix} to be a 1 x 1 FI-matrix containing a single
+   monomial f : {1,...,m} --> {1,...,n}, this function returns the induced map
+    Vf : Vm --> Vn
+   as a matrix over the coefficient ring.  Larger FI-matrices extend this rule by linearity
+   as well as by forming block matrices.
+   Example
+    f = LinFI(QQ)
+    m = matrix({1},{{f_{12}-f{21}}},{2})
+    o = matrix({4},{{f_{1234}+8f_{5432}}},{5})
+    FIStructureMap(m, o)
+    
+   Output
+    [1 0 0 0 0 0 0 0 0 8]
+    [0 1 0 0 0 0 0 0 8 0]
+    [0 0 1 0 0 0 8 0 0 0]
+    [0 0 0 0 1 0 0 8 0 0]
+    [0 0 0 0 0 9 0 0 0 0]
+    [0 0 0 0 8 0 0 1 0 0]
 
 ///
 
