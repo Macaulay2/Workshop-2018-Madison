@@ -230,19 +230,12 @@ statistics (Sample, Function) := HashTable => (s,f) -> (
      Histogram=>tally fData}
 )
 
-generateStatistics = method(TypicalValue => List, Options => {Coefficients => QQ,
-							      IncludeZeroIdeals => true,
-							      Strategy => "ER"})
-generateStatistics (List,Function) := List => o -> (params,f) -> (
-    N := params_3;
-    idealParams := (params_0,params_1,params_2,1);
+generateStatistics = method(TypicalValue => List)
+generateStatistics (Model,Function,ZZ) := List => (model,f,N) -> (
     meanSum := 0;
     stDevSum := 0;
     scan(N,i->(
-        currIdeal := randomMonomialIdeals(idealParams, Coefficients => o.Coefficients,
-	                                              IncludeZeroIdeals => o.IncludeZeroIdeals,
-						      Strategy => o.Strategy);
-	currIdeal = currIdeal_0;
+        currIdeal := ideal(model.Generate());
         currDatum := f currIdeal;
         meanSum = meanSum + currDatum;
         stDevSum = stDevSum + currDatum^2;
@@ -252,7 +245,7 @@ generateStatistics (List,Function) := List => o -> (params,f) -> (
     var := sub(1/N*stDevSum-mean^2, RR);
     stdDev := var^(1/2);
     (mean, stdDev)
-) 						      
+) 
 	
 createRing := (baseRing,n) -> (
     x := getSymbol "x";
