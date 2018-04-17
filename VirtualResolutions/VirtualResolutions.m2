@@ -1,14 +1,14 @@
--*
-restart
-loadPackage("VirtualResolutions", Reload =>true)
-installPackage "VirtualResolutions"
-installPackage "CompleteIntersectionResolutions"
-installPackage "BGG"
-viewHelp "VirtualResolutions"
-viewHelp "TateOnProducts"
-viewHelp CompleteIntersectionResolutions
-check "VirtualResolutions"
-*-
+--*
+--restart
+--loadPackage("VirtualResolutions", Reload =>true)
+--installPackage "VirtualResolutions"
+--installPackage "CompleteIntersectionResolutions"
+--installPackage "BGG"
+--viewHelp "VirtualResolutions"
+--viewHelp "TateOnProducts"
+--viewHelp CompleteIntersectionResolutions
+--check "VirtualResolutions"
+--*-
 ---------------------------------------------------------------------------
 -- PURPOSE : 
 --           
@@ -45,7 +45,7 @@ export{
     "curveFromP3toP1P2",
     "DegreeBounds",
     "findCorners",
-    "findGensUpToIrrelevance"
+    "findGensUpToIrrelevance",
     "HideZeros",
     "isVirtual",
     "multiGradedRegularity",
