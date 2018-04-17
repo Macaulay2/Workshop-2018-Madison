@@ -83,9 +83,12 @@ export {
     "randomMonomialSet",
     "randomHomogeneousMonomialSet",
     "randomHomogeneousMonomialSets",
+    "randomBinomialSets",
+    "randomBinomialSet",
     "idealsFromGeneratingSets",
     "randomMonomialIdeals",
     "randomHomogeneousMonomialIdeals",
+    "randomBinomialIdeals",
     "Coefficients",
     "mingenStats",
     "IncludeZeroIdeals",
@@ -422,6 +425,126 @@ randomHomogeneousMonomialSet (PolynomialRing,ZZ,ZZ) := List => o -> (R,D,M) -> (
     if C==={} then {0_R} else C
 )
 
+
+
+randomBinomialSets = method(TypicalValue => List, Options => {Coefficients => QQ,
+							      Strategy => "ER"})
+randomBinomialSets (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
+    if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
+    randomBinomialSets(n,D,toList(D:p),N,o)
+)
+
+randomBinomialSets (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
+    if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
+    randomBinomialSets(R,D,toList(D:p),N,o)
+)
+
+randomBinomialSets (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
+    if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
+    R := createRing(o.Coefficients,n);
+    apply(N,i-> randomBinomialSet(R,D,M,o))
+)
+
+randomBinomialSets (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
+    if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
+    apply(N,i-> randomBinomialSet(R,D,M,o))
+)
+
+randomBinomialSets (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
+    if n<1 then error "n expected to be a positive integer";
+    if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
+    R := createRing(o.Coefficients,n);
+    apply(N,i-> randomBinomialSet(R,D,pOrM,o))
+)
+
+randomBinomialSets (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
+    if N<1 then stderr << "warning: N expected to be a positive integer" << endl;
+    apply(N,i-> randomBinomialSet(R,D,pOrM,o))
+)
+
+randomBinomialSet = method(TypicalValue => List, Options => {Coefficients => QQ,
+							       Strategy => "ER"})
+randomBinomialSet (ZZ,ZZ,RR) := List => o -> (n,D,p) -> (
+    if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
+    randomBinomialSet(n,D,toList(D:p),o)
+)
+
+randomBinomialSet (PolynomialRing,ZZ,RR) := List => o -> (R,D,p) -> (
+    if p<0.0 or 1.0<p then error "p expected to be a real number between 0.0 and 1.0";
+    randomBinomialSet(R,D,toList(D:p),o)
+)
+
+randomBinomialSet (ZZ,ZZ,ZZ) := List => o -> (n,D,M) -> (
+    if n<1 then error "n expected to be a positive integer";
+    R := createRing(o.Coefficients,n);
+    randomBinomialSet(R,D,M)
+)
+
+randomBinomialSet (PolynomialRing,ZZ,ZZ) := List => o -> (R,D,M) -> (
+    if M<0 then stderr << "warning: M expected to be a nonnegative integer" << endl;
+    if o.Strategy === "Minimal" then error "Minimal not implemented for fixed size ER model";
+    allBinomials := flatten flatten apply(toList(1..D),d->entries basis(d,R));
+    C := take(random(allBinomials), M);
+    if C==={} then {0_R} else C
+)
+
+randomBinomialSet (ZZ,ZZ,List) := List => o -> (n,D,pOrM) -> (
+    if n<1 then error "n expected to be a positive integer";
+    R := createRing(o.Coefficients,n);
+    randomBinomialSet(R,D,pOrM,o)
+)
+
+
+pairsDistinct := L -> (
+    pairs:={};
+    if #L>1 then 
+        for i from 0 to #L-2 do (
+            for j from i+1 to #L-1  do (
+                pairs=append(pairs, {L#i, L#j}) 
+        ));
+    pairs
+)
+
+binomialsSameDegree := (d,R) -> (
+    monomialsSameDegree:= flatten entries basis(d, R);
+    pairs:=pairsDistinct(monomialsSameDegree);
+    for i from 0 to #pairs-1 list (pairs#i#0 - pairs#i#1)
+)
+
+
+randomBinomialSet (PolynomialRing,ZZ,List) := List => o -> (R,D,pOrM) -> (
+    if #pOrM != D then error "pOrM expected to be a list of length D";
+    if not all(pOrM, q->instance(q, ZZ)) and not all(pOrM, q->instance(q,RR))
+      then error "pOrM must be a list of all integers or all real numbers";
+    B := {};
+    currentRing:= R;
+    if all(pOrM,q->instance(q,ZZ)) then (
+        if o.Strategy === "Minimal" then (
+            apply(D, d->(
+                chosen := take(random(binomialsSameDegree(d+1,currentRing)), pOrM_d);
+                B = flatten append(B, chosen/(i->sub(i, R)));
+                currentRing = currentRing/promote(ideal(chosen), currentRing)
+            )))
+        else
+            B = flatten apply(toList(1..D), d->take(random(binomialsSameDegree(d,currentRing)), pOrM_(d-1)));
+    )
+    else if all(pOrM,q->instance(q,RR)) then (
+        if any(pOrM,q-> q<0.0 or 1.0<q) then error "pOrM expected to be a list of real numbers between 0.0 and 1.0";
+        if o.Strategy === "Minimal" then (
+            B = flatten apply(D, d-> (
+                chosen := select(binomialsSameDegree(d+1,currentRing), m->random(0.0,1.0)<=pOrM_d);
+                if chosen!={} then currentRing = currentRing/ideal(chosen); 
+                chosen/(i->sub(i, R))
+            ))
+        )
+        else
+            B = flatten apply(toList(1..D),d-> select(binomialsSameDegree(d,currentRing), m-> random(0.0,1.0)<=pOrM_(d-1)));
+	);
+    if B==={} then {0_R} else B
+)
+
+
+
 bettiStats = method(TypicalValue =>Sequence, Options =>{IncludeZeroIdeals=>true, SaveBettis => "", CountPure => false, Verbose => false})
 bettiStats List :=  o-> (ideals) -> (
     N := #ideals; Z:=0;
@@ -451,7 +574,7 @@ bettiStats List :=  o-> (ideals) -> (
 	if o.CountPure then if isPure resi then pure = pure +1;
         if o.SaveBettis != "" then o.SaveBettis << resi << endl;
     	bettisHistogram = append(bettisHistogram, resi);
-  	-- let's only keep a 1 in all spots where there was a non-zero Betti number:
+  	-- lets only keep a 1 in all spots where there was a non-zero Betti number:
 	beta1mtx := matrix(resi);
 	Rtemp := (ring ideals_i)^1/ideals_i;
 	beta1shape := new BettiTally from mat2betti  matrix pack(1+pdim(Rtemp), apply(flatten entries beta1mtx, i-> if i>0 then i=1 else i=0));
@@ -520,6 +643,19 @@ idealsFromGeneratingSets(List):= o -> (B) -> (
     if o.IncludeZeroIdeals then return ideals else return (nonzeroIdeals,numberOfZeroIdeals);
 )
 
+--creates a list of ideal objects from a list of binomial generating sets
+binomialIdealsFromGeneratingSets =  method(TypicalValue => List, Options => {IncludeZeroIdeals => true, Verbose => false})
+binomialIdealsFromGeneratingSets(List):= o -> (B) -> (
+    N := # B;
+    n := numgens ring ideal B#0; -- ring of the first binomial in the first gen set
+    ideals := B / (b-> ideal b);
+    (nonzeroIdeals,numberOfZeroIdeals) := extractNonzeroIdeals(ideals);
+    if o.Verbose then
+     stdio <<"There are "<<#B<<" ideals in this sample. Of those, "<<numberOfZeroIdeals<<" are the zero ideal."<< endl;
+    if o.IncludeZeroIdeals then return ideals else return (nonzeroIdeals,numberOfZeroIdeals);
+)
+
+
 
 dimStats = method(TypicalValue => Sequence, Options => {ShowTally => false, Verbose =>false})
 dimStats List := o-> (ideals) -> (
@@ -565,7 +701,7 @@ regStats List := o-> (ideals) -> (
     	     var := Ex2-avg^2;
     	     stdDev = var^(1/2);
     	     if o.ShowTally
-    	        then(ret=(avg, stdDev,tally regHistogram); return ret;);
+    	        then(ret=(avg, stdDev,tally regHist); return ret;);
 	     if o.Verbose then (
 		 stdio << "There are "<<N<<" ideals in this sample. Of those, "<< toString(N-#ideals) <<" are the zero ideal." << endl;
               	 stdio << "The zero ideals were extracted from the sample before reporting the regularity statistics."<< endl;
@@ -632,6 +768,44 @@ randomHomogeneousMonomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
 	B:=randomHomogeneousMonomialSets(n,D,M,N,Coefficients=>o.Coefficients);
 	idealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
 )
+
+randomBinomialIdeals = method(TypicalValue => List, Options => {Coefficients => QQ, IncludeZeroIdeals => true, Strategy => "ER"})
+
+randomBinomialIdeals (PolynomialRing,ZZ,List,ZZ) := List => o -> (R,D,pOrM,N) -> (
+    B :=
+      if all(pOrM,q->instance(q,RR)) then randomBinomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,Strategy=>"Minimal")
+      else if all(pOrM,q->instance(q,ZZ)) then randomBinomialSets(R,D,pOrM,N,Coefficients=>o.Coefficients,Strategy=>o.Strategy);
+    binomialIdealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+
+randomBinomialIdeals (PolynomialRing,ZZ,RR,ZZ) := List => o -> (R,D,p,N) -> (
+    B := randomBinomialSets(R,D,p,N,Coefficients=>o.Coefficients,Strategy=>"Minimal");
+    binomialIdealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomBinomialIdeals (PolynomialRing,ZZ,ZZ,ZZ) := List => o -> (R,D,M,N) -> (
+    B := randomBinomialSets(R,D,M,N,Coefficients=>o.Coefficients,Strategy=>o.Strategy);
+    binomialIdealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
+randomBinomialIdeals (ZZ,ZZ,List,ZZ) := List => o -> (n,D,pOrM,N) -> (
+        B:={};
+        if all(pOrM,q->instance(q,RR)) then
+	    B=randomBinomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients,Strategy=>"Minimal")
+	else if all(pOrM,q->instance(q,ZZ)) then
+	    B=randomBinomialSets(n,D,pOrM,N,Coefficients=>o.Coefficients, Strategy=>o.Strategy);
+	binomialIdealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+randomBinomialIdeals (ZZ,ZZ,RR,ZZ) := List => o -> (n,D,p,N) -> (
+	B:=randomBinomialSets(n,D,p,N,Coefficients=>o.Coefficients, Strategy=>"Minimal");
+	binomialIdealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+randomBinomialIdeals (ZZ,ZZ,ZZ,ZZ) := List => o -> (n,D,M,N) -> (
+	B:=randomBinomialSets(n,D,M,N,Coefficients=>o.Coefficients);
+	binomialIdealsFromGeneratingSets(B,IncludeZeroIdeals=>o.IncludeZeroIdeals)
+)
+
 
 CMStats = method(TypicalValue => QQ, Options =>{Verbose => false})
 CMStats (List) := QQ => o -> (ideals) -> (
@@ -1095,6 +1269,209 @@ doc ///
   randomMonomialSet
   randomMonomialSets
 ///
+
+doc ///
+ Key
+  randomBinomialSets
+  (randomBinomialSets,ZZ,ZZ,RR,ZZ)
+  (randomBinomialSets,PolynomialRing,ZZ,RR,ZZ)
+  (randomBinomialSets,ZZ,ZZ,ZZ,ZZ)
+  (randomBinomialSets,PolynomialRing,ZZ,ZZ,ZZ)
+  (randomBinomialSets,ZZ,ZZ,List,ZZ)
+  (randomBinomialSets,PolynomialRing,ZZ,List,ZZ)
+ Headline
+  randomly generates lists of monomials in fixed number of variables up to a given degree
+ Usage
+  randomBinomialSets(ZZ,ZZ,RR,ZZ)
+  randomBinomialSets(PolynomialRing,ZZ,RR,ZZ)
+  randomBinomialSets(ZZ,ZZ,ZZ,ZZ)
+  randomBinomialSets(PolynomialRing,ZZ,ZZ,ZZ)
+  randomBinomialSets(ZZ,ZZ,List,ZZ)
+  randomBinomialSets(PolynomialRing,ZZ,List,ZZ)
+ Inputs
+  n: ZZ
+    number of variables, OR
+  : PolynomialRing
+    the ring in which the monomials are to live if $n$ is not specified
+  D: ZZ
+    maximum degree
+  p: RR
+     the probability of selecting a monomial, OR
+  M: ZZ
+     number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree at most $D$  OR
+  : List
+     of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
+  : List
+     of integers whose $i$-th entry is the number of monomials of degree $i$ in each set, up to the maximum number of monomials in $n$ variables of degree exactly $i$
+  N: ZZ
+    number of sets to be generated
+ Outputs
+  : List
+   random generating sets of monomials
+ Description
+  Text
+   randomBinomialSets creates $N$ random sets of homogeneous binomials of degree $d$, $1\leq d\leq D$, in $n$ variables.
+   It does so by calling @TO randomBinomialSet@ $N$ times.
+ SeeAlso
+  randomMonomialSet
+  randomBinomialSet
+  randomHomogeneousMonomialSet
+  randomHomogeneousMonomialSets
+///
+
+doc ///
+ Key
+  randomBinomialIdeals
+  (randomBinomialIdeals,PolynomialRing,ZZ,RR,ZZ)
+  (randomBinomialIdeals,PolynomialRing,ZZ,ZZ,ZZ)
+  (randomBinomialIdeals,ZZ,ZZ,RR,ZZ)
+  (randomBinomialIdeals,ZZ,ZZ,ZZ,ZZ)
+ Headline
+  generates random sets of homogeneous binomial ideals
+ Usage
+  randomBinomialIdeals(PolynomialRing,ZZ,RR,ZZ)
+  randomBinomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
+  randomBinomialIdeals(ZZ,ZZ,RR,ZZ)
+  randomBinomialIdeals(ZZ,ZZ,ZZ,ZZ)
+ Inputs
+  R: PolynomialRing
+    the ring to generate a random homogeneous monomial ideal in, OR
+  n: ZZ
+    number of variables
+  D: ZZ
+    degree of generators
+  p: RR
+     probability to select a monomial in the ER model, OR
+  M: ZZ
+     the number of homogeneous binomials, up to the maximum number of homogeneous binomials in $n$ variables of degree $D$, used to generate each ideal
+  N: ZZ
+    the number of random homogeneous binomial ideals to be generated
+ Outputs
+  : List
+   list of randomly generated Homogeneous @TO Ideal@, if @TO IncludeZeroIdeals@ is false then the output will be sequence with the first element a list of the non-zero ideals and the second element the number of zero ideals.
+ Description
+  Text
+   randomBinomialIdeals creates $N$ random homogeneous binomial ideals, with each binomial generator having degree at most $D$, in $n$ variables.
+   If $p$ is a real number, it generates each of these ideals according to the Erdos-Renyi-type model (see @HREF"https://arxiv.org/abs/1701.07130"@):
+   from the list of all homogeneous binomials of degree at most $D$ in $n$ variables, it selects each one, independently, with probability $p$.
+  Example
+   n=2; D=3; p=0.2; N=10;
+   randomBinomialIdeals(n,D,p,N)
+   randomBinomialIdeals(5,3,0.4,4)
+  Example
+   randomBinomialIdeals(3,2,1.0,1)
+  Text
+   If $M$ is an integer, then randomBinomialIdeals creates $N$ random binomial ideals with minimal generating set of $M$ homogeneous binomials:
+   randomly select $M$ homogeneous binomials from the list of all mhomogeneous binomials of degree $D$ in $n$ variables, then generate the ideal from this set.
+  Example
+   n=8; D=4; M=7; N=3;
+   randomBinomialIdeals(n,D,M,N)
+  Text
+   Note that each generating set of each ideal has exactly $M = 7$ homogeneous binomials. 
+ SeeAlso
+   randomBinomialSets
+   idealsFromGeneratingSets
+   randomMonomialIdeals
+///
+
+
+
+doc ///
+ Key
+  randomBinomialSet
+  (randomBinomialSet,ZZ,ZZ,RR)
+  (randomBinomialSet,PolynomialRing,ZZ,RR)
+  (randomBinomialSet,ZZ,ZZ,ZZ)
+  (randomBinomialSet,PolynomialRing,ZZ,ZZ)
+ Headline
+  randomly generates a list of homogeneous binomials in fixed number of variables of a given degree
+ Usage
+  randomBinomialSet(ZZ,ZZ,RR)
+  randomBinomialSet(PolynomialRing,ZZ,RR)
+  randomBinomialSet(ZZ,ZZ,ZZ)
+  randomBinomialSet(PolynomialRing,ZZ,ZZ)
+ Inputs
+  n: ZZ
+    number of variables, OR
+  : PolynomialRing
+    the ring in which homogeneous binomials are to live if $n$ is not specified
+  D: ZZ
+    degree
+  p: RR
+     the probability of selecting a homogeneous binomial, OR
+  M: ZZ
+     number of homogeneous binomials in the set, up to the maximum number of homogeneous binomials in $n$ variables of degree $D$
+ Outputs
+  : List
+   random set of homogeneous binomials
+ Description
+  Text
+   randomBinomialSet creates a list of homogeneous binomials of a given degree $D$ in $n$ variables.
+   If $p$ is a real number, it generates the set according to the Erdos-Renyi-type model, that is, based on a Binomial distribution:
+   from the list of all homogeneous binomials of degree $D$ in $n$ variables, it selects each one, independently, with probability $p$.
+  Example
+   n=2; D=3; p=0.2;
+   randomBinomialSet(n,D,p)
+   randomBinomialSet(3,2,0.6)
+  Example
+   randomBinomialSet(3,2,1.0)
+  Text
+   If $M$ is an integer, then randomBinomialSet creates a list of monomials of size $M$:
+   randomly select $M$ monomials from the list of all monomials of degree $D$ in $n$ variables.
+  Example
+   n=10; D=5; M=4;
+   randomBinomialSet(n,D,M)
+  Text
+   Note that it returns a set with $M = 4$ monomials.
+  Text
+   If $M$ is greater than the total number of monomials in $n$ variables of degree $D$, then the method will simply return all those monomials (and not $M$ of them). For example:
+  Example
+   randomBinomialSet(2,2,10)
+  Text
+   returns 4 homogeneous binomials in a generating set, and not 10, since there are fewer than 10 homogeneous binomials to choose from.
+  Text
+   Sometimes we are already working in a specific ring and would like the random sets of monomials to live in the same ring:
+  Example
+   D=3;p=.5; R=ZZ/101[a,b,c];
+   randomBinomialSet(R,D,p)
+   ring oo_0
+ SeeAlso
+   randomBinomialSets
+   randomMonomialSets
+   randomMonomialSet
+///
+
+
+doc ///
+ Key
+  binomialIdealsFromGeneratingSets
+  (binomialIdealsFromGeneratingSets, List)
+ Headline
+  creates ideals from sets of homogeneous binomials
+ Usage
+  idealsFromGeneratingSets(List)
+ Inputs
+  B: List
+    of sets of homogeneous binomials
+ Outputs
+  : List
+    of @TO ideal@s
+ Description
+  Text
+   binomialIdealsFromGeneratingSets takes a list of sets of homogeneous binomials and converts each set into an ideal.
+  Example
+   n=4; D=2; p=1.0; N=3;
+   B=randomBinomialSets(n,D,p,N); B/print
+   binomialIdealsFromGeneratingSets(B)
+  Text
+   In case the {\tt IncludeZeroIdeals} is set to false, the method also counts how many sets are converted to the zero ideal.
+ SeeAlso
+  randomMonomialIdeals
+  idealsFromGeneratingSets
+///
+
+
+
 
 doc ///
  Key
@@ -2674,6 +3051,178 @@ TEST ///
 ///
 
 
+
+
+
+
+--**********************--
+--  randomBinomialSets  --
+--**********************--
+
+TEST ///
+    -- Check there are N samples
+    N=10;
+    n=3; D=2; p=0.5;
+    assert (N==#randomBinomialSets(n,D,p,N))
+    N=13;
+    n=5; D=3; p={0.5,0.25,0.3};
+    assert (N==#randomBinomialSets(n,D,p,N))
+    N=10;
+    n=3; D=2; M=10;
+    assert (N==#randomBinomialSets(n,D,M,N))
+    N=7;
+    n=4; D=3; M={3,3,3};
+    assert (N==#randomBinomialSets(n,D,M,N))
+///
+
+TEST ///
+    -- Check multiple samples agree
+    n=4; D=3;
+    L = randomBinomialSets(n,D,1.0,3);
+    assert (set L#0===set L#1)
+    assert (set L#0===set L#2)
+
+///
+
+TEST ///
+    --Check monomials are in the same ring
+    n = 4; D = 3;
+    L = randomBinomialSets(n,D,1.0,3);
+    assert(ring(L#0#0)===ring(L#1#0))
+    assert(ring(L#1#1)===ring(L#1#2))
+    assert(ring(L#2#0)===ring(L#1#2))
+    L = randomBinomialSets(n,6,{1,2,3,4,5,6},3, Strategy=>"Minimal");
+    assert(ring(L#0#0)===ring(L#1#0))
+    assert(ring(L#1#1)===ring(L#1#2))
+    assert(ring(L#2#0)===ring(L#1#2))
+    L = randomBinomialSets(n,6,{0.2,0.2,0.2,0.2,0.2,0.2},3, Strategy=>"Minimal");
+    assert(ring(L#0#0)===ring(L#1#0))
+    assert(ring(L#1#1)===ring(L#1#2))
+    assert(ring(L#2#0)===ring(L#1#2))
+    L = randomBinomialSets(n,6,{0.2,0.2,0.2,0.2,0.2,0.2},3);
+    assert(ring(L#0#0)===ring(L#1#0))
+    assert(ring(L#1#1)===ring(L#1#2))
+    assert(ring(L#2#0)===ring(L#1#2))
+///
+
+--*********************--
+--  randomBinomialSet  --
+--*********************--
+
+TEST ///
+    --Check binomials are in the same ring
+    n = 4; D = 3;
+    L = randomBinomialSet(n,D,1.0);
+    assert(ring(L#0)===ring(L#1))
+    assert(ring(L#2)===ring(L#3))
+///
+
+TEST ///
+    --Check that we don't clobber user variables
+    R = QQ[x_1..x_6];
+    n = 4; D = 3;
+    L = randomBinomialSet(n,D,1.0);
+    assert(ring(x_1)===R);
+///
+
+TEST ///
+    -- Check no terms are chosen for a probability of 0
+
+    assert (0==(randomBinomialSet(5,5,0.0))#0)
+    assert (0==(randomBinomialSet(5,4,toList(4:0.0)))#0)
+    assert (0==(randomBinomialSet(5,4,0.0, Strategy=>"Minimal"))#0)
+    assert (0==(randomBinomialSet(5,4,toList(4:0.0), Strategy=>"Minimal"))#0)
+    assert (0==(randomBinomialSet(5,4,0))#0)
+    assert (0==(randomBinomialSet(5,4,toList(4:0)))#0)
+    assert (0==(randomBinomialSet(5,4,toList(4:0), Strategy=>"Minimal"))#0)
+
+///
+
+TEST ///
+    -- Check all possible values are outputted with a probability of 1
+    n=4; D=3;
+    assert (product(toList((D+1)..D+n))/n!-1==#randomBinomialSet(n,D,1.0))
+    assert (product(toList((D+1)..D+n))/n!-1==#randomBinomialSet(n,D,{1.0,1.0,1.0}))
+    n=6; D=2;
+    assert (product(toList((D+1)..D+n))/n!-1==#randomBinomialSet(n,D,1.0))
+    assert (product(toList((D+1)..D+n))/n!-1==#randomBinomialSet(n,D,{1.0,1.0}))
+    n=4;D=5;
+    assert (# flatten entries basis (1, QQ[x_1..x_n])==#randomBinomialSet(n,D,1.0, Strategy=>"Minimal"))
+    assert (# flatten entries basis (2, QQ[x_1..x_n])==#randomBinomialSet(n,D,{0.0,1.0,1.0,1.0,1.0}, Strategy=>"Minimal"))
+    assert (# flatten entries basis (3, QQ[x_1..x_n])==#randomBinomialSet(n,D,{0.0,0.0,1.0,1.0,1.0}, Strategy=>"Minimal"))
+    assert (# flatten entries basis (4, QQ[x_1..x_n])==#randomBinomialSet(n,D,{0.0,0.0,0.0,1.0,1.0}, Strategy=>"Minimal"))
+    assert (# flatten entries basis (5, QQ[x_1..x_n])==#randomBinomialSet(n,D,{0.0,0.0,0.0,0.0,1.0}, Strategy=>"Minimal"))
+    numMons:=binomial(n+D-1,D);
+    assert (#randomBinomialSet(n,D,append(toList(D-1:0),2*numMons),Strategy=>"Minimal")==numMons)
+    assert (#randomBinomialSet(4,5,{2,0,0,5,0},Strategy=>"Minimal")==7)
+    assert (#randomBinomialSet(4,5,{2,0,0,8,0},Strategy=>"Minimal")==10)
+    assert (#randomBinomialSet(4,5,{2,1,0,10,0},Strategy=>"Minimal")==4)
+    -- Check that the precise number of monomials are generated
+    assert (#randomBinomialSet(4,5,{1,1,1,1,1},Strategy=>"Minimal")==5)
+    assert (#randomBinomialSet(5,10,{1,1,1,1,1,1,1,1,1,1},Strategy=>"Minimal")==10)
+    
+///
+
+TEST ///
+    -- Check every binomial is generated
+    L=randomBinomialSet(2,3,1.0)
+    R=ring(L#0)
+    assert(set L===set {R_0-R_1, R_0^2-R_1^2, R_0^2-R_0*R_1, R_0*R_1-R_1^2, R_0^3-R_1^3, R_0^3-R_0*R_1^2, R_0^3-R_0^2*R_1, R_0^2*R_1-R_1^3, R_0^2*R_1-R_0*R_1^2, R_0*R_1^2-R_1^3})
+    L=randomBinomialSet(2,3,10)
+    R=ring(L#0)
+    assert(set L===set {R_0-R_1, R_0^2-R_1^2, R_0^2-R_0*R_1, R_0*R_1-R_1^2, R_0^3-R_1^3, R_0^3-R_0*R_1^2, R_0^3-R_0^2*R_1, R_0^2*R_1-R_1^3, R_0^2*R_1-R_0*R_1^2, R_0*R_1^2-R_1^3})
+    L=randomBinomialSet(3,3,{0.0,1.0,0.0})
+    R=ring(L#0)
+    assert(set L===set {R_0^2-R_1^2, R_0^2-R_0*R_1, R_0^2-R_0*R_2, R_0^2-R_1*R_2, R_0^2-R_2^2, R_0*R_1-R_0*R_2, R_0*R_1-R_1^2, R_0*R_1-R_1*R_2, R_0*R_1-R_2^2, -R_1^2+R_0*R_2, R_0*R_2-R_1*R_2, R_0*R_2-R_2^2, R_1^2-R_1*R_2, R_1^2-R_2^2, R_1*R_2-R_2^2})
+    L=randomBinomialSet(3,3,1.0, Strategy=>"Minimal");
+    R=ring(L#0);
+    assert(set L===set {R_0-R_1, R_0-R_2, R_1-R_2})
+    L=randomBinomialSet(2,3,{2,3,4})
+    R=ring(L#0)
+    assert(set L===set {R_0-R_1, R_0^2-R_1^2, R_0^2-R_0*R_1, R_0*R_1-R_1^2, R_0*R_1^2-R_1^3, R_0^3-R_1^3, R_0^2*R_1-R_0*R_1^2, R_0^2*R_1-R_1^3})
+    L=randomBinomialSet(3,3,{0.0,1.0,1.0}, Strategy=>"Minimal");
+    R=ring(L#0);
+    assert(set L===set {R_0^2-R_0*R_1, R_0^2-R_0*R_2, R_0^2-R_1^2, R_0^2-R_1*R_2, R_0^2-R_2^2, R_0*R_1-R_0*R_2, R_0*R_1-R_1^2, R_0*R_1-R_1*R_2, R_0*R_1-R_2^2, -R_1^2+R_0*R_2, R_0*R_2-R_1*R_2, R_0*R_2-R_2^2, R_1^2-R_1*R_2, R_1^2-R_2^2, R_1*R_2-R_2^2})
+    L=randomBinomialSet(3,3,{0.0,0.0,1.0}, Strategy=>"Minimal");
+    R=ring(L#0);
+    assert(set L===set {R_0^3-R_0^2*R_1, R_0^3-R_0^2*R_2, R_0^3-R_0*R_1^2, R_0^3-R_0*R_1*R_2, R_0^3-R_0*R_2^2, R_0^3-R_1^3, R_0^3-R_1^2*R_2, R_0^3-R_1*R_2^2, R_0^3-R_2^3, R_0^2*R_1-R_0^2*R_2, R_0^2*R_1-R_0*R_1^2, R_0^2*R_1-R_0*R_1*R_2, R_0^2*R_1-R_0*R_2^2, R_0^2*R_1-R_1^3, R_0^2*R_1-R_1^2*R_2, R_0^2*R_1-R_1*R_2^2, R_0^2*R_1-R_2^3, -R_0*R_1^2+R_0^2*R_2, R_0^2*R_2-R_0*R_1*R_2, R_0^2*R_2-R_0*R_2^2, -R_1^3+R_0^2*R_2, R_0^2*R_2-R_1^2*R_2, R_0^2*R_2-R_1*R_2^2, R_0^2*R_2-R_2^3, R_0*R_1^2-R_0*R_1*R_2, R_0*R_1^2-R_0*R_2^2, R_0*R_1^2-R_1^3, R_0*R_1^2-R_1^2*R_2, R_0*R_1^2-R_1*R_2^2, R_0*R_1^2-R_2^3, R_0*R_1*R_2-R_0*R_2^2, -R_1^3+R_0*R_1*R_2, R_0*R_1*R_2-R_1^2*R_2, R_0*R_1*R_2-R_1*R_2^2, R_0*R_1*R_2-R_2^3, -R_1^3+R_0*R_2^2, -R_1^2*R_2+R_0*R_2^2, R_0*R_2^2-R_1*R_2^2, R_0*R_2^2-R_2^3, R_1^3-R_1^2*R_2, R_1^3-R_1*R_2^2, R_1^3-R_2^3, R_1^2*R_2-R_1*R_2^2, R_1^2*R_2-R_2^3, R_1*R_2^2-R_2^3})
+///
+
+TEST ///
+    -- Check max degree of homogeneous binomials less than or equal to D
+    n=10; D=5;
+    assert(D==max(apply(randomBinomialSet(n,D,1.0),m->first degree m)))
+    assert(D==max(apply(randomBinomialSet(n,D,toList(D:1.0)),m->first degree m)))
+    M=lift(product(toList((D+1)..(D+n)))/n!-1,ZZ);
+    assert(D==max(apply(randomBinomialSet(n,D,M),m->first degree m)))
+    assert(D==max(apply((randomBinomialSet(n,D,{0.0,0.0,0.0,0.0,1.0}, Strategy=>"Minimal"),m->first degree m))))
+    n=4; D=7;
+    assert(D==max(apply(randomBinomialSet(n,D,1.0),m->first degree m)))
+    assert(D==max(apply(randomBinomialSet(n,D,toList(D:1.0)),m->first degree m)))
+    M=lift(product(toList((D+1)..(D+n)))/n!-1,ZZ);
+    assert(D==max(apply(randomBinomialSet(n,D,M),m->first degree m)))
+    assert(D==max(apply(randomBinomialSet(n,D,toList(D:1)), m->first degree m)))
+///
+
+TEST ///
+    -- Check min degree of monomial greater than or equal to 1
+    n=8; D=6;
+    assert(1==min(apply(randomBinomialSet(n,D,1.0),m->first degree m)))
+    assert(1==min(apply(randomBinomialSet(n,D,toList(D:1.0)),m->first degree m)))
+    M=lift(product(toList((D+1)..(D+n)))/n!-1,ZZ);
+    assert(1==min(apply(randomBinomialSet(n,D,M),m->first degree m)))
+    n=3; D=5;
+    assert(1==min(apply(randomBinomialSet(n,D,1.0),m->first degree m)))
+    assert(1==min(apply(randomBinomialSet(n,D,toList(D:1.0)),m->first degree m)))
+    M=lift(product(toList((D+1)..(D+n)))/n!-1,ZZ);
+    assert(1==min(apply(randomBinomialSet(n,D,M),m->first degree m)))
+    n=10; D=5;
+    assert(1==min(apply((randomBinomialSet(n,D,1.0, Strategy=>"Minimal"),m->first degree m))))
+    assert(1==min(apply((randomBinomialSet(n,D,toList(D:1.0), Strategy=>"Minimal"),m->first degree m))))
+    --assert(1==min(apply(randomBinomialSet(n,D,toList(D:1)), m->first degree m)))
+///
+
+
 --**************--
 --  bettiStats  --
 --**************--
@@ -2819,6 +3368,42 @@ TEST ///
   assert(R===ring B_0)
 
 ///
+
+
+--************************--
+--  randomBinomialIdeals  --
+--************************--
+
+TEST ///
+  -- check the number of ideals
+  n=5; D=5; p=.6; N=3;
+  (B,numZero) = randomBinomialIdeals(n,D,p,N,IncludeZeroIdeals=>false);
+  assert (N===(#B+numZero)) -- B will be a sequence of nonzero ideals and the number of zero idea
+ls in entry last(B)
+  C = randomBinomialIdeals(n,D,p,N,IncludeZeroIdeals=>true);
+  assert (N===#C)
+///
+
+TEST ///
+  -- check the number of monomials in the generating set of the ideal
+  n=4; D=6; M=7; N=1;
+  B = randomBinomialIdeals(n,D,M,N);
+  assert (M>=numgens B_0)
+///
+
+TEST ///
+  -- check that the output is in the correct ring
+  R=ZZ[x,y,z]; D=5; p=.6; N=3;
+  B = randomBinomialIdeals(R,D,p,N);
+  assert(R===ring B_0)
+  M = 7
+  B = randomBinomialIdeals(R,D,M,N);
+  assert(R===ring B_0)
+
+///
+
+
+
 
 --************--
 --  regStats  --
