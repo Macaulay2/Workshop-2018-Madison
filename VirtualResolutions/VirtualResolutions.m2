@@ -53,7 +53,9 @@ export{
     "randomRationalCurve",
     "randomMonomialCurve",
     "randomCurve",
-    "saturationZero"
+    "saturationZero",
+    "Bound",
+    "PreserveDegree"
     }
 
 debug Core
@@ -77,14 +79,14 @@ multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
 --See Theorem 5.1 of [BES]
 
 intersectionRes = method();
-intersectionRes = (Ideal, Ideal, List) := (J, irr, A) -> (
-    N = (length A)-1;
-    L = decompose irr;
-    irrelevantIntersection = {};
+intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
+    N := (length A)-1;
+    L := decompose irr;
+    irrelevantIntersection := {};
     for i from 0 to N do (
-	irrelevantIntersection = append(irrelevantIntersection, intersect J, L_i^(a_i));
-	)
-    res irrelevantIntersection
+	irrelevantIntersection = append(irrelevantIntersection, intersect J, L_i^(A_i));
+	);
+    res intersect(irrelevantIntersection)
    )
 
 -- TODO: change cohomologyTable to return a Tally, then redo this.
@@ -250,13 +252,17 @@ findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => (J,n,irr) -> (
 randomRationalCurve = method() 
 randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     -- Defines P1
+    s := local s;
+    t := local t;
     R := F[s,t];
     --- Defines P1xP2
+    x := getSymbol "x";
+    y := getSymbol "y";
     S1 := F[x_0, x_1];
     S2 := F[y_0,y_1,y_2];
-    S = tensor(S1,S2);
+    S := tensor(S1,S2);
     --- Defines P1x(P1xP2)
-    U = tensor(R,S);   
+    U := tensor(R,S);   
     --- Defines graph of morphisms in P1x(P1xP2)
     M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
     M2 := matrix {apply(3,i->random({e,0,0},U)),{y_0,y_1,y_2}};
@@ -290,13 +296,17 @@ randomRationalCurve (ZZ,ZZ) := (d,e)->(
 randomMonomialCurve = method() 
 randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     --- Defines P1
+    s := local s;
+    t := local t;
     R := F[s,t];
     --- Defines P1xP2
+    x := getSymbol "x";
+    y := getSymbol "y";
     S1 := F[x_0, x_1];
     S2 := F[y_0,y_1,y_2];
-    S = tensor(S1,S2);
+    S := tensor(S1,S2);
     --- Defines P1x(P1xP2)
-    U = tensor(R,S);  
+    U := tensor(R,S);  
     --- Choose random monomial to define map to P2.
     B := drop(drop(flatten entries basis({e,0,0},U),1),-1);
     f := (random(B))#0;
@@ -345,11 +355,13 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
 	    if (saturate((J+BL1))==ideal(rVars)) or (saturate((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
 	);
     --- Defines P1xP2
+    x := getSymbol "x";
+    y := getSymbol "y";
     S1 := coefficientRing ring J [x_0, x_1];
     S2 := coefficientRing ring J [y_0,y_1,y_2];
-    S = tensor(S1,S2);
+    S := tensor(S1,S2);
     --- Defines P3x(P1xP2)
-    U = tensor(R,S);   
+    U := tensor(R,S);   
     urVars := apply(rVars,i->sub(i,U));
     uVars := flatten entries vars U;
     --- Place curve in P3x(P1xP2)
@@ -380,8 +392,9 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 randomCurveP1P2 = method(Options => {Bound => 1000}) 
-randomCurveP1P2 (ZZ,ZZ,Ring) := randomCurveP1P2 => opts -> (d,g,F)->(
+randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     --- Defines P3
+    z := getSymbol "z";
     R := F[z_0,z_1,z_2,z_3];
     rVars := flatten entries vars R;
     --- Base locus of porjection
@@ -390,6 +403,7 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := randomCurveP1P2 => opts -> (d,g,F)->(
     BL := intersect(BL1,BL2);
     --- Randomly generates curve in P3 until finds one not intersecting
     --- base locus of projection or until Bound is reached.
+    C := ideal(0);
     apply(opts.Bound,i->(
 	    C = (random spaceCurve)(d,g,R);
 	    if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;
@@ -431,7 +445,7 @@ saturationZero (Module,Ideal) := (M,B) ->(
 	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
 	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
 	      P := sub(presentation M,R);
-	      G = gb P; 
+	      G := gb P; 
 	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
     );
     true
@@ -590,12 +604,12 @@ doc ///
     Headline
     	creates the Ideal of a curve in P^1xP^2 from the ideal of a curve in P^3
     Usage
-    	curveFromP3toP1P2(J)
+    	I=curveFromP3toP1P2(J)
     Inputs
     	J:Ideal
 	    defining a curve in P^3.
     Outputs
-    	:Ideal
+    	I:Ideal
 	    defining a curve in P^1xP^2.
     Description
     	Text
@@ -614,6 +628,7 @@ doc ///
 	    curveFromP3toP1P2(J)
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
+///
 
 doc ///
     Key
