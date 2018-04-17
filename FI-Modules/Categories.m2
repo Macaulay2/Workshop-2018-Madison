@@ -49,6 +49,8 @@ FIMorphism#{Standard,AfterNoPrint} = f -> (
 -- nets for printing
 net FIMorphism := l -> net l.morphismList
 
+FIMorphism == FIMorphism := (f,g) -> f.morphismList == g.morphismList
+
 
 
 
@@ -88,6 +90,7 @@ fiRing (Ring) := R -> (
         return eltsum
     );
     RFI - RFI := (m, n) -> m + (-1)_R*n;
+    RFI == RFI := (m,n) -> pairs m.terms == pairs n.terms;
     return RFI
 ) 
 
