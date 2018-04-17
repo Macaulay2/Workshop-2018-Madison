@@ -1001,16 +1001,16 @@ doc ///
  Headline
   randomly generates lists of monomials in fixed number of variables up to a given degree
  Usage
-  randomMonomialSets(ZZ,ZZ,RR,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,RR,ZZ)
-  randomMonomialSets(ZZ,ZZ,ZZ,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,ZZ,ZZ)
-  randomMonomialSets(ZZ,ZZ,List,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,List,ZZ)
+  randomMonomialSets(n, D, p, N)
+  randomMonomialSets(R, D, p, N)
+  randomMonomialSets(n, D, M, N)
+  randomMonomialSets(R, D, M, N)
+  randomMonomialSets(n, D, L, N)
+  randomMonomialSets(R, D, L, N)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which the monomials are to live if $n$ is not specified
   D: ZZ
     maximum degree
@@ -1018,9 +1018,9 @@ doc ///
      the probability of selecting a monomial, OR
   M: ZZ
      number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree at most $D$  OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ in each set, up to the maximum number of monomials in $n$ variables of degree exactly $i$
   N: ZZ
     number of sets to be generated
@@ -1047,10 +1047,10 @@ doc ///
  Headline
   randomly generates homogeneous lists of monomials in fixed number of variables of a given degree
  Usage
-  randomHomogeneousMonomialSets(ZZ,ZZ,RR,ZZ)
-  randomHomogeneousMonomialSets(PolynomialRing,ZZ,RR,ZZ)
-  randomHomogeneousMonomialSets(ZZ,ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialSets(PolynomialRing,ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialSets(n, D, p, N)
+  randomHomogeneousMonomialSets(R, D, p, N)
+  randomHomogeneousMonomialSets(n, D, M, N)
+  randomHomogeneousMonomialSets(R, D, M, N)
  Inputs
   n: ZZ
     number of variables, OR
@@ -1260,12 +1260,12 @@ doc ///
  Headline
   generates random sets of monomial ideals
  Usage
-  randomMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
-  randomMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
-  randomMonomialIdeals(PolynomialRing,ZZ,List,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,RR,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,List,ZZ)
+  randomMonomialIdeals(R, D, p, N)
+  randomMonomialIdeals(R, D, M, N)
+  randomMonomialIdeals(R, D, L, N)
+  randomMonomialIdeals(n, D, p, N)
+  randomMonomialIdeals(n, D, M, N)
+  randomMonomialIdeals(n, D, L, N)
  Inputs
   R: PolynomialRing
     the ring to generate a random monomial ideal in, OR
@@ -1353,10 +1353,10 @@ doc ///
  Headline
   generates random sets of homogeneous monomial ideals
  Usage
-  randomHomogeneousMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
-  randomHomogeneousMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialIdeals(ZZ,ZZ,RR,ZZ)
-  randomHomogeneousMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialIdeals(R, D, p, N)
+  randomHomogeneousMonomialIdeals(R, D, M, N)
+  randomHomogeneousMonomialIdeals(n, D, p, N)
+  randomHomogeneousMonomialIdeals(n, D, M, N)
  Inputs
   R: PolynomialRing
     the ring to generate a random homogeneous monomial ideal in, OR
@@ -1413,16 +1413,16 @@ doc ///
  Headline
   randomly generates a list of monomials in fixed number of variables up to a given degree
  Usage
-  randomMonomialSet(ZZ,ZZ,RR)
-  randomMonomialSet(PolynomialRing,ZZ,RR)
-  randomMonomialSet(ZZ,ZZ,ZZ)
-  randomMonomialSet(PolynomialRing,ZZ,ZZ)
-  randomMonomialSet(ZZ,ZZ,List)
-  randomMonomialSet(PolynomialRing,ZZ,List)
+  randomMonomialSet(n, D, p)
+  randomMonomialSet(R, D, p)
+  randomMonomialSet(n, D, M)
+  randomMonomialSet(R, D, M)
+  randomMonomialSet(n, D, L)
+  randomMonomialSet(R, D, L)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which monomials are to live if $n$ is not specified
   D: ZZ
     maximum degree
@@ -1430,9 +1430,9 @@ doc ///
      the probability of selecting a monomial, OR
   M: ZZ
      number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree at most $D$  OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ in each set, up to the maximum number of monomials in $n$ variables of degree exactly $i$
  Outputs
   : List
@@ -1511,14 +1511,14 @@ doc ///
  Headline
   randomly generates a homogeneous list of monomials in fixed number of variables of a given degree
  Usage
-  randomHomogeneousMonomialSet(ZZ,ZZ,RR)
-  randomHomogeneousMonomialSet(PolynomialRing,ZZ,RR)
-  randomHomogeneousMonomialSet(ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialSet(PolynomialRing,ZZ,ZZ)
+  randomHomogeneousMonomialSet(n, D, p)
+  randomHomogeneousMonomialSet(R, D, p)
+  randomHomogeneousMonomialSet(n, D, M)
+  randomHomogeneousMonomialSet(R, D, M)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R : PolynomialRing
     the ring in which monomials are to live if $n$ is not specified
   D: ZZ
     degree
