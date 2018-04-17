@@ -54,11 +54,12 @@ multiWinnow = method();
 multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength ring X) then error "degree has wrong length";
     L := apply(length F, i ->(
-	    m := F.dd_(i+1);
-	    apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
-	    m
-	    ));
-    chainComplex L
+	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
+    N := 0;
+    L / (m -> if m != 0 then N = N + 1);
+    T := res coker syz L_(N - 1);
+    L' := for i from min T to max T - 1 list T.dd_(i+1);
+    chainComplex (L_{0..N - 1} | L')
     );
 
 -- TODO: change cohomologyTable to return a Tally, then redo this.
@@ -82,7 +83,7 @@ findCorners = m -> (
     	if rows#r < rows#(r+1) then (
 	    for c from 1 to numcols m - 1 do (
 	    	if cols#(c-1) < cols#c then (
-		    if r === cols#c and rows#r === c then corners = append(corners, (r, c));
+		    if r === cols#c and rows#r === c then corners = append(corners, {r, c});
 		    ))));
     corners
     )
@@ -136,21 +137,13 @@ beginDocumentation()
 end--
 
 restart
-installPackage "VirtualResolutions"
-viewHelp "VirtualResolutions"
-viewHelp "TateOnProducts"
-check "VirtualResolutions"
-
----------------------------------
-
-restart
 needsPackage "SplendidComplexes"
 needsPackage "VirtualResolutions"
+load "CapeCod.m2"
 R = ZZ/32003[a,b, Degrees => {{1,0}, {0,1}}]
 I = ideal"a2,b2,ab"
 C = res I
-betti' C
-compactMatrixForm = false
+--compactMatrixForm = false
 betti' C
 
 ---------------------------------
@@ -162,13 +155,24 @@ load "CapeCod.m2"
 X = projectiveSpace(1)**projectiveSpace(2)
 S = ring X
 irr = ideal X
+
+I = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
+J = saturate(I,irr)
+hilbertPolynomial(X,J)
+C = res J
+betti' C
+winnow(X, C, {2,1})
+winnow(X, C, {1,2})
+L = multiWinnow(X, C, {{1,2}, {2,1}})
+
+
+
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
 J' = saturate(I',irr);
 hilbertPolynomial(X,J')
 r' = res J'
 betti' r'
-compactMatrixForm = false
-betti' r'
+winnow(X, r', {2,3})
 
 ---------------------------------
 
@@ -214,15 +218,18 @@ multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
     cohomologyTable(C''' ** E^{{-1,-1}}, {-5,-5},{5,5})
     )
 
-multiGradedRegularity(S^1/I, {0,0}, {2,2}, 3)
+multiGradedRegularity(S^1/I, {0,0}, {2,2}, 3) -- FIXME
 
 multiGradedRegularity(S^1, {0,0}, {0,0}, 5)
 multiGradedRegularity(S^1 ++ S^{{2,3}}, {0,0}, {0,0}, 4)
 
 -- Finding Multi Graded Regularity
-H = multiGradedRegularity(S^1/I', {0,0}, {2,3}, 4)
+M = S^1/I'
+H = multiGradedRegularity(M, {0,0}, {2,3}, 4)
 m = diff((ring H)_0, H)
-findCorners m
+c = (pair -> {5 - first pair, last pair - 5}) \ findCorners m
+L = multiWinnow(X, res M, c) --- error
+
 
 m' = new MutableMatrix from m
 m'_(2,4) = 0
@@ -231,6 +238,15 @@ m'_(5,6) = 0
 m'_(6,7) = 0
 m'
 findCorners matrix m'
+
+-- Complete
+M = S^1/I
+C = res M
+H = multiGradedRegularity(M, {0,0}, {2,3}, 4)
+m = diff((ring H)_0, H)
+c = findCorners m
+c = (pair -> {5 - first pair, last pair - 5}) \ findCorners m
+
 
 ---------------------
 --Mike's Playspace--
