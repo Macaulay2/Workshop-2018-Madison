@@ -114,6 +114,8 @@ FIMorphism + FIRingElement := (f,m) -> fiRingElement(f, ring m) + m
 
 FIRingElement + FIMorphism := (m,f) -> f+m
 
+FIRing _ List := (RFI, l) -> fiRingElement(fiMorphism(l),RFI)
+
 
 
 
@@ -376,8 +378,8 @@ restart
 load "Categories.m2"
 
 R = fiRing(QQ)
-m = fiMatrix({1,2},{{2*fiRingElement(FI{1,2},R)-2*fiRingElement(FI{2,2},R),fiRingElement(FI{1,3},R)+fiRingElement(FI{2,3},R)+fiRingElement(FI{3,3},R)},{fiRingElement(FI{1,2,2},R)-fiRingElement(FI{2,1,2},R),fiRingElement(FI{1,2,3},R)+fiRingElement(FI{2,3,3},R)+fiRingElement(FI{3,1,3},R)}},{2,3})
-o = fiMatrix({2,3},{{fiRingElement(FI{1,2,2},R),fiRingElement(FI{2,3,3},R)-fiRingElement(FI{3,2,3},R)},{0_R,fiRingElement(FI{1,2,3,3},R)+fiRingElement(FI{2,3,1,3},R)+fiRingElement(FI{3,1,2,3},R)}},{2,3})
+m = fiMatrix({1,2},{{R_{1}-2*R_{2},R_{1}+R_{2}+R_{3}},{R_{1,2}-R_{2,1},R_{1,2}+R_{2,3}+R_{3,1}}},{2,3})
+o = fiMatrix({2,3},{{R_{1,2},R_{2,3}-R_{3,2}},{0_R,R_{1,2,3}+R_{2,3,1}+R_{3,1,2}}},{2,3})
 m*o
 
 -- Demo for Dan
