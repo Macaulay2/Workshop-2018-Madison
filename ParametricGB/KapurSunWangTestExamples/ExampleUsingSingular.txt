@@ -1,0 +1,98 @@
+Davids-MacBook-Pro:bin dswinarski$ ./Singular 
+                     SINGULAR                                 /  Development
+ A Computer Algebra System for Polynomial Computations       /   version 4.0.2
+                                                           0<
+ by: W. Decker, G.-M. Greuel, G. Pfister, H. Schoenemann     \   Feb 2015
+FB Mathematik der Universitaet, D-67653 Kaiserslautern        \
+<-Madison/ParametricGB/singular-cgs\&cgb/cgb-online/cgb_poly.s";           
+// ** loaded /Users/dswinarski/Desktop/Google Drive/Research/Macaulay2/Workshop-2018-Madison/ParametricGB/singular-cgs&cgb/cgb-online/cgb_poly.s 
+> ring RingVar=(0,a,b,c),(u,x,y),(dp(1), dp);
+> ring RingAll=0,(u,x,y,a,b,c),(dp(1),dp(2),dp);
+> ideal polys=a*x^2+b*y^2, c*x^2+y^2, a*x-c*y;
+> poly aux=u;
+> list vars=x,y;
+> list paras=a,b,c;
+> rtimer=0; 
+> int aaa=rtimer; 
+> ideal G;
+> list Modcgs;
+<s, ideal(), list(), vars, paras, aux, RingAll, RingVar);                  
+
+number of checks: 
+
+trivial checks: 7
+0-dim checks: 0
+c-checks: 5
+i-checks: 0
+general checks: 0
+total checks: 12
+
+> print("time: "+string(rtimer-aaa));
+time: 20
+> print("Branch: "+string(size(Modcgs)));
+Branch: 5
+> print("Total number of polynomials in the CGB: "+string(size(G)));
+Total number of polynomials in the CGB: 5
+> Modcgs;
+[1]:
+   [1]:
+      _[1]=0
+   [2]:
+      [1]:
+         a
+      [2]:
+         bc-a
+   [3]:
+      [1]:
+         uxa-uyc
+      [2]:
+         uy2bc-uy2a
+[2]:
+   [1]:
+      _[1]=a
+   [2]:
+      [1]:
+         c
+   [3]:
+      [1]:
+         uyc-xa
+      [2]:
+         ux2c+uy2
+[3]:
+   [1]:
+      _[1]=c
+      _[2]=a
+   [2]:
+      empty list
+   [3]:
+      [1]:
+         uy2+x2c
+[4]:
+   [1]:
+      _[1]=bc-a
+   [2]:
+      [1]:
+         a
+      [2]:
+         a
+      [3]:
+         b2+c
+   [3]:
+      [1]:
+         uxa-uyc
+      [2]:
+         uy2b2+uy2c+xybc-xya
+[5]:
+   [1]:
+      _[1]=bc-a
+      _[2]=b2+c
+      _[3]=ab+c2
+      _[4]=c3+a2
+   [2]:
+      [1]:
+         a
+      [2]:
+         c
+   [3]:
+      [1]:
+         uxc2+uybc-xab-xc2
