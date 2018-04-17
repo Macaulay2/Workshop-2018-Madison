@@ -10,8 +10,10 @@ newPackage(
         )
 
 export {
+    "grevLexRing",
     "eliminationInfo",
-    "saturateByElimination",
+    "saturationByElimination",
+    "saturationByGrevLex",
     "intersectionByElimination"
     }
 
@@ -31,6 +33,35 @@ export {
 --   b. use gb
 -- iterated quotient
 
+grevLexRing = method()
+grevLexRing(ZZ, Ring) := (i,R) -> (
+     n := numgens R;
+     degs := degrees R;
+     kk := coefficientRing R;
+     X := local X;
+     perm := (L) -> L_{0..i-1} | L_{i+1..n-1} | {L_i};
+     perminv := (L) -> L_{0..i-1} | {L_(n-1)} | L_{i..n-2};
+     M := monoid [X_1 .. X_n,Degrees=>perm degs,MonomialSize=>16];
+     R1 := kk M;
+     fto := map(R1,R,perminv generators R1);
+     fback := map(R,R1,perm generators R);
+     (R1, fto, fback)
+    )
+
+grevLexRing(ZZ, Ring) := (i,R) -> (
+     n := numgens R;
+     if i === n-1 then return (R,identity,identity);
+     degs := degrees R;
+     kk := coefficientRing R;
+     X := local X;
+     perm := (L) -> L_{0..i-1} | {L_(n-1)} | L_{i+1..n-2} | {L_i};
+     M := monoid [X_1 .. X_n,Degrees=>perm degs,MonomialSize=>16];
+     R1 := kk M;
+     fto := map(R1,R,perm generators R1);
+     fback := map(R,R1,perm generators R);
+     (R1, fto, fback)
+    )
+
 eliminationInfo = method()
 eliminationInfo Ring := (cacheValue symbol eliminationInfo)(R -> (
      n := numgens R;
@@ -43,10 +74,22 @@ eliminationInfo Ring := (cacheValue symbol eliminationInfo)(R -> (
      (R1, fto, fback)
     ))
 
+saturationByGrevLex = method()
+saturationByGrevLex(Ideal, RingElement) := (I, v) -> (
+    R := ring I;
+    if ring I =!= ring v then error "expected same ring";
+    if index v === null then error "expected ring element to be a variable in the ring";
+    (R1, fto, fback) := grevLexRing(index v, R);
+    J := fto I;
+    g := groebnerBasis(J, Strategy=>"F4");
+    (g1, maxpower) := divideByVariable(g, R1_(numgens R1-1));
+    (ideal fback g1, maxpower)
+    )
+
 -- Computing (I : f^\infty) = saturate(I,f)
 -- version #1: elimination
-saturateByElimination = method()
-saturateByElimination(Ideal, RingElement) := (I, f) -> (
+saturationByElimination = method()
+saturationByElimination(Ideal, RingElement) := (I, f) -> (
      R := ring I;
      (R1,fto,fback) := eliminationInfo R;
      f1 := fto f;
@@ -75,9 +118,19 @@ intersectionByElimination(Ideal, Ideal) := (I,J) -> (
 
 intersectionByElimination List := (L) -> fold(intersectionByElimination, L)
 
-saturateByElimination(Ideal, Ideal) := (I, J) -> (
-    L := for g in J_* list saturateByElimination(I, g);
+saturationByElimination(Ideal, Ideal) := (I, J) -> (
+    L := for g in J_* list saturationByElimination(I, g);
     intersectionByElimination L
+    )
+
+saturationByGrevLex(Ideal, Ideal) := (I, J) -> (
+    L := for g in J_* list saturationByGrevLex(I, g);
+    pows := L/last;
+    ids := L/first;
+    if any(pows, x -> x == 0) then 
+      I 
+    else
+      intersectionByElimination ids
     )
 
 beginDocumentation()
@@ -145,11 +198,18 @@ I = ideal(x_0^2*x_2^2*x_3^2+44*x_0*x_1*x_2^2*x_3^2+2005*x_1^2*x_2^2*x_3^2+12870
      *x_4-10513*x_0^5*x_1^2*x_4+3537*x_0^4*x_1^3*x_4+2286*x_0^3*x_1^4*x_4+733*x_
      0^2*x_1^5*x_4+11541*x_0*x_1^6*x_4+660*x_1^7*x_4)
 
-ans1 = elapsedTime saturateByElimination(saturateByElimination(I, B0), B1);
-ans2 = elapsedTime saturateByElimination(saturateByElimination(I, B1), B0);
+ans1 = elapsedTime saturationByGrevLex(saturationByGrevLex(I, B0), B1);
+ans2 = elapsedTime saturationByGrevLex(saturationByGrevLex(I, B1), B0);
 
-elapsedTime J1 = saturateByElimination(I, x_0);
-elapsedTime J2 = saturateByElimination(I, x_1);
+elapsedTime saturationByGrevLex(I, x_0);
+elapsedTime saturationByGrevLex(I, x_1);
+
+ans3 = elapsedTime saturationByElimination(saturationByElimination(I, B0), B1);
+ans4 = elapsedTime saturationByElimination(saturationByElimination(I, B1), B0);
+
+
+elapsedTime J1 = saturationByElimination(I, x_0);
+elapsedTime J2 = saturationByElimination(I, x_1);
 elapsedTime J = intersectionByElimination(J1,J2);
 elapsedTime J' = intersectionByElimination(J2,J1);
 elapsedTime J'' = intersect(J1,J2);
@@ -158,12 +218,12 @@ J == J'
 J == J''
 
 time gens gb I;
-J2 = elapsedTime saturateByElimination(I, x_0);
+J2 = elapsedTime saturationByElimination(I, x_0);
 assert isHomogeneous J2
-J2' = elapsedTime saturateByElimination(I, x_1);
+J2' = elapsedTime saturationByElimination(I, x_1);
 
-J2 = elapsedTime saturateByElimination(I, ideal(x_0,x_1));
-J2' = elapsedTime saturateByElimination(J2, ideal(x_2,x_3,x_4));
+J2 = elapsedTime saturationByElimination(I, ideal(x_0,x_1));
+J2' = elapsedTime saturationByElimination(J2, ideal(x_2,x_3,x_4));
 
 J1 = elapsedTime saturate(I, x_0);
 J1' = elapsedTime saturate(I, x_1);
@@ -191,3 +251,70 @@ J = paramRatCurve({2,2},{3,4},{4,3});
 elapsedTime genSat(J,2) --  sec
 elapsedTime genSat2(J,2) --  sec
 elapsedTime genSat3(J,2) -- 75 sec
+
+I = ideal J_*_{5,13}
+use ring I
+elapsedTime I1 = saturate(I, x_0);
+elapsedTime (I2,pow) = saturationByGrevLex(I,x_0);
+I1 == I2
+
+elapsedTime I1 = saturate(I, x_1);
+elapsedTime (I2,pow) = saturationByGrevLex(I,x_1);
+I1 == I2
+elapsedTime J1 = intersectionByElimination(I1,I2);
+
+elapsedTime I1 = saturationByGrevLex(I, B0);
+elapsedTime I2 = saturationByGrevLex(I1, B1);
+
+elapsedTime saturationByGrevLex(saturationByGrevLex(I, B0), B1);
+elapsedTime saturationByGrevLex(saturationByGrevLex(I, B1), B0);
+
+elapsedTime saturationByElimination(saturationByElimination(I, B0), B1);
+elapsedTime saturationByElimination(saturationByElimination(I, B1), B0);
+
+elapsedTime J0a = saturationByGrevLex(I,x_0);
+elapsedTime J0b = saturationByGrevLex(I,x_1);
+--J1 = elapsedTime intersectionByElimination(first J0a,first J0b);
+La = elapsedTime trim first J0a;
+Lb = elapsedTime trim first J0b;
+J1 = elapsedTime intersectionByElimination(La, Lb);
+J1a = elapsedTime saturationByGrevLex(J1,x_2);
+J1b = elapsedTime saturationByGrevLex(J1,x_3);
+J1c = elapsedTime saturationByGrevLex(J1,x_4);
+J1a#1, J1b#1, J1c#1
+J1ab = elapsedTime intersectionByElimination(J1a,J1b);
+elapsedTime J2 = intersectionByElimination{first J1a, first J1b, first J1c};
+elapsedTime saturationByGrevLex(I,B0);
+
+saturationByElimination(I,x_0);
+
+(R1,fto,fback) = grevLexRing(0,S)
+L = fto I;
+satL = ideal first divideByVariable(gens gb L, R1_4);
+fback satL
+oo == I1
+leadTerm oo
+ideal oo
+(R1,fto,fpack) = grevLexRing(1,S)
+use S
+
+R = ZZ/101[a..d]
+I = ideal"ab-ac,b2-cd"
+I1 = saturate(I,a)
+elapsedTime (I2,pow) = saturationByGrevLex(I,a);
+I1 == I2
+pow
+(R1,fto,fback) = grevLexRing(0,R)
+fto I
+fto
+
+----------------------------
+-- example:
+R = ZZ/101[vars(0..14)]
+M = genericMatrix(R,a,3,5)
+I = minors(3,M);
+codim I
+J = ideal((gens I) * random(R^10, R^5))
+elapsedTime(J : I);
+degree I
+elapsedTime(J : I_0);

@@ -71,7 +71,7 @@ genSat2 = (J,n) -> (
     apply(lists, l -> (
 	<< "doing " << l << endl;
 	I := ideal(J_*_l);
-	if elapsedTime saturateByElimination(saturateByElimination(I,B0),B1) == J then (
+	if elapsedTime saturationByElimination(saturationByElimination(I,B0),B1) == J then (
 	    output = append(output,l);
 	         );
 	     )
@@ -89,7 +89,7 @@ genSat3 = (J,n) -> (
     apply(lists, l -> (
 	<< "doing " << l << endl;
 	I := ideal(J_*_l);
-	if elapsedTime saturateByElimination(saturateByElimination(I,B1),B0) == J then (
+	if elapsedTime saturationByElimination(saturationByElimination(I,B1),B0) == J then (
 	    output = append(output,l);
 	         );
 	     )
