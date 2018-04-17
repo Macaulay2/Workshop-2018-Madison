@@ -157,36 +157,142 @@ comprehensiveGB(List, List, List) := List => opts -> (E, N, F) -> (
     return unique join(CGS,flatten L)
 )
 
-beginDocumentation()
 
-end--
+simplifyPolynomial= (g) -> (
+     RRy:=ring(g);
+     cRRy:=coefficientRing(RRy);
+     lift(coefficient(RRy_0,g),cRRy)
+);
+
+
+simplifyInequation = (N) -> (
+    if N == {} then return N;
+    L:=for n in N list (
+        T:=factor(n); 
+	reverse sort apply(#T, k -> T#k#0)
+    );
+    unique flatten L
+);
+
+simplifyCGB = (cgs) -> ( 
+    unique apply(cgs, i-> {i_0,simplifyInequation(i_1),apply(i_2, g -> simplifyPolynomial g)})
+)
+
+
+beginDocumentation()
 
 doc ///
 Key
   ParametricGB
 Headline
+  for computing parametric Groebner bases, or comprehensive Groebner bases
 Description
   Text
+    This package implements Algorithm CGB-Polynomial from Kapur, Sun, and Wang 2013. 
   Example
-Caveat
+    R=QQ[c_1,c_2][x_0..x_3]
+    E={}
+    N={1_(coefficientRing(R))}
+    F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
+    cgs= comprehensiveGB(E, N, F)
 SeeAlso
+///
+
+--export {"isConsistent", "minimalDicksonBasis", "comprehensiveGB"}
+
+doc ///
+Key
+  isConsistent
+Headline
+  determines whether a constructible set is nonempty
+Usage
+  isConsistent(E,N,)
+Inputs
+  E : List
+    a list of equations 
+  N : List 
+    a list of inequations
+Outputs
+  b : Boolean
+    whether the constructible set V(E)-V(N) is nonempty
+Description
+  Text
+    The consistency of a constructible set is defined in Kapur, Sun, Wang 2010, Definition 2.3.
+    To be added: discuss how we implement the test.
+  Example
+    R=QQ[c_1,c_2][x_0..x_3]
+    E={}
+    N={1_(coefficientRing(R))}
+    isConsistent(E,N)
+    isConsistent({c_1},{c_2})
+    isConsistent({c_1},{c_1^2*c_2})
 ///
 
 doc ///
 Key
+  minimalDicksonBasis
 Headline
+  computes a minimal Dickson basis for a list of polynomials
 Usage
+  minimalDicksonBasis(L)
 Inputs
+  L : List
+    a list of polynomials
 Outputs
-Consequences
+  M : List
+    a minimal Dickson basis for the polynomials in L
 Description
   Text
+    A minimal Dickson basis is defined in Kapur, Sun, Wang 2013, Definition 4.3.
+    It is not unique.
   Example
-  Code
-  Pre
-Caveat
-SeeAlso
+    R=QQ[c_1,c_2][x_0..x_3]
+    L={c_1*x_1*x_2-x_3^2,x_1*x_2^2+x_3^3,x_1^2+x_2^2+x_3^2}
+    minimalDicksonBasis(L)
 ///
+
+
+
+doc ///
+Key
+  comprehensiveGB
+Headline
+  compute a comprehensive Groebner basis
+Usage
+  comprehensiveGB(E,N,F)
+Inputs
+  E : List
+    a list of equations 
+  N : List 
+    a list of inequations
+  F : List
+    a list of polynomials  
+Outputs
+  L : List
+    a list of pairs of a constructible subset and a Groebner basis
+Description
+  Text
+    This package implements Algorithm CGB-Polynomial from Kapur, Sun, and Wang 2013. 
+  Example
+    R=QQ[c_1,c_2][x_0..x_3]
+    E={}
+    N={1_(coefficientRing(R))}
+    F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
+    cgs= comprehensiveGB(E, N, F)
+///
+
+end--
+
+uninstallPackage("ParametricGB")
+restart
+installPackage("ParametricGB")
+loadPackage("ParametricGB")
+
+viewHelp "ParametricGB"
+
+
+
+
 
 TEST ///
 -- test code and assertions here
