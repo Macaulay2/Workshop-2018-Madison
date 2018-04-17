@@ -17,7 +17,6 @@ newPackage ("CurvesP1P2",
 
 needsPackage "SimpleDoc"
 needsPackage "RandomSpaceCurves";
-load "Colon.m2"
 export{
     "randomRationalCurve",
     "randomMonomialCurve",
@@ -29,61 +28,88 @@ export{
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
------ Input: (d,e)=(degree,degree)
------ Output: The ideal of a random rational curve in P1xP2 of degree (d,e).
+----- Input: (d,e,F)=(degree,degree,base ring)
+----- Output: The ideal of a random rational curve in P1xP2 of 
+----- degree (d,e) defined over F.
 ----- Description: This randomly generates 2 forms of degree
 ----- d and 3 forms of degree 3 in the ring S (locally defined), 
 ----- and computes the ideal defining the image of the map of the
------- associated map P^1---->P^1xP^2,
+----- associated map P^1---->P^1xP^2.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-
-randomRationalCurve = (d,e)->(
-    R := ZZ/101[s,t];
-    ---
-    S1 := ZZ/101[x_0, x_1];
-    S2 := ZZ/101[y_0,y_1,y_2];
+randomRationalCurve = method() 
+randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
+    -- Defines P1
+    R := F[s,t];
+    --- Defines P1xP2
+    S1 := F[x_0, x_1];
+    S2 := F[y_0,y_1,y_2];
     S = tensor(S1,S2);
-    ---
+    --- Defines P1x(P1xP2)
     U = tensor(R,S);   
-    --- 
+    --- Defines graph of morphisms in P1x(P1xP2)
     M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
     M2 := matrix {apply(3,i->random({e,0,0},U)),{y_0,y_1,y_2}};
-    ---
     J := minors(2,M1)+minors(2,M2);
+    ---
     J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
-    I = sub(eliminate({s,t},J'),S)
+    sub(eliminate({s,t},J'),S)
     )
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e)=(degree,degree)
+----- Output: The ideal of a random rational curve in P1xP2 of 
+----- degree (d,e) defined over ZZ/101
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+randomRationalCurve (ZZ,ZZ) := (d,e)->(
+    randomRationalCurve(d,e,ZZ/101)
+    )
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (d,e,F)=(degree,degree,base ring)
 ----- Output: The ideal of a random rational curve in P1xP2 of degree (d,e).
 ----- Description: This randomly generates 2 monomials of degree
 ----- d and 3 monomials of degree 3 in the ring S (locally defined), 
 ----- and computes the ideal defining the image of the map of the
------- associated map P^1---->P^1xP^2,
+----- associated map P^1---->P^1xP^2.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomMonomialCurve = (d,e)->(
-    R := ZZ/101[s,t];
-    ---
-    S1 := ZZ/101[x_0, x_1];
-    S2 := ZZ/101[y_0,y_1,y_2];
+randomMonomialCurve = method() 
+randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
+    --- Defines P1
+    R := F[s,t];
+    --- Defines P1xP2
+    S1 := F[x_0, x_1];
+    S2 := F[y_0,y_1,y_2];
     S = tensor(S1,S2);
-    ---
+    --- Defines P1x(P1xP2)
     U = tensor(R,S);  
-    ---
-    B = drop(drop(flatten entries basis({e,0,0},U),1),-1);
-    f = (random(B))#0;
-    ---
+    --- Choose random monomial to define map to P2.
+    B := drop(drop(flatten entries basis({e,0,0},U),1),-1);
+    f := (random(B))#0;
+    --- Defines graph of morphisms in P1x(P1xP2)
     M1 := matrix {{s^d,t^d},{x_0,x_1}};
     M2 := matrix {{s^e,t^e,f},{y_0,y_1,y_2}};
-    ---
     J := minors(2,M1)+minors(2,M2);
+    --- 
     J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
-    I = sub(eliminate({s,t},J'),S)
+    sub(eliminate({s,t},J'),S)
     )
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (d,e)=(degree,degree)
+----- Output: The ideal of a random rational curve in P1xP2 of
+----- of degree (d,e) defined over ZZ/101.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+randomMonomialCurve (ZZ,ZZ) := (d,e)->(
+    randomMonomialCurve(d,e,ZZ/101)
+    )
+
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (J)=(ideal of curve in P3)
@@ -91,85 +117,103 @@ randomMonomialCurve = (d,e)->(
 ----- Description: Given a curve defined by the ideal J in P3
 ----- this outputs the ideal I of the curve in P1xP2 given by
 ----- considering the projection P3---->P1 on the first two variables.
------ and the projection P3----->P2 on the last three variables
+----- and the projection P3----->P2 on the last three variables.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-
-curveFromP3toP1P2 = (J) ->(
+curveFromP3toP1P2 = method(Options => {PreserveDegree => true}) 
+curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
+    --- Defines P3
     R := ring J;
-    Vars := flatten entries vars R;
+    rVars := flatten entries vars R;
+    --- Base locus of projection
+    BL1 := ideal(rVars#0,rVars#1);
+    BL2 := ideal(rVars#1,rVar#2,rVars#3);
+    BL := intersect(BL1,BL2);
     ---
-    if (saturate((J+ideal(Vars#0,Vars#1)))==ideal(Vars)) or (saturate((J+ideal(Vars#1,Vars#2,Vars#3)))==ideal(Vars)) then error "Given curve intersects places of projection.";
-    ---
+    if opts.PreserveDegree == true then (
+	    if (saturate((J+BL1))==ideal(rVars)) or (saturate((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
+	);
+    --- Defines P1xP2
     S1 := coefficientRing ring J [x_0, x_1];
     S2 := coefficientRing ring J [y_0,y_1,y_2];
     S = tensor(S1,S2);
-    ---
+    --- Defines P3x(P1xP2)
     U = tensor(R,S);   
-    Var := apply(Vars,i->sub(i,U));
-    VarU := flatten entries vars U;
-    --- 
-    M1 := matrix {{Var#0,Var#1},{x_0,x_1}};
-    M2 := matrix {{Var#1,Var#2,Var#3},{y_0,y_1,y_2}};
+    urVars := apply(rVars,i->sub(i,U));
+    uVars := flatten entries vars U;
+    --- Place curve in P3x(P1xP2)
+    C' := sub(J,U);
+    --- Defines graph of projection
+    M1 := matrix {{urVars#0,urVars#1},{x_0,x_1}};
+    M2 := matrix {{urVars#1,urVars#2,urVars#3},{y_0,y_1,y_2}};
+    D := minors(2,M1)+minors(2,M2);
+    --- Intersects irrelevant ideal with base locus
+    B1 := ideal(apply(4,i->uVars#i));
+    B2 := ideal(apply(2,i->uVars#(4+i)));
+    B3 := ideal(apply(3,i->uVars#(6+i)));
+    B := intersect(B1,B2,B3,sub(BL,U));
     ---
-    C' = sub(J,U);
-    D = minors(2,M1)+minors(2,M2);
+    K := saturate(C'+D,B,MinimalGenerators=>false);
+    sub(eliminate(urVars,K),S)
+)
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (d,e,F)=(degree,genus,base ring)
+----- Output: The ideal of a random curve in P1xP2 defined over F.
+----- Description: This randomly generates a curve of degree d
+----- and genus g in P3, and then computes the ideal of the correspnding
+----- curve in P1xP2 given by considering the projection 
+----- P3---->P1 on the first two variables.
+----- and the projection P3----->P2 on the last three variables.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+randomCurve = method(Options => {Bound => 1000}) 
+randomCurve (ZZ,ZZ,Ring) := randomCurve => opts -> (d,g,F)->(
+    --- Defines P3
+    R := F[z_0,z_1,z_2,z_3];
+    rVars := flatten entries vars R;
+    --- Base locus of porjection
+    BL1 := ideal(z_0,z_1);
+    BL2 := ideal(z_1,z_2,z_3);
+    BL := intersect(BL1,BL2);
     ---
-    BL1 := ideal(Var#0,Var#1);
-    BL2 := ideal(Var#1,Var#2,Var#3);
-    B1 := apply(4,i->VarU#i);
-    B2 := apply(2,i->VarU#(4+i));
-    B3 := apply(3,i->VarU#(6+i));
-    B := intersect(ideal(B1),ideal(B2),ideal(B3),BL1,BL2);
+    apply(opts.Bound,i->(
+	    C = (random spaceCurve)(d,g,R);
+	    if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;
+	    ));
+    if (saturate(C+BL1)==ideal(rVars)) or (saturate(C+BL2)==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
+    --- Defines P1xP2
+    S1 := F[x_0, x_1];
+    S2 := F[y_0,y_1,y_2];
+    S = tensor(S1,S2);
+    --- Defines P3x(P1xP2)
+    U = tensor(R,S);   
+    C' := sub(C,U);
+    --- Defines graph of projection
+    M1 := matrix {{z_0,z_1},{x_0,x_1}};
+    M2 := matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
+    G := minors(2,M1)+minors(2,M2);
+    --- Irrelevant ideal intersect base locus
+    B1 := ideal(z_0,z_1,z_2,z_3);
+    B2 := ideal(x_0,x_1);
+    B3 := ideal(y_0,y_1,y_2);
+    B := intersect(B1,B2,B3,sub(BL,U));
     ---
-    K  := saturate(C'+D,B);
-    I =  sub(eliminate(Var,K),S)
+    K  := saturate(C'+G,B,MinimalGenerators=>false);
+    sub(eliminate({z_0,z_1,z_2,z_3},K),S)
 )
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e)=(degree,genus)
------ Output: The ideal of a random curve in P1xP2.
------ Description: This randomly generates a curve of degree d
------ and genus g in P3, and then computes the ideal of the correspnding
------ curve in P1xP2 given by considering the projection 
------ P3---->P1 on the first two variables.
------ and the projection P3----->P2 on the last three variables
+----- Output: The ideal of a random curve in P1xP2 over ZZ/101
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomCurve = method() 
-randomCurve (ZZ,ZZ) := (d,g) ->(
-    R = ZZ/101[z_0,z_1,z_2,z_3];
-    apply(1000,i->(
-	    N = i;
-	    C = (random spaceCurve)(d,g,R);
-	    if (saturate(C+ideal(z_0,z_1))!=ideal(z_0,z_1,z_2,z_3)) and (saturate(C+ideal(z_1,z_2,z_3))!=ideal(z_0,z_1,z_2,z_3)) then break C
-	    ));
-    if (saturate(C+ideal(z_0,z_1))==ideal(z_0,z_1,z_2,z_3)) or (saturate(C+ideal(z_1,z_2,z_3))==ideal(z_0,z_1,z_2,z_3)) then error "Unable to find curve not intersecting places of projection.";
-    ---
-    S1 = ZZ/101[x_0, x_1];
-    S2 = ZZ/101[y_0,y_1,y_2];
-    S = tensor(S1,S2);
-    ---
-    U = tensor(R,S);   
-    --- 
-    M1 = matrix {{z_0,z_1},{x_0,x_1}};
-    M2 = matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
-    ---
-    C' = sub(C,U);
-    D = minors(2,M1)+minors(2,M2);
-    ---
-    BL1 := ideal(z_0,z_1);
-    BL2 := ideal(z_1,z_2,z_3);
-    B1 := ideal(z_0,z_1,z_2,z_3);
-    B2 := ideal(x_0,x_1);
-    B3 := ideal(y_0,y_1,y_2);
-    B := intersect(B1,B2,B3,BL1,BL2);
-    ---
-    K  = saturate(C'+D,B);
-    I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
+randomCurve (ZZ,ZZ) := randomCurve => opts -> (d,g)->(
+    randomCurve(d,g,ZZ/101)
     )
-
+    
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (M,B)=(Module,Ideal)
@@ -180,7 +224,6 @@ randomCurve (ZZ,ZZ) := (d,g) ->(
 ----- the module M. We do this generator by generator.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-
 saturationZero = method() 
 saturationZero (Module,Ideal) := (M,B) ->(
     Vars := flatten entries vars ring B;
@@ -196,30 +239,15 @@ saturationZero (Module,Ideal) := (M,B) ->(
     );
     true
 )
+
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (I,B)=(Ideal,Ideal)
------ Output: Returns true if saturate(comodule I,B)==0 and false otherwise
------ Description: This checks whether the saturation of a module M
------ with respects to an ideal B is zero. This is done by checking 
------ whether for each generator of B some power of it annihilates
------ the module M. We do this generator by generator.
+----- Output: Returns true if saturate(comodule I,B)==0 and false otherwise.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 saturationZero (Ideal,Ideal) := (I,B) ->(
-    M := comodule I;
-    Vars := flatten entries vars ring B;
-    bGens := flatten entries mingens B;
-    for i from 0 to #bGens-1 do (
-    	  b := bGens#i;
-	  bVars := support b;
-	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
-	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
-	      P := sub(presentation M,R);
-	      G = gb P; 
-	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
-    );
-    true
+    saturationZero(comodule I,B)
 )
 
 --------------------------
