@@ -26,7 +26,7 @@ newPackage ("VirtualResolutions",
     	{Name => "Ayah Almousa",       Email => "aka66@cornell.edu"},
     	{Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://www-users.math.umn.edu/~cberkesc/"},
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
-	{Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://www.math.umn.edu/~loper012"},
+	{Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://http://www-users.math.umn.edu/~loper012/"},
         {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu"}
     	},
     PackageExports => {
@@ -155,7 +155,24 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
 --       Ideal - the irrelevant ideal of the ring
 --Output: Boolean - true if complex is virtual resolution, false otherwise
 isVirtual = method();
--* I need to test this still
+isVirtual (ChainComplex, Ideal, Ideal) := Boolean=> (C, I, irr) ->( 
+    annHH0 := ideal(image(C.dd_1));
+    Isat := ourSaturation(I,irr);
+    annHH0sat := ourSaturation(annHH0,irr);
+    if not(Isat == annHH0sat) then return (false,0);    
+    for i from 1 to length(C) do (
+	annHHi := ann HH_i(C);
+	if annHHi != ideal(sub(1,ring I)) then (
+		if annHHi == 0 then return (false,i);
+	    	if  ourSaturation(annHHi,irr) != 0 then (
+		    return (false,i);
+		    )
+		)
+	);
+    true
+    )
+
+-* I need to test this still (the part that is commented out
 isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->( 
     annM := ann(M);
     annHH0 := ann(HH_0(C));
@@ -174,24 +191,9 @@ isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->(
     true
     )
 *-
-isVirtual (ChainComplex, Ideal, Ideal) := Boolean=> (C, I, irr) ->( 
-    annHH0 := ideal(image(C.dd_1));
-    Isat := ourSaturation(I,irr);
-    annHH0sat := ourSaturation(annHH0,irr);
-    if not(Isat == annHH0sat) then return (false,0);    
-    for i from 1 to length(C) do (
-	annHHi := ann HH_i(C);
-	if annHHi != ideal(sub(1,ring I)) then (
-		if annHHi == 0 then return (false,i);
-	    	if  ourSaturation(annHHi,irr) != 0 then (
-		    return (false,i);
-		    )
-		)
-	);
-    true
-    )
 
-findGensUpToIrrelevance = (J,n,irr) -> (
+findGensUpToIrrelevance = method();
+findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => (J,n,irr) -> (
 -- Input: saturated ideal J and ZZ n
 -- Output: all subsets of size n of the generators of J that
 --         give the same saturated ideal as J
@@ -216,7 +218,65 @@ findGensUpToIrrelevance = (J,n,irr) -> (
 ------------------------
 beginDocumentation()
 
+doc ///
+    Key
+    	isVirtual
+	(isVirtual,ChainComplex,Ideal,Ideal)
+    Headline
+    	checks if a chain complex is a virtual resolution of a given ideal
+    Usage
+    	isVirtual(C,I,irr)
+    Inputs
+    	C:ChainComplex
+	    chain complex we want to check is a virtual resolution
+	I:Ideal
+	    ideal that the virtual resolution should resolve
+	irr:Ideal
+	    irrelevant ideal of the ring
+    Outputs
+    	:Boolean
+	    true if C is a virtual resolution of I
+	    false if not
+    Description
+    	Text
+	    Given a chain complex C, ideal I, and irrelevant ideal irr, isVirtual returns true if
+	    C is a virtual resolution of I. If not, it returns false.
+	    
+	    This is done by checking that the saturation of I and the saturation of the annihilator of HH_0(C)
+	    agree. Then checking that the higher homology groups of C are supported on the irrelevant ideal    	
+	Example
+       	    isVirtual(res ideal(x),ideal(x),ideal(x,y))
+///
 
+doc ///
+    Key
+    	findGensUpToIrrelevance
+	(findGensUpToIrrelevance,Ideal,ZZ,Ideal)
+    Headline
+    	creates a list of n element subsets of the minimal generators that generate an ideal up to saturation
+    Usage
+    	findGensUpToIrrelevance(I,n,irr)
+    Inputs
+    	I:Ideal
+	    ideal we are intereseted in
+	n:ZZ
+	    size of subset of minimal generators of I that may generate I up to saturation with irr
+	irr:Ideal
+	    irrelvant ideal
+    Outputs
+    	:List
+	    all subsets of size n of generators of I that generate I up to saturation with irr
+    Description
+    	Text
+	    Given an ideal I, integer n, and irrelevant ideal irr, findGensUpToIrrelevance searches through
+	    all n-subsets of the generators of I. If a subset generates the same irr-saturated ideal as the
+	    irr-saturation of I then that subset is added to a list. After running through all subsets, the list
+	    is outputted.
+	Example
+	    findGensUpToIrrelevance()
+    Caveat
+	    If no subset of generators generates the ideal up to saturation, then the empty list is outputted
+///
 
 -------------------------
 -- Beginning of the TESTS
