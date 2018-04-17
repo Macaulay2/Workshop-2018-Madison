@@ -749,34 +749,33 @@ depthStats (List) := o-> (ideals) -> (
 )
 
 
+anyCartesianProduct := (L,f) -> (
+    if #L==0 then return false;
+    if #L==1 then return any(L_0,x -> f({x}));
+    firstList := L_-1;
+    any(firstList, x->anyCartesianProduct(drop(L,-1),l -> f(l|{x})))
+)
+
 isProjDimMaximal = method(TypicalValue=>Boolean);
 isProjDimMaximal (MonomialIdeal) := M -> (
-    n := #gens(ring M);
-    G := apply(flatten entries mingens M, e -> flatten exponents e);
+    R := ring M;
+    badIdeal := product(gens R))*M;
+    n := #gens(R);
+    G := apply(flatten entries mingens M, flatten@@exponents);
     if #G < n then return false;
     possibleExponents := for i from 0 to n-1 list(
 	X := sort apply(G, e -> e_i);
 	tooSmall := X_(n-2);
 	X = unique drop(X, n-1);
-	if X_0 == tooSmall then X = drop(X, 1) else X
+	if X_0 == tooSmall then drop(X, 1) else X
 	);
-    possibleLCMs := apply(toList fold(cartesianProduct, apply(possibleExponents, set)), toList@@deepSplice);
-    --given LCM, find dominant set with that LCM
-    for LCM in possibleLCMs do(
-        bad := false;
-        domSet := for i from 0 to n-1 list (
-	    A := select(1, G, e -> (
-	        all(n, j -> (if j == i then e_j == LCM_j else e_j < LCM_j))
-	        ));
-	    if A === {} then bad = true;
-	    flatten A
-        );
-        if not bad then(
-	    if all(G, g -> not all(n, j -> g_j < LCM_j)) then return true
-	    );
-	);
-    false
-    )
+    anyCartesianProduct(possibleExponents,LCM ->(
+        lcmMon := R_LCM;
+        if lcmMon%badIdeal==0 or lcmMon%M != 0 then return false;
+        all(n,i -> (
+                any(G, e -> (
+	                all(n, j -> (if j == i then e_j == LCM_j else e_j < LCM_j))))))))
+)
 
 polarize = method(TypicalValue => MonomialIdeal);
 
