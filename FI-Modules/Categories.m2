@@ -14,30 +14,38 @@ globalAssignment FIRing
 
 FI = method()
 
+-- FI {1,3,4} gives the FIMorphism corresponding to the injective
+-- function {1,2,3} -> the positive integers that sends 1 to 1, 2 to
+-- 3, and 3 to 4.
 FI List := l -> (  
     if #l >#unique l then error "FI: list does not give injective map"
     else if all (l,i -> class i === ZZ and i<1) then error "FI: list is not a list of positive integers"
     else new FIMorphism from hashTable{ (symbol morphismList) => l}
     )
 
+-- composition of FI morphisms, as injective functions. The domain and
+-- range have to agree. So (FI {2,1,5,6}) * (FI {1,4}) should be (FI {2,6})
 FIMorphism * FIMorphism := (f, g) -> (
     if target f > source g then error "Morphisms are not composable."
     else new FIMorphism from hashTable{ (symbol morphismList) => apply(f.morphismList, i -> (g.morphismList)#(i-1))}
     )
 
+-- target is the domain of the FI morphism, and source is the smallest
+-- {1..n} that contains the image
 target FIMorphism := f -> max f.morphismList
-
 source FIMorphism := f -> length f.morphismList
 
+-- add data to class print.
 FIMorphism#{Standard,AfterPrint} = 
 FIMorphism#{Standard,AfterNoPrint} = f -> (
      << endl;                 -- double space
      << concatenate(interpreterDepth:"o") << lineNumber << " : FIMorphism";
      << " " << source f << " ---> " << target f;
-     dumbfix = " --";
+     dumbfix = " --"; -- local syntax highlighting fix
      << endl;
      )
-
+ 
+-- nets for printing
 net FIMorphism := l -> net l.morphismList
 
 
