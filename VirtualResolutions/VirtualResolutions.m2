@@ -233,7 +233,8 @@ multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
 
 
 M= S^1;D = {0,0};T = {0,0};N = 4; -- works now with any N
-M = S^1/S_0
+M = S^{{-1,0}}**truncate({1,0}, S^1/S_0)
+degrees M
 multiGradedRegularity(M,D,T, N)
 C'
 C''
