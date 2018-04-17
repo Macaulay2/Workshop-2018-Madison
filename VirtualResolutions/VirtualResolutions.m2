@@ -108,6 +108,13 @@ compactMatrixForm = false
 betti' r'
 
 ---------------------------------
+restart
+uninstallPackage "BGG"
+uninstallPackage "TateOnProducts"
+restart
+installPackage "BGG"
+installPackage "TateOnProducts"
+viewHelp BGG
 
 restart
 needsPackage "VirtualResolutions"
@@ -134,26 +141,54 @@ D = res image symExt(Q, E)
 cohomologyTable(D, {-3,-3},{3,3})
 
 -- Better
-I' = ideal(x_0^2*x_2^3)
+I = ideal(x_0^2*x_2^3)
 J' = saturate(I',irr)
+
+
 
 -- This is a temporary function, inputs and outputs are changing
 multiGradedRegularity = method();
 multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
-    S := ring M;
-    P := presentation(truncate(T, M ** (ring M)^{D}));
-    E := (coefficientRing S)[A_(0)..A_(numgens S - 1), SkewCommutative => true, Degrees=>degrees S];
-    C := res image symExt(P, E);
-    C = C;
-    C' := res(coker transpose C.dd_(length C + min C), LengthLimit => 2 * length C);
-    C'' := beilinsonWindow C';
-    C''' := (sloppyTateExtension C'')[N];
-    cohomologyTable(C''' ** E^{{-1,-1}}, {-5,-5},{5,5})
+    S = ring M;
+    P = presentation(truncate(T, M ** (ring M)^{D}));
+    E = (coefficientRing S)[A_(0)..A_(numgens S - 1), SkewCommutative => true, Degrees=>degrees S];
+    se = symExt(P, E);
+    print se;
+    C = res (image se, LengthLimit => N);
+    print betti C;
+    C' = res(coker transpose C.dd_(length C + min C), LengthLimit => 2 * length C);
+    C' = C'[N];
+--    C' := res(coker transpose C.dd_N, LengthLimit => 2 * N);    
+    C'' = beilinsonWindow C';
+    C''' = (sloppyTateExtension C'');
+    cohomologyTable(C''' ** E^{{-1,-1}}, {-N,-N},{N,N})
     )
+
+M= S^1;D = {0,0};T = {0,0};N = 4; -- works now with any N
+M = S^1/S_0
+multiGradedRegularity(M,D,T, N)
+C'
+C''
+C'''
+cohomologyTable (E^{{0,-1}}**C''',{-5,-5},{5,5})
+
+multiGradedRegularity(S^1, {0,0}, {0,0}, 6)
+multiGradedRegularity(S^1, {0,0}, {0,0}, 2)
+
+x = symbol x; e = symbol e;
+(S,E) = setupRings(ZZ/101,{1,1},x,e)
+I = module ideal(x_(0,0)^2*x_(1,0)^3)
+
+T = dual exteriorTateResolution(I,E,{4,5},7)
+
+T = dual exteriorTateResolution(S^1,E,{1,2},5)
+C = beilinsonWindow T
+C' = sloppyTateExtension C
+cohomologyTable (C', {-5,-5},{5,5})
 
 multiGradedRegularity(S^1/I, {0,0}, {2,2}, 3)
 
-multiGradedRegularity(S^1, {0,0}, {0,0}, 5)
+
 multiGradedRegularity(S^1 ++ S^{{2,3}}, {0,0}, {0,0}, 4)
 
 H = multiGradedRegularity(S^1/I', {0,0}, {2,3}, 4)
