@@ -222,7 +222,7 @@ getData = method()
 getData Sample := s -> (s.Data)
 
 writeSample = method()
-writeSample (Sample, String) := (s, filename) -> (
+writeSample (Sample, String) := Nothing => (s, filename) -> (
     if fileExists filename then (
 	stderr << "warning: filename already exists. Overwriting." << endl;
         if not isDirectory filename then (
@@ -494,19 +494,19 @@ degStats = method(TypicalValue =>Sequence, Options =>{ShowTally => false, Verbos
 degStats List :=  o-> (ideals) -> (
     N := #ideals;
     degHistogram:=apply(ideals, I-> degree I);
-    ret:=();
     avg:=sub(1/N*(sum degHistogram), RR);
     Ex2:=sub(1/N*(sum apply(elements(tally degHistogram), i->i^2)), RR);
     var:= Ex2 - avg^2;
     stdDev:= var^(1/2);
-    if o.ShowTally
-    	then(ret=(avg, stdDev,tally degHistogram); return ret;);
     if o.Verbose then (
 	numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
 	stdio <<  "There are "<<N<<" ideals in this sample. Of those, "<< numberOfZeroIdeals <<" are the zero ideal." << endl;
 	if numberOfZeroIdeals>0 then stdio <<"The degree statistics do include those for the zero ideals."<< endl
 	);
-    ret = (avg, stdDev)
+    if o.ShowTally then 
+        (avg, stdDev,tally degHistogram)
+    else
+        (avg, stdDev)
 )
 
 --creates a list of monomialIdeal objects from a list of monomial generating sets
@@ -518,7 +518,10 @@ idealsFromGeneratingSets(List):= o -> (B) -> (
     (nonzeroIdeals,numberOfZeroIdeals) := extractNonzeroIdeals(ideals);
     if o.Verbose then
      stdio <<"There are "<<#B<<" ideals in this sample. Of those, "<<numberOfZeroIdeals<<" are the zero ideal."<< endl;
-    if o.IncludeZeroIdeals then return ideals else return (nonzeroIdeals,numberOfZeroIdeals);
+    if o.IncludeZeroIdeals then 
+        ideals 
+    else
+        (nonzeroIdeals,numberOfZeroIdeals)
 )
 
 
@@ -526,19 +529,19 @@ dimStats = method(TypicalValue => Sequence, Options => {ShowTally => false, Verb
 dimStats List := o-> (ideals) -> (
     N := #ideals;
     dimsHistogram:= apply(ideals,I-> dim I);
-    ret:= ();
     avg:=sub(1/N*(sum dimsHistogram), RR);
     Ex2:=sub(1/N*(sum apply(elements(tally dimsHistogram), i->i^2)), RR);
     var:= Ex2 - avg^2;
     stdDev:= var^(1/2);
-    if o.ShowTally
-         then(ret = (avg, stdDev, tally dimsHistogram), return ret;);
     if o.Verbose then (
 	numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
 	stdio <<  "There are "<<N<<" ideals in this sample. Of those, "<< numberOfZeroIdeals <<" are the zero ideal." << endl;
 	if numberOfZeroIdeals>0 then stdio <<"The Krull dimension statistics do include those for the zero ideals."<< endl
 	);
-    ret = (avg, stdDev)
+    if o.ShowTally then 
+        (avg, stdDev, tally dimsHistogram)
+    else 
+        (avg, stdDev)
 )
 
 regStats = method(TypicalValue => Sequence, Options => {ShowTally => false, Verbose => false})
@@ -546,18 +549,16 @@ regStats List := o-> (ideals) -> (
     N:=#ideals;
     ideals = extractNonzeroIdeals(ideals);
     ideals = ideals_0;
-    ret := ();
     regHistogram:={};
     if set {} === set ideals then (
 	regHistogram = N:-infinity;
 	stdDev := 0;
-	if o.ShowTally then(
-	    ret=(-infinity, 0, tally regHistogram);
-	    return ret;
-	    );
 	if o.Verbose then
          stdio <<"All ideals in this list are the zero ideal." << endl;
-	ret = (-infinity, 0)
+	if o.ShowTally then
+	    (-infinity, 0, tally regHistogram)
+	else
+            (-infinity, 0)
     )
     else (
 	regHistogram := apply(ideals,I -> regularity I);
@@ -565,13 +566,14 @@ regStats List := o-> (ideals) -> (
     	     Ex2 := sub((1/(#ideals))*(sum apply(elements(tally regHistogram), i->i^2)), RR);
     	     var := Ex2-avg^2;
     	     stdDev = var^(1/2);
-    	     if o.ShowTally
-    	        then(ret=(avg, stdDev,tally regHistogram); return ret;);
 	     if o.Verbose then (
 		 stdio << "There are "<<N<<" ideals in this sample. Of those, "<< toString(N-#ideals) <<" are the zero ideal." << endl;
               	 stdio << "The zero ideals were extracted from the sample before reporting the regularity statistics."<< endl;
 		 );
-    	     ret = (avg, stdDev)
+      	     if o.ShowTally then
+	         (avg, stdDev,tally regHistogram)
+	     else
+	         (avg, stdDev)
          )
 
 )
@@ -691,15 +693,16 @@ mingenStats (List) := Sequence => o -> (ideals) -> (
     numgensHist := {};
     m := 0;
     complexityHist := {};
-    ret:=();
     if set {} === set ideals then (
         numgensHist = N:-infinity;
 	complexityHist = N:-infinity;
 	numStdDev := 0;
 	comStdDev := 0;
-	if o.ShowTally then(ret=(-infinity, 0, tally numgensHist, -infinity, 0, tally complexityHist); return ret;);
 	if o.Verbose then stdio <<"This sample included only zero ideals." << endl;
-	ret = (-infinity, 0, -infinity, 0)
+        if o.ShowTally then
+	    (-infinity, 0, tally numgensHist, -infinity, 0, tally complexityHist)
+	else
+	    (-infinity, 0, -infinity, 0)
     )
     else (
         apply(#ideals,i->(
@@ -718,13 +721,14 @@ mingenStats (List) := Sequence => o -> (ideals) -> (
     comVar:= comEx2 - comAvg^2;
     numStdDev= numVar^(1/2);
     comStdDev= comVar^(1/2);
-    if o.ShowTally
-       then(ret=(numAvg, numStdDev, tally numgensHist, comAvg, comStdDev, tally complexityHist); return ret;);
     if o.Verbose then (
         stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
 	if numberOfZeroIdeals>0 then stdio <<"The statistics returned (mean and standard deviation of # of min gens and mean and standard deviation of degree comlexity) do NOT include those for the zero ideals."<< endl
 	);
-    ret = (numAvg, numStdDev, comAvg, comStdDev)
+    if o.ShowTally then
+        (numAvg, numStdDev, tally numgensHist, comAvg, comStdDev, tally complexityHist)
+    else
+        (numAvg, numStdDev, comAvg, comStdDev)
   )
 )
 
@@ -734,19 +738,19 @@ pdimStats (List) := o-> (ideals) -> (
     N:=#ideals;
     R:=ring(ideals_0);
     pdHist:=apply(ideals,I-> pdim(R^1/I));
-    ret:=();
     avg:=sub(((1/N)*(sum pdHist)),RR);
     Ex2:=sub(((1/N)*(sum apply(elements(tally pdHist), i->i^2))), RR);
     var:= Ex2 - avg^2;
     stdDev:= var^(1/2);
-    if o.ShowTally
-         then(ret = (avg, stdDev, tally pdHist), return ret;);
     if o.Verbose then (
 	numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
         stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
 	if numberOfZeroIdeals>0 then stdio <<"The projective dimension statistics do include those for the zero ideals."<< endl
 	);
-    ret=(avg, stdDev)
+    if o.ShowTally then
+        (avg, stdDev, tally pdHist)
+    else
+        (avg, stdDev)
 )
 
 depthStats = method(TypicalValue=>Sequence, Options => {ShowTally => false, Verbose => false})
@@ -754,21 +758,20 @@ depthStats (List) := o-> (ideals) -> (
     N:=#ideals;
     R:=ring(ideals_0);
     dHist:=apply(ideals,I-> depth(R^1/I));
-    ret:=();
     avg:=sub(((1/N)*(sum dHist)),RR);
     Ex2:=sub(((1/N)*(sum apply(elements(tally dHist), i->i^2))), RR);
     var:= Ex2 - avg^2;
     stdDev:= var^(1/2);
-    if o.ShowTally
-         then(ret = (avg, stdDev, tally dHist), return ret;);
     if o.Verbose then (
 	numberOfZeroIdeals := (extractNonzeroIdeals(ideals))_1;
         stdio <<"There are "<<N<<" ideals in this sample. Of those, " << numberOfZeroIdeals << " are the zero ideal." << endl;
 	if numberOfZeroIdeals>0 then stdio <<"The depth statistics do include those for the zero ideals."<< endl
 	);
-    ret=(avg, stdDev)
+    if o.ShowTally then
+        (avg, stdDev, tally dHist)
+    else
+        (avg, stdDev)
 )
-
 
 anyCartesianProduct := (L,f) -> (
     if #L==0 then return false;
