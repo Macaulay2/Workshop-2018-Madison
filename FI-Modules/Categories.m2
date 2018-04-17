@@ -7,9 +7,7 @@ FIMatrix = new Type of MutableHashTable
 -- A Matrix of FI Ring elements: a ring (the ambient FI ring of the
 -- matrix elts, rowdegs a list of row labels, coldegs a list of column
 -- degress, matrix a table of FIRingElements FIRing = new Type of Type
-
 FIRing = new Type of Ring
-
 globalAssignment FIRing
 
 -- FI MORPHISMS
@@ -85,13 +83,38 @@ fiRing (Ring) := R -> (
         eltsum = 0_RFI;
         for mkey in keys terms m do
             for nkey in keys terms n do
-                if target mkey === source nkey then
+                if target mkey <= source nkey then
                     eltsum = eltsum + (coefficient(m,mkey)*coefficient(n,nkey))*fiRingElement(mkey*nkey,RFI);
         return eltsum
     );
     RFI - RFI := (m, n) -> m + (-1)_R*n;
     return RFI
 ) 
+
+coefficientRing FIRing := R -> last R.baseRings
+
+
+FIRing_List := (R, l) -> fiRingElement(FI l, R)
+
+ZZ _ FIRing := (n,R) -> (
+    if n =!= 0 then error "ZZ_FIRing is only defined for 0_FIRing"
+    else return new R from hashTable{
+        symbol ring => R,
+        symbol terms => hashTable{}
+    }
+    )
+
+ZFI := fiRing(ZZ)
+
+net FIRing := RFI -> net (coefficientRing RFI)|net " FI"
+
+FIMorphism + FIMorphism := (f,g) -> fiRingElement(f,ZFI) + fiRingElement(g,ZFI)
+
+FIMorphism + FIRingElement := (f,m) -> fiRingElement(f, ring m) + m
+
+FIRingElement + FIMorphism := (m,f) -> f+m
+
+
 
 
 coefficient (FIRingElement, FIMorphism) := (m,f) -> (
@@ -180,18 +203,7 @@ isFromSource (FIRingElement, Thing) := (m,a) -> (
     )
 *}
 
-coefficientRing FIRing := R -> last R.baseRings
 
-
-FIRing_List := (R, l) -> fiRingElement(FI l, R)
-
-ZZ _ FIRing := (n,R) -> (
-    if n =!= 0 then error "ZZ_FIRing is only defined for 0_FIRing"
-    else return new R from hashTable{
-        symbol ring => R,
-        symbol terms => hashTable{}
-    }
-    )
 
 
 fiRingElement = method()
@@ -322,9 +334,17 @@ f = FI{1,3}
 g = FI{2,6,5,1}
 f*g
 
+-- fiRing
 
 restart
 load "Categories.m2"
+
+f = FI{1,3}
+g = FI{2,6,5,1}
+h = FI{3,4,5}
+x = f+g
+y = x +h
+
 S = fiRing(ZZ/3)
 f = S_{2,1,3}+S_{2,1,3}+S_{2,1,3}
 g = S_{1,4,5,6}
