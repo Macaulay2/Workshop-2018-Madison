@@ -117,7 +117,7 @@ FIMorphism + FIRingElement := (f,m) -> fiRingElement(f, ring m) + m
 
 FIRingElement + FIMorphism := (m,f) -> f+m
 
-FIRing _ List := (RFI, l) -> fiRingElement(fiMorphism(l),RFI)
+
 
 
 
