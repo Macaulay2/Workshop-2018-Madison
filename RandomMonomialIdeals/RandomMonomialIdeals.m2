@@ -89,6 +89,7 @@ export {
     "randomMonomialIdeals",
     "randomHomogeneousMonomialIdeals",
     "randomBinomialIdeals",
+    "binomialIdealsFromGeneratingSets",
     "Coefficients",
     "mingenStats",
     "IncludeZeroIdeals",
@@ -1325,15 +1326,19 @@ doc ///
   randomBinomialIdeals
   (randomBinomialIdeals,PolynomialRing,ZZ,RR,ZZ)
   (randomBinomialIdeals,PolynomialRing,ZZ,ZZ,ZZ)
+  (randomBinomialIdeals,PolynomialRing,ZZ,List,ZZ)
   (randomBinomialIdeals,ZZ,ZZ,RR,ZZ)
   (randomBinomialIdeals,ZZ,ZZ,ZZ,ZZ)
+  (randomBinomialIdeals,ZZ,ZZ,List,ZZ)
  Headline
   generates random sets of homogeneous binomial ideals
  Usage
   randomBinomialIdeals(PolynomialRing,ZZ,RR,ZZ)
   randomBinomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
+  randomBinomialIdeals(PolynomialRing,ZZ,List,ZZ)
   randomBinomialIdeals(ZZ,ZZ,RR,ZZ)
   randomBinomialIdeals(ZZ,ZZ,ZZ,ZZ)
+  randomBinomialIdeals(ZZ,ZZ,List,ZZ)
  Inputs
   R: PolynomialRing
     the ring to generate a random homogeneous monomial ideal in, OR
@@ -1384,6 +1389,8 @@ doc ///
   (randomBinomialSet,PolynomialRing,ZZ,RR)
   (randomBinomialSet,ZZ,ZZ,ZZ)
   (randomBinomialSet,PolynomialRing,ZZ,ZZ)
+  (randomBinomialSet,ZZ,ZZ,List)
+  (randomBinomialSet,PolynomialRing,ZZ,List)
  Headline
   randomly generates a list of homogeneous binomials in fixed number of variables of a given degree
  Usage
@@ -2034,6 +2041,9 @@ doc ///
     [randomHomogeneousMonomialSets, Coefficients]
     [randomMonomialIdeals, Coefficients]
     [randomHomogeneousMonomialIdeals, Coefficients]
+    [randomBinomialIdeals, Coefficients]
+    [randomBinomialSet, Coefficients]
+    [randomBinomialSets, Coefficients]
   Headline
     optional input to choose the coefficients of the ambient polynomial ring
   Description
@@ -2060,6 +2070,9 @@ doc ///
     [randomMonomialSet, Strategy]
     [randomMonomialSets, Strategy]
     [randomMonomialIdeals, Strategy]
+    [randomBinomialSet, Strategy]
+    [randomBinomialSets, Strategy]
+    [randomBinomialIdeals, Strategy]
   Headline
     optional input to choose the strategy for generating the monomial set
   Description
@@ -2075,6 +2088,8 @@ doc ///
    [idealsFromGeneratingSets, IncludeZeroIdeals]
    [randomMonomialIdeals, IncludeZeroIdeals]
    [randomHomogeneousMonomialIdeals, IncludeZeroIdeals]
+   [binomialIdealsFromGeneratingSets, IncludeZeroIdeals]
+   [randomBinomialIdeals, IncludeZeroIdeals]
    [bettiStats, IncludeZeroIdeals]
  Headline
    optional input to choose whether or not zero ideals should be included
@@ -2395,6 +2410,7 @@ doc ///
    [pdimStats, Verbose]
    [dimStats, Verbose]
    [idealsFromGeneratingSets, Verbose]
+   [binomialIdealsFromGeneratingSets, Verbose]
    [regStats, Verbose]
    [CMStats, Verbose]
    [GorensteinStats, Verbose]
