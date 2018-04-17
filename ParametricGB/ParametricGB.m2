@@ -13,7 +13,19 @@ newPackage(
         DebuggingMode => true
         )
 
-export {"isConsistent", "minimalDicksonBasis", "comprehensiveGB"}
+export {
+    "ComprehensiveGroebnerBasisLocus",
+    "isConsistent", 
+    "minimalDicksonBasis", 
+    "comprehensiveGB"
+}
+
+ComprehensiveGroebnerBasisLocus = new Type of HashTable 
+
+makeCGBL = (E,N,F) -> (
+    new ComprehensiveGroebnerBasisLocus from {"Equations"=>E,"Inequations"=>N,"gb"=>F}    
+)
+
 
 isConsistent = method()
 isConsistent(List, List) := Boolean => (E, N) -> (
@@ -68,6 +80,13 @@ prod = (A,B) -> (
 
 comprehensiveGB = method(Options => {Verbosity => 0})
 comprehensiveGB(List, List, List) := List => opts -> (E, N, F) -> (
+    cgs:=CGBPoly(E,N,F,opts);
+    cgs = simplifyCGB(cgs);
+    return apply(cgs, i -> makeCGBL(i_0,i_1,i_2))
+)
+
+
+CGBPoly =  (E, N, F, opts) -> (
     -- E = a list of polynomials
     -- N = a list of polynomials
     -- F = a list of polynomials
@@ -152,7 +171,7 @@ comprehensiveGB(List, List, List) := List => opts -> (E, N, F) -> (
 	if opts.Verbosity > 0 then (
 	    print concatenate("i=",toString(i),",{E,N,F}=",toString {newE,newN,newF}) << endl;
         );
-	comprehensiveGB(newE,newN,newF)	
+	CGBPoly(newE,newN,newF,opts)	
     );
     return unique join(CGS,flatten L)
 )
@@ -202,11 +221,31 @@ SeeAlso
 
 doc ///
 Key
+  ComprehensiveGroebnerBasisLocus
+Headline
+  a type for each element in a comprehensive Groebner basis
+Description
+  Text
+    Each locus in a comprehensive Groebner basis consists of a constructible set of the form V(E)-V(N), where E is a set of equations and N is a set of inequations, and a Groebner basis for the family over that locus.
+  Example
+    R=QQ[c_1,c_2][x_0..x_3]
+    E={}
+    N={1_(coefficientRing(R))}
+    F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
+    cgs= comprehensiveGB(E, N, F)
+    peek first cgs
+///
+
+
+
+doc ///
+Key
   isConsistent
+  (isConsistent,List,List)
 Headline
   determines whether a constructible set is nonempty
 Usage
-  isConsistent(E,N,)
+  isConsistent(E,N)
 Inputs
   E : List
     a list of equations 
@@ -231,6 +270,7 @@ Description
 doc ///
 Key
   minimalDicksonBasis
+  (minimalDicksonBasis,List)
 Headline
   computes a minimal Dickson basis for a list of polynomials
 Usage
@@ -256,6 +296,7 @@ Description
 doc ///
 Key
   comprehensiveGB
+  (comprehensiveGB,List,List,List)
 Headline
   compute a comprehensive Groebner basis
 Usage
