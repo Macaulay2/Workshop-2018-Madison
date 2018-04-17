@@ -127,7 +127,7 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
     rVars := flatten entries vars R;
     --- Base locus of projection
     BL1 := ideal(rVars#0,rVars#1);
-    BL2 := ideal(rVars#1,rVar#2,rVars#3);
+    BL2 := ideal(rVars#1,rVars#2,rVars#3);
     BL := intersect(BL1,BL2);
     --- If PreserveDegree => true checks whether curve intersects base locus;
     --- this ensures the curve has the correct degree and genus.
@@ -188,24 +188,7 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := randomCurveP1P2 => opts -> (d,g,F)->(
     --- this ensures the curve has the correct degree and genus.
     if (saturate(C+BL1)==ideal(rVars)) or (saturate(C+BL2)==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
     --- Defines P1xP2
-    S1 := F[x_0, x_1];
-    S2 := F[y_0,y_1,y_2];
-    S = tensor(S1,S2);
-    --- Defines P3x(P1xP2)
-    U = tensor(R,S);   
-    C' := sub(C,U);
-    --- Defines graph of projection
-    M1 := matrix {{z_0,z_1},{x_0,x_1}};
-    M2 := matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
-    G := minors(2,M1)+minors(2,M2);
-    --- Irrelevant ideal intersect base locus
-    B1 := ideal(z_0,z_1,z_2,z_3);
-    B2 := ideal(x_0,x_1);
-    B3 := ideal(y_0,y_1,y_2);
-    B := intersect(B1,B2,B3,sub(BL,U));
-    --- Computes saturation and then eliminates producing curve in P1xP2
-    K  := saturate(C'+G,B,MinimalGenerators=>false);
-    sub(eliminate({z_0,z_1,z_2,z_3},K),S)
+    curveFromP3toP1P2(C)
 )
 
 --------------------------------------------------------------------
