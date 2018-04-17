@@ -683,7 +683,109 @@ doc ///
 -------------------------
 -- Beginning of the TESTS
 -------------------------
+------ Tests for randomRationalCurve        
+TEST ///
+    assert (dim randomRationalCurve(2,3,QQ) == 3)
+    ///
+    
+TEST ///
+    assert (degree randomRationalCurve(2,3,QQ) == 2+3)
+    ///
+    
+TEST ///
+    assert (dim randomRationalCurve(2,3,ZZ/11) == 3)
+    ///
+    
+TEST ///
+    assert (degree randomRationalCurve(2,3,ZZ/11) == 2+3)
+    ///
+       
+TEST ///
+    assert (dim randomRationalCurve(2,3) == 3)
+    ///
 
+TEST ///
+    assert (degree randomRationalCurve(2,3) == 2+3)
+    ///
+
+------ Tests for randomMonomialCurve        
+TEST ///
+    assert (dim randomMonomialCurve(2,3,QQ) == 3)
+    ///
+
+TEST ///
+    assert (degree randomMonomialCurve(2,3,QQ) == 2+3)
+    ///
+    
+TEST ///
+    assert (dim randomMonomialCurve(2,3,ZZ/11) == 3)
+    ///
+
+TEST ///
+    assert (degree randomMonomialCurve(2,3,ZZ/11) == 2+3)
+    ///
+           
+TEST ///
+    assert (dim randomMonomialCurve(2,3) == 3)
+    ///
+
+TEST ///
+    assert (degree randomMonomialCurve(2,3) == 2+3)
+    ///
+
+------ Tests for curveFromP3toP1P2        
+TEST ///
+    R = ZZ/101[z_0,z_1,z_2,z_3];
+    C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
+    dim curveFromP3toP1P2(C) == 3
+    ///
+    
+TEST ///
+    R = ZZ/101[z_0,z_1,z_2,z_3];
+    C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
+    dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3
+    ///
+
+------ Tests for randomCurveP1P2
+TEST ///
+    assert (dim randomCurveP1P2(3,0,ZZ/2) == 3)
+    ///  
+
+TEST ///
+    assert (degree randomCurveP1P2(3,0,ZZ/2) == 3+3)
+    ///  
+        
+TEST ///
+    assert (dim randomCurveP1P2(5,2,ZZ/11,Bound=>10) == 3)
+    /// 
+
+TEST ///
+    assert (degree randomCurveP1P2(5,2,ZZ/11,Bound=>10) == 5+5)
+    /// 
+    
+TEST ///
+    assert (dim randomCurveP1P2(3,0) == 3)
+    ///  
+
+TEST ///
+    assert (degree randomCurveP1P2(3,0) == 3+3)
+    ///  
+    
+TEST ///
+    assert (dim randomCurveP1P2(3,0,Bound=>10) == 3)
+    ///  
+
+TEST ///
+    assert (degree randomCurveP1P2(3,0,Bound=>10) == 3+3)
+    ///  
+    
+TEST ///
+    assert (dim randomCurveP1P2(5,2,Bound=>10) == 3)
+    /// 
+
+TEST ///
+    assert (degree randomCurveP1P2(5,2,Bound=>10) == 5+5)
+    ///       
 
 end--
 
