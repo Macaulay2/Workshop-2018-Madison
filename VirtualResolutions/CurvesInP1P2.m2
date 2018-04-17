@@ -169,8 +169,8 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
 ----- and the projection P3----->P2 on the last three variables.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomCurve = method(Options => {Bound => 1000}) 
-randomCurve (ZZ,ZZ,Ring) := randomCurve => opts -> (d,g,F)->(
+randomCurveP1P2 = method(Options => {Bound => 1000}) 
+randomCurveP1P2 (ZZ,ZZ,Ring) := randomCurveP1P2 => opts -> (d,g,F)->(
     --- Defines P3
     R := F[z_0,z_1,z_2,z_3];
     rVars := flatten entries vars R;
@@ -214,8 +214,8 @@ randomCurve (ZZ,ZZ,Ring) := randomCurve => opts -> (d,g,F)->(
 ----- Output: The ideal of a random curve in P1xP2 over ZZ/101
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomCurve (ZZ,ZZ) := randomCurve => opts -> (d,g)->(
-    randomCurve(d,g,ZZ/101)
+randomCurveP1P2 (ZZ,ZZ) := randomCurveP1P2 => opts -> (d,g)->(
+    randomCurveP1P2(d,g,ZZ/101)
     )
     
 --------------------------------------------------------------------
@@ -274,50 +274,72 @@ doc ///
 doc ///
     Key
     	randomRationalCurve
+	(randomRationalCurve,ZZ,ZZ,Ring)
+	(randomRationalCurve,ZZ,ZZ)
     Headline
     	creates the Ideal of a random rational curve of degree (d,e) in P1xP2
     Usage
+    	randomRationalCurve(d,e,F)
     	randomRationalCurve(d,e)
     Inputs
     	d:ZZ
 	    degree of curve on the P1 factor of P1xP2
 	e:ZZ
 	    degree of curve on the P2 factor of P1xP2
+	F:Ring
+	    base ring
     Outputs
-    	I:Ideal
+    	:Ideal
+	    defining random rational curve in P1xP2 of degree (d,e) over F.
     Description
     	Text
-	    This randomly generates 2 forms of degree
-	    d and 3 forms of degree 3 in the ring S (locally defined), 
-	    and computes the ideal defining the image of the map of the
-	    associated map P^1 to P^1xP^2.
+	    Given two positive integers d and e and a ring F randomRationalCurve returns the ideal of a random curve in P1xP2 of degree (d,e) defined over the base ring F. 
 	    
+	    This is done by randomly generating 2 homogenous polynomials of degree d and 3 homogenous polynomials of degree 3 in F[s,t] defining maps P^1->P^2 and P^1->P^3
+	    respectively. The graph of the product of these two maps in P^1x(P^1xP^2) is computed, from which a curve of bi-degree (d,e) in P^1xP^2 over F is obtained by 
+	    saturating and then eliminating. 
+	    
+	    If the no base ring is specified the computations is preformed over F=ZZ/101
+	Caveat
+	    This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
 	Example
+	    randomRationalCurve(2,3,QQ)
 	    randomRationalCurve(2,3)	
 ///
 
 doc ///
     Key
     	randomMonomialCurve
+	(randomMonomialCurve,ZZ,ZZ,Ring)
+	(randomMonomialCurve,ZZ,ZZ)
     Headline
     	creates the Ideal of a random monomial curve of degree (d,e) in P1xP2
     Usage
+    	randomMonomialCurve(d,e,F)
     	randomMonomialCurve(d,e)
     Inputs
     	d:ZZ
 	    degree of curve on the P1 factor of P1xP2
 	e:ZZ
 	    degree of curve on the P2 factor of P1xP2
+	F:Ring
+	    base ring
     Outputs
-    	I:Ideal
+    	:Ideal
+	    defining random monomial curve in P1xP2 of degree (d,e) over F.
     Description
     	Text
-	    This randomly generates 2 mnomials of degree
-	    d and 3 monomials of degree 3 in the ring S (locally defined), 
-	    and computes the ideal defining the image of the map of the
-	    associated map P^1 to P^1xP^2.
+	    Given two positive integers d and e and a ring F randomMonomialCurve returns the ideal of a random curve in P1xP2 of degree (d,e) defined over the base ring F. 
 	    
+	    This is done by randomly generating a monomial m of degree e in F[s,t], which is not s^e or t^e. This allows one to define two maps P^1->P^1 and P^1->P^2 
+	    given by {s^d,t^d} and {s^e,m,t^e} respectively. The graph of the product of these two maps in P^1x(P^1xP^2) is computed, from which a curve 
+	    of bi-degree (d,e) in P^1xP^2 over F is obtained by saturating and then eliminating. 
+	    
+	    If the no base ring is specified the computations is preformed over F=ZZ/101.
+	Caveat
+	    This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
 	Example
+	    randomMonomialCurve(2,3,QQ)
 	    randomMonomialCurve(2,3)	
 ///
 
@@ -351,19 +373,24 @@ doc ///
 
 doc ///
     Key
-    	randomCurve
+    	randomCurveP1P2
+	(randomCurveP1P2,ZZ,ZZ,Ring)
+	(randomCurveP1P2,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random  curve of degree d and genus g in P1xP2
+    	creates the Ideal of a random  curve of degree (d,d) and genus g in P1xP2.
     Usage
+    	randomCurve(d,g,F)
     	randomCurve(d,g)
     Inputs
     	d:ZZ
 	    degree of the curve.
 	g:ZZ
 	    genus of the curve.
+	F:Ring
+	    base ring
     Outputs
-    	I:Ideal
-	    definin curve in P1xP2.
+    	:Ideal
+	    defining random curve of degree (d,d) and genus g in P1xP2 over F.
     Description
     	Text
 	    Given a curve defined by the ideal J in P3
@@ -373,6 +400,7 @@ doc ///
 	    to P2 on the last three variables.
 	    
 	Example
+	    randomCurve(3,0,QQ)
 	    randomCurve(3,0)
 
 ///
