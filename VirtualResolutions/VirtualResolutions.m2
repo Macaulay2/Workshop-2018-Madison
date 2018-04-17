@@ -50,7 +50,9 @@ export{
     }
 
 debug Core
-
+--Given a toric variety and its free resolution, keeps only summands in resolution of specified degrees
+--See Theorem 4.1 of [BES]
+--TODO: Split multiWinnow and resolveTail
 multiWinnow = method();
 multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength ring X) then error "degree has wrong length";
@@ -62,6 +64,21 @@ multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
     L' := for i from min T to max T - 1 list T.dd_(i+1);
     chainComplex (L_{0..N - 1} | L')
     );
+
+--Given ideal J, irrelevant ideal, and a vector A, computes free resolution of J intersected with Ath power of the irrelevant ideal
+--Only a Virtual resolution for 'sufficiently positive' powers of B
+--See Theorem 5.1 of [BES]
+
+intersectionRes = method();
+intersectionRes = (Ideal, Ideal, List) := (J, irr, A) -> (
+    N = (length A)-1;
+    L = decompose irr;
+    irrelevantIntersection = {};
+    for i from 0 to N do (
+	irrelevantIntersection = append(irrelevantIntersection, intersect J, L_i^(a_i));
+	)
+    res irrelevantIntersection
+   )
 
 -- TODO: change cohomologyTable to return a Tally, then redo this.
 findCorners = m -> (
