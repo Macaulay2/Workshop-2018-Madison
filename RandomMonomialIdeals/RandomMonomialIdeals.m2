@@ -99,7 +99,6 @@ export {
     "bettiStats",
     "SaveBettis",
     "CountPure",
-    "Verbose",
     "depthStats",
     "pdimStats",
     "isProjDimMaximal",
@@ -560,7 +559,7 @@ regStats List := o-> (ideals) -> (
 	ret = (-infinity, 0)
     )
     else (
-	regHistogram := apply(ideals,I -> regularity I);
+	regHistogram = apply(ideals,I -> regularity I);
              avg := sub(1/#ideals*(sum regHistogram), RR);
     	     Ex2 := sub((1/(#ideals))*(sum apply(elements(tally regHistogram), i->i^2)), RR);
     	     var := Ex2-avg^2;
