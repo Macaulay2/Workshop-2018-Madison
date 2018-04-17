@@ -17,14 +17,14 @@ export {
     "ComprehensiveGroebnerBasisLocus",
     "isConsistent", 
     "minimalDicksonBasis", 
-    "comprehensiveGB"
+    "comprehensiveGS"
 }
 
-ComprehensiveGroebnerBasisLocus = new Type of HashTable 
+ComprehensiveGroebnerSystemLocus = new Type of HashTable 
 
 
 
-net ComprehensiveGroebnerBasisLocus := x -> (
+net ComprehensiveGroebnerSystemLocus := x -> (
      orderedPairs := {("Equations",x#"Equations"),("Inequations",x#"Inequations"),("gb",x#"gb")};    
      horizontalJoin flatten (
           "{",
@@ -36,8 +36,8 @@ net ComprehensiveGroebnerBasisLocus := x -> (
 
 
 
-makeCGBL = (E,N,F) -> (
-    new ComprehensiveGroebnerBasisLocus from hashTable({"Equations"=>E,"Inequations"=>N,"gb"=>F})    
+makeCGSL = (E,N,F) -> (
+    new ComprehensiveGroebnerSystemLocus from hashTable({"Equations"=>E,"Inequations"=>N,"gb"=>F})    
 )
 
 
@@ -92,11 +92,11 @@ prod = (A,B) -> (
    return unique flatten apply(A, a -> apply(B, b -> a*b))
 )
 
-comprehensiveGB = method(Options => {Verbosity => 0})
-comprehensiveGB(List, List, List) := List => opts -> (E, N, F) -> (
+comprehensiveGS = method(Options => {Verbosity => 0})
+comprehensiveGS(List, List, List) := List => opts -> (E, N, F) -> (
     cgs:=CGBPoly(E,N,F,opts);
-    cgs = simplifyCGB(cgs);
-    return apply(cgs, i -> makeCGBL(i_0,i_1,i_2))
+    cgs = simplifyCGS(cgs);
+    return apply(cgs, i -> makeCGSL(i_0,i_1,i_2))
 )
 
 
@@ -207,7 +207,7 @@ simplifyInequation = (N) -> (
     unique flatten L
 );
 
-simplifyCGB = (cgs) -> ( 
+simplifyCGS = (cgs) -> ( 
     unique apply(cgs, i-> {i_0,simplifyInequation(i_1),apply(i_2, g -> simplifyPolynomial g)})
 )
 
@@ -218,7 +218,7 @@ doc ///
 Key
   ParametricGB
 Headline
-  for computing parametric Groebner bases, or comprehensive Groebner bases
+  for computing parametric Groebner bases, also known as comprehensive Groebner bases, and comprehensive Groebner systems
 Description
   Text
     This package implements Algorithm CGB-Polynomial from Kapur, Sun, and Wang 2013. 
@@ -227,26 +227,26 @@ Description
     E={}
     N={1_(coefficientRing(R))}
     F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGB(E, N, F)
+    cgs= comprehensiveGS(E, N, F)
 SeeAlso
 ///
 
---export {"isConsistent", "minimalDicksonBasis", "comprehensiveGB"}
+--export {"isConsistent", "minimalDicksonBasis", "comprehensiveGS"}
 
 doc ///
 Key
-  ComprehensiveGroebnerBasisLocus
+  ComprehensiveGroebnerSystemLocus
 Headline
-  a type for each element in a comprehensive Groebner basis
+  a type for each element in a comprehensive Groebner system
 Description
   Text
-    Each locus in a comprehensive Groebner basis consists of a constructible set of the form V(E)-V(N), where E is a set of equations and N is a set of inequations, and a Groebner basis for the family over that locus.
+    Each element of a comprehensive Groebner system consists of a constructible set of the form V(E)-V(N), where E is a set of equations and N is a set of inequations, and a Groebner basis for the family over that locus.
   Example
     R=QQ[c_1,c_2][x_0..x_3]
     E={}
     N={1_(coefficientRing(R))}
     F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGB(E, N, F)
+    cgs= comprehensiveGS(E, N, F)
     peek first cgs
 ///
 
@@ -298,7 +298,7 @@ Outputs
 Description
   Text
     A minimal Dickson basis is defined in Kapur, Sun, Wang 2013, Definition 4.3.
-    It is not unique.
+    It may not be unique.
   Example
     R=QQ[c_1,c_2][x_0..x_3]
     L={c_1*x_1*x_2-x_3^2,x_1*x_2^2+x_3^3,x_1^2+x_2^2+x_3^2}
@@ -309,12 +309,12 @@ Description
 
 doc ///
 Key
-  comprehensiveGB
-  (comprehensiveGB,List,List,List)
+  comprehensiveGS
+  (comprehensiveGS,List,List,List)
 Headline
-  compute a comprehensive Groebner basis
+  compute a comprehensive Groebner system
 Usage
-  comprehensiveGB(E,N,F)
+  comprehensiveGS(E,N,F)
 Inputs
   E : List
     a list of equations 
@@ -324,7 +324,7 @@ Inputs
     a list of polynomials  
 Outputs
   L : List
-    a list of pairs of a constructible subset and a Groebner basis
+    a list of pairs consisting of a constructible set and a Groebner basis
 Description
   Text
     This package implements Algorithm CGB-Polynomial from Kapur, Sun, and Wang 2013. 
@@ -333,10 +333,10 @@ Description
     E={}
     N={1_(coefficientRing(R))}
     F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGB(E, N, F)
+    cgs= comprehensiveGS(E, N, F)
 ///
 
-end--
+end
 
 uninstallPackage("ParametricGB")
 restart
@@ -362,7 +362,7 @@ R = QQ[a,b,c][x1,x2]
 E = {}
 N = {1_(coefficientRing(R))}
 F = {a*x1 - b, b*x2 - a, c*x1^2 - x2, c*x2^2 - x1}
-cgb = comprehensiveGB(E, N, F)
+cgb = comprehensiveGS(E, N, F)
 #cgb
 checkedcgb = ///{{{}, {b*c^2-b, a*c^2-a, b^3*c-a^3, a^3*c-b^3, a^6-b^6}, {(b*c^2-b)*y, (a*c^2-a)*y, (b^3*c-a^3)*y, (a^3*c-b^3)*y, (a^6-b^6)*y}}, {{b*c^2-b, a*c^2-a, b^3*c-a^3, a^3*c-b^3, a^6-b^6}, {b}, {(b*x2-a)*y, (b*x1-a*c*x2)*y}}, {{b, a}, {c}, {(c*x2^2-x1)*y, (c*x1^2-x2)*y}}, {{c, b, a}, {1}, {x2*y-c*x1^2, x1*y-c*x2^2}}}///;
 assert(toString(cgb) === checkedcgb)
@@ -379,7 +379,7 @@ R=QQ[c_1,c_2][x_0..x_3]
 E={}
 N={1_(coefficientRing(R))}
 F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-cgs= comprehensiveGB(E, N, F)
+cgs= comprehensiveGS(E, N, F)
 #cgs
 cgs_0   -- This is stupid
 cgs_1   -- The generic fiber
