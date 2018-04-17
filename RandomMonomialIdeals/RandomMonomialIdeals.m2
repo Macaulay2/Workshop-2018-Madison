@@ -757,8 +757,8 @@ anyCartesianProduct := (L,f) -> (
 isProjDimMaximal = method(TypicalValue=>Boolean);
 isProjDimMaximal (MonomialIdeal) := M -> (
     R := ring M;
-    badIdeal := product(gens R))*M;
-    n := #gens(R);
+    badIdeal := product(gens R)*M;
+    n := #gens R;
     G := apply(flatten entries mingens M, flatten@@exponents);
     if #G < n then return false;
     possibleExponents := for i from 0 to n-1 list(
