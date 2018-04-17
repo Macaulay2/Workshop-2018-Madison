@@ -356,6 +356,7 @@ doc ///
 	    curveFromP3toP1P2(J)
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
+///
 
 doc ///
     Key
