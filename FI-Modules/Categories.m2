@@ -19,8 +19,8 @@ FI = method()
 -- function {1,2,3} -> the positive integers that sends 1 to 1, 2 to
 -- 3, and 3 to 4.
 FI List := l -> (  
-    if #l >#unique l then error "FI: list does not give injective map"
-    else if all (l,i -> class i === ZZ and i<1) then error "FI: list is not a list of positive integers"
+    if all (l,i -> class i === ZZ and i<1) then error "FI: list is not a list of positive integers"
+    else if #l >#unique l then error "FI: list does not give injective map"
     else new FIMorphism from hashTable{ (symbol morphismList) => l}
 )
 
@@ -330,17 +330,59 @@ colDegrees = method()
 colDegrees FIMatrix := M -> M.coldegs
 
 
+-- Basis of FI Matrices
+--============================
+
+fiMorphisms = method()
+
+fiMorphisms (ZZ,ZZ) := (a,b) -> (
+    if a>b then return {}
+    if a == 0 then return {FI{}}}
+    valueList = toList(1 .. b);
+    currentMorphism = toList(1..a);
+    listOfMorphisms = {FI(currentMorphism)};
+    noOfMorphisms = b!/(b-a)!;
+    valueList = drop(valueList,a);
+    while #listOfMorphisms< noOfMorphisms do(
+        recursiveLevel = 1;
+        lastImage = last currentMorphism;
+        while lastImage > max valueList do (
+            valueList = append(valueList,lastImage);
+            recursiveLevel = recursiveLevel +1;
+            lastImage = currentMorphism#(-recursiveLevel);
+            );
+        currentMorphism = drop(currentMorphism,-recursiveLevel);
+        nextValue = min select(valueList, i -> i> lastImage);
+        currentMorphism= currentMorphism|{nextValue};
+        valueList = select(valueList,i-> i =!= nextValue);
+        valueList = valueList|{lastImage};
+        valueList = sort(valueList);
+        currentMorphism = currentMorphism|valueList_(toList(0..recursiveLevel-2));
+        valueList = drop(valueList,recursiveLevel-1);
+        listOfMorphisms = listOfMorphisms|{FI(currentMorphism)};
+        );
+    return listOfMorphisms;
+    )
+
+
 /// TEST 
--- FI
+-- FIMorphism
 
 restart
 load "Categories.m2"
 
 f = FI{1,3}
+source f -- 2
+target f -- minimal [n] to be mapped into ... here 3
 g = FI{2,6,5,1}
 f*g
 
--- fiRing
+h = FI{1,1} -- error: not injective
+h = FI{-1,"a"} -- error: not nonnegative numbers
+
+
+
+-- FIRingElement
 
 restart
 load "Categories.m2"
@@ -357,7 +399,7 @@ g = S_{1,4,5,6}
 f*g
 
 
--- FIMatrix Tests
+-- FIMatrix
 
 restart
 load "Categories.m2"
@@ -405,6 +447,13 @@ m = RFI_{4,2,1}
 n = RFI_{1,6,2}
 m-n
 5*m
+
+-- Basis for FIMatrices
+
+restart
+load "Categories.m2"
+
+fiMorphisms(2,5)
 
 
 ///
