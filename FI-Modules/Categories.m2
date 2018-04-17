@@ -24,7 +24,17 @@ target FIMorphism := f -> last f
 
 source FIMorphism := f -> (length first f) 
 
+FIMorphism#{Standard,AfterPrint} = 
+FIMorphism#{Standard,AfterNoPrint} = f -> (
+     << endl;                 -- double space
+     << concatenate(interpreterDepth:"o") << lineNumber << " : FIMorphism";
+     << " " << source f << " ---> " << target f;
+     << endl;
+     )
+
 net FIMorphism := l -> net "["|net l#0|net ","|net l#1|net"]"
+
+
 
 
 -- FI RINGS
@@ -73,7 +83,7 @@ coefficient (FIRingElement, FIMorphism) := (m,f) -> (
 terms FIRingElement := g -> g.terms
 
 
-net FIRingElement := f -> (
+{*net FIRingElement := f -> (
     termsf := terms f;
     keysf := keys termsf;
     kk := coefficientRing ring f;
@@ -98,7 +108,38 @@ net FIRingElement := f -> (
 	)
     else net 0
     )
+*}
 
+
+
+net FIRingElement := f -> (
+   if #(f.terms) == 0 then return net "0";
+   
+   firstTerm := true;
+   myNet := net "";
+   isZp := (class coefficientRing ring f === QuotientRing and ambient coefficientRing ring f === ZZ);
+   for t in pairs f.terms do (
+      tempNet := net t#1;
+      printParens := ring t#1 =!= QQ and ring t#1 =!= ZZ and not isZp and (size t#1 > 1 or (isField ring t#1 and numgens coefficientRing ring t#1 > 0 and size sub(t#1, coefficientRing ring t#1) > 1));
+      myNet = myNet | (
+        if isZp and tempNet#0#0 != "-" and not firstTerm then net "+"
+        else if not isZp and not firstTerm and t#1>0 then net "+"
+        else net ""
+      ) | (
+        if printParens then net "(" else net ""
+      ) | (
+        if t#1 != 1 and t#1 != -1 then tempNet
+        else if t#1 == -1 then net "-"
+        else net ""
+      ) | (
+        if printParens then net ")" else net ""
+      ) | (
+        net t#0
+      );
+      firstTerm = false;
+   );
+   myNet
+)
 
 isFromTarget=method()
 
@@ -176,8 +217,49 @@ fiMatrix (List,List,List) := (rowdeglist,fiEntries,coldeglist) -> (
     )
 
 
-net FIMatrix := M -> net expression M
-expression FIMatrix := M -> MatrixExpression applyTable(M.matrix, expression)
+FIMatrix#{Standard,AfterPrint} = 
+FIMatrix#{Standard,AfterNoPrint} = M -> (
+     << endl;                 -- double space
+     << concatenate(interpreterDepth:"o") << lineNumber << " : FIMatrix";
+     << " ";
+     if #M.rowdegs == 0 then << "0"
+     else (
+        firstTerm = true;
+        for deg in M.rowdegs do (
+            if not firstTerm then << " + ";
+            << "M(" << deg << ")";
+            firstTerm = false;
+        );
+     );
+     <<" <--- ";
+     if #M.coldegs == 0 then << "0"
+     else (
+        firstTerm = true;
+        for deg in M.coldegs do (
+            if not firstTerm then << " + ";
+            << "M(" << deg << ")";
+            firstTerm = false;
+        );
+     );
+     << endl
+     )
+
+net FIMatrix := M -> (
+    MyNet := net (Table ( {{""}|(M.coldegs)}| apply(#(M.rowdegs),i->(({(M.rowdegs)#i})| ((M.matrix)#i) )) ));
+    StringList := unstack(MyNet);
+    colnum := max(apply(M.rowdegs,d -> length toString d))+1;
+    rowwidth := width MyNet;
+    StringList1 := {substring(StringList#0,0,colnum)|" "|substring(StringList#0,colnum)|" ",pad(colnum+1," ")|pad(rowwidth-colnum+1," ")};
+    StringList2 := apply(take(StringList,{2,#StringList}), str -> (
+        if #str == 0 then pad(colnum+1,"|")|pad(rowwidth-colnum+1,"|")
+        else if #str<rowwidth then substring(str,0,colnum)|"|"|substring(str,colnum)|pad(rowwidth-#str+1,"|")
+        else substring(str,0,colnum)|"|"|substring(str,colnum)|"|"
+        ));
+    return stack(StringList1|StringList2)
+    )
+
+--{{""}|{1,2}}| apply(#b,i->b#i| a#i)
+--Table applyTable({{"",Table {M.coldegs}},{Table M.rowdegs,MatrixExpression applyTable(M.matrix, expression)}},expression)
 entries FIMatrix := M -> M.matrix
 numRows FIMatrix := M -> #(entries M)
 numColumns FIMatrix := M -> #(first entries M)
@@ -217,33 +299,21 @@ f = S_{2,1,3}+S_{2,1,3}+S_{2,1,3}
 g = S_{1,4,5,6}
 f*g
 
-M = fiMatrix{{S_{2,1,3}, S_{2,1,3}, S_{2,1,4}}}
-N = fiMatrix{{S_{1,2,3,5}},{S_{1,4,2,6}},{S_{4,3,2,1,7}}}
-x = m+n
-y = m+m
-z = n+p
-x*z
-y === 2*m
-y === 2/1*m
-y === m*(2/1)
-isFromSource(x*z,2)
-isHomogeneous(x*z)
-isHomogeneous(0_RFI)
-isHomogeneous x
 
 -- FIMatrix Tests
 
 restart
 load "Categories.m2"
+f = FI{1,2,5}
 
-R = fiRing(ZZ/3)
+R = fiRing(ZZ/3[t])
 f = FI{1,2,5}
 g = FI{3,1,2,4,6,7}
 h = FI{5,2,6,1,3,7}
 x = fiRingElement(f,R);
 y = fiRingElement(g,R);
 z = fiRingElement(h,R);
-mat = fiMatrix ({2,5},{{x,0_R},{0_R,y+z}},{5,7})
-rowDegrees mat
+mat = fiMatrix ({2,5},{{x,0_R},{0_R,y+t^2*z}},{5,7})
+
 
 ///
