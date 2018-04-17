@@ -49,7 +49,23 @@ newPackage(
 	    {
 		Name => "Tommy Giardina",
 		Email => "tommy.giardina@gmail.com"
-	    }
+	    },
+            {
+		Name => "Jay Yang",
+		Email => "jkelleyy@gmail.com"
+	    },
+            {
+                Name => "Louis Brown",
+		Email => "louis.brown@yale.edu"
+            },
+            {
+                Name => "Lily Silverstein",
+		Email => "lsiver@math.ucdavis.edu"
+            },
+            {
+                Name => "Daniel Corey",
+                Email => "dcorey2814@gmail.com"
+            }
 	},
     	Headline => "A package for generating Erdos-Renyi-type random monomial ideals",
     	DebuggingMode => false,
