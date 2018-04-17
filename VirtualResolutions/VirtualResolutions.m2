@@ -217,7 +217,7 @@ J' = saturate(I',irr)
 multiGradedRegularity = method();
 multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
     S = ring M;
-    P = presentation(truncate(T, M ** (ring M)^{D}));
+    P = presentation(truncate(T, M));
     E = (coefficientRing S)[A_(0)..A_(numgens S - 1), SkewCommutative => true, Degrees=>degrees S];
     se = symExt(P, E);
     print se;
@@ -227,19 +227,46 @@ multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
     C' = C'[N];
 --    C' := res(coker transpose C.dd_N, LengthLimit => 2 * N);    
     C'' = beilinsonWindow C';
-    C''' = (sloppyTateExtension C'');
-    cohomologyTable(C''' ** E^{{-1,-1}}, {-N,-N},{N,N})
+--    C''' = (ring C'')^{D}**(sloppyTateExtension C'');
+--    cohomologyTable(C''' ** E^{{-1,-1}}, {-N,-N},{N,N})
+    C''' = sloppyTateExtension C'';
+    cohomologyTable(C''', {-N,-N},{N,N})
     )
 
 
-M= S^1;D = {0,0};T = {0,0};N = 4; -- works now with any N
-M = S^{{-1,0}}**truncate({1,0}, S^1/S_0)
-degrees M
+
+coarseMultigradedRegularity = M -> (
+    F := res M;
+    el := length F;
+    r := degreeLength ring M;
+    D := apply((min F..max F), i-> degrees F_i);
+    L := flatten apply(length D, i-> apply(D_i, s -> s-toList(r:i)));
+    apply(r, p-> max(apply(L, q-> q_p)))
+    )
+
+
+max{{1,2},{2,1}}
+cohomology(0,(sheaf S)^{{1,1}}**sheaf M)
+
+
+M= S^1;D = {1,0};T = {0,0};N = 4; -- works now with any N
+M = S^1/S_0^2
+M = truncate({1,0},M)
+M = S^{{1,0}}**M
+degrees presentation M
 multiGradedRegularity(M,D,T, N)
+
 C'
 C''
 C'''
 cohomologyTable (E^{{0,-1}}**C''',{-5,-5},{5,5})
+
+M = (S^1++S^{0,2})/ideal(S_0^2,S_2^4)
+r = coarseMultigradedRegularity M
+M' = truncate(r,M)
+D = {1,1};T = {0,0};N = 6; -- works now with any N
+multiGradedRegularity(M',D,T, N)
+
 
 multiGradedRegularity(S^1, {0,0}, {0,0}, 6)
 multiGradedRegularity(S^1, {0,0}, {0,0}, 2)
