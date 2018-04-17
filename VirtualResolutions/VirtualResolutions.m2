@@ -77,7 +77,7 @@ intersectionRes = (Ideal, Ideal, List) := (J, irr, A) -> (
     for i from 0 to N do (
 	irrelevantIntersection = append(irrelevantIntersection, intersect J, L_i^(a_i));
 	)
-    res irrelevantIntersection
+    res intersect(irrelevantIntersection)
    )
 
 -- TODO: change cohomologyTable to return a Tally, then redo this.
