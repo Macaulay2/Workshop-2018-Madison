@@ -792,6 +792,42 @@ polarize (MonomialIdeal) := I -> (
     monomialIdeal apply(u, e -> product apply(n, i -> product(toList(0..e#i-1), j -> G#(p#i+j))))
     )
 
+plotTally = method(TypicalValue=>Picture, Options => {xAxisLabel => null,FillZeros => true})
+plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
+    xValues := sort keys t;
+    if o.FillZeros then (
+        smallest := min xValues;
+        largest := max xValues;
+        xValues = toList(smallest..largest));
+    topY := toRR max(0,max values t);
+    scalingFactor := plotHeight/topY;
+    yLabel := textTag(point(0.0, plotHeight*0.5), "#");
+    yStepSize := max(floor (topY/20),1);
+    yTickValues := yStepSize*toList(0..19);
+    xMargin := 20;
+    bars := apply(#xValues, i-> (
+            xVal := (xValues#i);
+            h := if t#?xVal then toRR t#xVal else 0_RR;
+            bottomLeft := point(toRR i*(barWidth*1.5) + xMargin, plotHeight);
+            rectangle(bottomLeft, barWidth, -h*scalingFactor)));
+    xLabels := apply(#xValues, i-> (
+            labelText := toString(xValues#i);
+            location := point(toRR i*(barWidth*1.5) + 0.4*barWidth + xMargin, plotHeight*1.1);
+            textTag(location,labelText)));
+    yLabels := apply(yTickValues, v-> (
+            labelText := toString v;
+            location := point(0.0,plotHeight-v*scalingFactor);
+            textTag(location,labelText)));
+    primitives := {yLabel}|bars|xLabels|yLabels;
+    if instance(o.xAxisLabel, String) then(
+	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.xAxisLabel);
+	    primitives = append(primitives, xAxisTag);
+	    )
+	else if o.xAxisLabel=!=null then error("xAxisLabel must be a string!");
+    picture({formatGraphicPrimitives(primitives, hashTable{"stroke-width"=>0})})
+)
+
+
 --********************--
 --  Internal methods  --
 --********************--
@@ -843,45 +879,11 @@ matrix(BettiTally, ZZ, ZZ) := opts -> (B,lowestDegree, highestDegree) -> (
      )
 
 
-rectangle := (p,w,h) -> (
+rectangle = (p,w,h) -> (
     (x,y) := (p#0,p#1);
     polygon({p,point(toRR x+w,toRR y),point(toRR x+w,toRR y+h),point(toRR x,toRR y+h)})
 )
 
-plotTally = method(TypicalValue=>Picture, Options => {xAxisLabel => null,FillZeros => true})
-plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
-    xValues := sort keys t;
-    if o.FillZeros then (
-        smallest := min xValues;
-        largest := max xValues;
-        xValues = toList(smallest..largest));
-    topY := toRR max(0,max values t);
-    scalingFactor := plotHeight/topY;
-    yLabel := textTag(point(0.0, plotHeight*0.5), "#");
-    yStepSize := max(floor (topY/20),1);
-    yTickValues := yStepSize*toList(0..19);
-    xMargin := 20;
-    bars := apply(#xValues, i-> (
-            xVal := (xValues#i);
-            h := if t#?xVal then toRR t#xVal else 0_RR;
-            bottomLeft := point(toRR i*(barWidth*1.5) + xMargin, plotHeight);
-            rectangle(bottomLeft, barWidth, -h*scalingFactor)));
-    xLabels := apply(#xValues, i-> (
-            labelText := toString(xValues#i);
-            location := point(toRR i*(barWidth*1.5) + 0.4*barWidth + xMargin, plotHeight*1.1);
-            textTag(location,labelText)));
-    yLabels := apply(yTickValues, v-> (
-            labelText := toString v;
-            location := point(0.0,plotHeight-v*scalingFactor);
-            textTag(location,labelText)));
-    primitives := {yLabel}|bars|xLabels|yLabels;
-    if instance(o.xAxisLabel, String) then(
-	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.xAxisLabel);
-	    primitives = append(primitives, xAxisTag);
-	    )
-	else if o.xAxisLabel=!=null then error("xAxisLabel must be a string!");
-    picture({formatGraphicPrimitives(primitives, hashTable{"stroke-width"=>0})})
-)
 
 
 --****************--
@@ -2160,6 +2162,12 @@ doc ///
 doc ///
  Key
   ER
+  (ER,ZZ,ZZ,RR)
+  (ER,PolynomialRing,ZZ,RR)
+  (ER,ZZ,ZZ,ZZ)
+  (ER,PolynomialRing,ZZ,ZZ)
+  (ER,ZZ,ZZ,List)
+  (ER,PolynomialRing,ZZ,List)
  Headline
   model for sampling from Erdos-Renyi type distributions on monomials
  Description
@@ -2170,176 +2178,35 @@ doc ///
   Example
    n=4; D=8; p=0.05;
    myModel = ER(n,D,p)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,ZZ,ZZ,RR)
- Headline
-  Erdos-Renyi type distribution on monomials over (n,D,p)
- Usage
-  ER(ZZ,ZZ,RR)
- Inputs
-  n: ZZ
-    number of variables
-  D: ZZ
-    maximum degree
-  p: RR
-     the probability of selecting a monomial
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
   Text
-   Creates an ER-type model for sampling monomials in $n$ variables of degree at most $D$ independently with probability $p$.
+   To generate monomial ideals in a particular ring $R$, use a polynomial ring as input, rather than the number of variables. 
   Example
-   n=3; D=4; p=0.1;
-   myModel = ER(n,D,p)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,PolynomialRing,ZZ,RR)
- Headline
-  Erdos-Renyi type distribution on monomials over (R,D,p)
- Usage
-  ER(PolynomialRing,ZZ,RR)
- Inputs
-  R: PolynomialRing
-    the ring in which monomials are chosen from
-  D: ZZ
-    maximum degree
-  p: RR
-     the probability of selecting a monomial
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
-  Text
-   Creates an ER-type model for sampling monomials of degree at most $D$ from the ring $R$ independently with probability $p$.
-  Example
-   D=4; p=0.1;
-   myModel = ER(ZZ/101[a..d],D,p)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,ZZ,ZZ,ZZ)
- Headline
-  Erdos-Renyi type distribution on monomials over (n,D,M)
- Usage
-  ER(ZZ,ZZ,ZZ)
- Inputs
-  n: ZZ
-    number of variables
-  D: ZZ
-    maximum degree
-  M: ZZ
-     number of monomials in the set
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
-  Text
-   Creates an ER-type model for sampling a set of $M$ monomials in $n$ variables of degree at most $D$.
+   R=ZZ/101[a..d]; D=4; p=0.1;
+   myModel = ER(R,D,p)
+  Text 
+   To specify the number of monomial generators, rather than pass the probability parameter $p$, use the {\tt ER(n,D,M)} invocation.
   Example
    n=3; D=4; M=5;
    myModel = ER(n,D,M)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,PolynomialRing,ZZ,ZZ)
- Headline
-  Erdos-Renyi type distribution on monomials over (R,D,M)
- Usage
-  ER(PolynomialRing,ZZ,ZZ)
- Inputs
-  R: PolynomialRing
-    the ring in which monomials are chosen from
-  D: ZZ
-    maximum degree
-  M: ZZ
-     number of monomials in the set
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
   Text
-   Creates an ER-type model for sampling a set of $M$ monomials of degree at most $D$ from the ring $R$.
+   The next example uses a named polynomial ring as well as a specified number of generators.
   Example
-   D=4; M=5;
-   myModel = ER(ZZ/101[a..d],4,5)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,ZZ,ZZ,List)
- Headline
-  Graded Erdos-Renyi type distribution on monomials over (n,D,L)
- Usage
-  ER(ZZ,ZZ,List)
- Inputs
-  n: ZZ
-    number of variables
-  D: ZZ
-    maximum degree
-  L: List 
-     of real numbers whose i-th entry is the probability of selecing a monomial of degree i, 
-     or of integers whose i-th entry is the number of monomials of degree i in each set
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
+   R=ZZ/101[a..d]; D=4; M=5;
+   myModel = ER(R,D,M)
   Text
-   Creates a graded ER-type model for sampling monomials in $n$ variables of degree at most $D$.
+   You can also pass a @TO List@ of real numbers whose $i$th entry is the probability of selecting a monomial of degree i, 
+     or of integers whose $i$th entry is the number of monomials of degree i in each set.
   Example
    n1=3; D1=4; L1={0.1,0.2,0.3,0.4};
    n2=3; D2=4; L2={1,2,2,1};
    myModel1 = ER(n1,D1,L1)
-   myModel2 = ER(n2,D2,L2)
+   myModel2 = ER(ZZ/5[a,b,c],D2,L2)
  SeeAlso
   randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,PolynomialRing,ZZ,List)
- Headline
-  Graded Erdos-Renyi type distribution on monomials over (R,D,L)
- Usage
-  ER(PolynomialRing,ZZ,List)
- Inputs
-  R: PolynomialRing
-    the ring in which monomials are chosen from
-  D: ZZ
-    maximum degree
-  L: List 
-     of real numbers whose i-th entry is the probability of selecing a monomial of degree i, 
-     or of integers whose i-th entry is the number of monomials of degree i in each set
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
-  Text
-   Creates a graded ER-type model for sampling monomials of degree at most $D$ from the ring $R$.
-  Example
-   D1=4; L1={0.1,0.2,0.3,0.4};
-   D2=4; L2={1,2,2,1};
-   myModel1 = ER(ZZ/101[a..d],D1,L1)
-   myModel2 = ER(ZZ/101[a..d],D2,L2)
- SeeAlso
-  randomMonomialSets
+  randomMonomialIdeals
+  statistics
+  Model
+  Sample
 ///
 
 
