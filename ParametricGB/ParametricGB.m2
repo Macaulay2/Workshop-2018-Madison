@@ -22,8 +22,22 @@ export {
 
 ComprehensiveGroebnerBasisLocus = new Type of HashTable 
 
+
+
+net ComprehensiveGroebnerBasisLocus := x -> (
+     orderedPairs := {("Equations",x#"Equations"),("Inequations",x#"Inequations"),("gb",x#"gb")};    
+     horizontalJoin flatten (
+          "{",
+          -- the first line prints the parts vertically, second: horizontally                                                         
+          stack (horizontalJoin \ apply(orderedPairs,(k,v) -> (net k, " => ", net v))),
+          -- between(", ", apply(pairs x,(k,v) -> net k | "=>" | net v)),                                                             
+          "}"
+          ))
+
+
+
 makeCGBL = (E,N,F) -> (
-    new ComprehensiveGroebnerBasisLocus from {"Equations"=>E,"Inequations"=>N,"gb"=>F}    
+    new ComprehensiveGroebnerBasisLocus from hashTable({"Equations"=>E,"Inequations"=>N,"gb"=>F})    
 )
 
 
@@ -326,7 +340,7 @@ end--
 
 uninstallPackage("ParametricGB")
 restart
-installPackage("ParametricGB")
+installPackage("ParametricGB",RemakeAllDocumentation=>true)
 loadPackage("ParametricGB")
 
 viewHelp "ParametricGB"
