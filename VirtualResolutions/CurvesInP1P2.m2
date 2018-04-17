@@ -51,7 +51,7 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
     M2 := matrix {apply(3,i->random({e,0,0},U)),{y_0,y_1,y_2}};
     J := minors(2,M1)+minors(2,M2);
-    ---
+    --- Computes saturation and then eliminates producing curve in P1xP2
     J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
     sub(eliminate({s,t},J'),S)
     )
@@ -94,7 +94,7 @@ randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     M1 := matrix {{s^d,t^d},{x_0,x_1}};
     M2 := matrix {{s^e,t^e,f},{y_0,y_1,y_2}};
     J := minors(2,M1)+minors(2,M2);
-    --- 
+    --- Computes saturation and then eliminates producing curve in P1xP2
     J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
     sub(eliminate({s,t},J'),S)
     )
@@ -129,7 +129,8 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
     BL1 := ideal(rVars#0,rVars#1);
     BL2 := ideal(rVars#1,rVar#2,rVars#3);
     BL := intersect(BL1,BL2);
-    ---
+    --- If PreserveDegree => true checks whether curve intersects base locus;
+    --- this ensures the curve has the correct degree and genus.
     if opts.PreserveDegree == true then (
 	    if (saturate((J+BL1))==ideal(rVars)) or (saturate((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
 	);
@@ -152,7 +153,7 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
     B2 := ideal(apply(2,i->uVars#(4+i)));
     B3 := ideal(apply(3,i->uVars#(6+i)));
     B := intersect(B1,B2,B3,sub(BL,U));
-    ---
+    --- Computes saturation and then eliminates producing curve in P1xP2
     K := saturate(C'+D,B,MinimalGenerators=>false);
     sub(eliminate(urVars,K),S)
 )
@@ -177,11 +178,14 @@ randomCurve (ZZ,ZZ,Ring) := randomCurve => opts -> (d,g,F)->(
     BL1 := ideal(z_0,z_1);
     BL2 := ideal(z_1,z_2,z_3);
     BL := intersect(BL1,BL2);
-    ---
+    --- Randomly generates curve in P3 until finds one not intersecting
+    --- base locus of projection or until Bound is reached.
     apply(opts.Bound,i->(
 	    C = (random spaceCurve)(d,g,R);
 	    if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;
 	    ));
+    --- Checks whether curve in P3 intersects base locus of projection;
+    --- this ensures the curve has the correct degree and genus.
     if (saturate(C+BL1)==ideal(rVars)) or (saturate(C+BL2)==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
     --- Defines P1xP2
     S1 := F[x_0, x_1];
@@ -199,7 +203,7 @@ randomCurve (ZZ,ZZ,Ring) := randomCurve => opts -> (d,g,F)->(
     B2 := ideal(x_0,x_1);
     B3 := ideal(y_0,y_1,y_2);
     B := intersect(B1,B2,B3,sub(BL,U));
-    ---
+    --- Computes saturation and then eliminates producing curve in P1xP2
     K  := saturate(C'+G,B,MinimalGenerators=>false);
     sub(eliminate({z_0,z_1,z_2,z_3},K),S)
 )
