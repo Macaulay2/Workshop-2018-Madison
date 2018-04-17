@@ -32,8 +32,7 @@ newPackage ("VirtualResolutions",
 	"BGG",
 	"TateOnProducts",
 	"CompleteIntersectionResolutions",
-	"NormalToricVarieties",
-	"Colon"
+	"NormalToricVarieties"
 	},
     DebuggingMode => true,
     AuxiliaryFiles => false
@@ -45,7 +44,8 @@ export{
     "multiWinnow",
     "HideZeros",
     "DegreeBounds",
-    "isVirtual"
+    "isVirtual",
+    "findGensUpToIrrelevance"
     }
 
 debug Core
@@ -88,38 +88,120 @@ findCorners = m -> (
     corners
     )
 
+-- This is a temporary fast saturation. Keep this up to date
+-- with any changes in Colon.m2 (hopefully we can just change
+-- this to saturate(I,irr)
+ourSaturation = (I,irr) -> (
+    saturationByElimination(I,irr)
+    )
+
+-- This is the temporary fast saturation that Mike created
+eliminationInfo = method()
+eliminationInfo Ring := (cacheValue symbol eliminationInfo)(R -> (
+     n := numgens R;
+     k := coefficientRing R;
+     X := local X;
+     M := monoid [X_0 .. X_n,MonomialOrder=>Eliminate 1,MonomialSize=>16];
+     R1 := k M;
+     fto := map(R1,R,drop(generators R1, 1));
+     fback := map(R,R1,matrix{{0_R}}|vars R);
+     (R1, fto, fback)
+    ))
+
+-- Computing (I : f^\infty) = saturate(I,f)
+-- version #1: elimination
+saturationByElimination = method()
+saturationByElimination(Ideal, RingElement) := (I, f) -> (
+     R := ring I;
+     (R1,fto,fback) := eliminationInfo R;
+     f1 := fto f;
+     I1 := fto I;
+     J := ideal(f1*R1_0-1) + I1;
+     --g := groebnerBasis(J, Strategy=>"MGB");
+     --g := gens gb J;
+     g := groebnerBasis(J, Strategy=>"F4");
+     p1 := selectInSubring(1, g);
+     ideal fback p1
+     )
+
+intersectionByElimination = method()
+intersectionByElimination(Ideal, Ideal) := (I,J) -> (
+     R := ring I;
+     (R1,fto,fback) := eliminationInfo R;
+     I1 := R1_0 * fto I;
+     J1 := (1-R1_0) * fto J;
+     L := I1 + J1;
+     --g := groebnerBasis(J, Strategy=>"MGB");
+     --g := gens gb J;
+     g := groebnerBasis(L, Strategy=>"F4");
+     p1 := selectInSubring(1, g);
+     ideal fback p1
+    )
+
+intersectionByElimination List := (L) -> fold(intersectionByElimination, L)
+
+saturationByElimination(Ideal, Ideal) := (I, J) -> (
+    L := for g in J_* list saturationByElimination(I, g);
+    intersectionByElimination L
+    )
+--This is where the fast saturation functions end
+
+
 isVirtual = method();
--*
+-* I need to test this still
 isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->( 
     annM := ann(M);
     annHH0 := ann(HH_0(C));
-    annMsat := saturateByElimination(annM,irr);
-    annHH0sat := saturateByElimination(annHH0,irr);
+    annMsat := ourSaturation(annM,irr);
+    annHH0sat := ourSaturation(annHH0,irr);
     if not(annMsat == annHH0sat) then return (false,0);    
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
-	if not(saturateByElimination(annHHi,irr) == 0) then return (false,i);
-	);
-    true
-    )
-*-
-
-isVirtual (ChainComplex, Ideal, Ideal) := Boolean=> (C, I, irr) ->( 
-    annHH0 := ideal(image(C.dd_1));
-    Isat := saturateByElimination(I,irr);
-    annHH0sat := saturateByElimination(annHH0,irr);
-    if not(Isat == annHH0sat) then return (false,0);    
-    for i from 1 to length(C) do (
-	annHHi := ann HH_i(C);
-	if annHHi != ideal(sub(1,ring I)) then (
+	if annHHi != ideal(sub(1,ring M)) then (
 		if annHHi == 0 then return (false,i);
-	    	if  saturateByElimination(annHHi,irr) != 0 then (
+	    	if  ourSaturation(annHHi,irr) != 0 then (
 		    return (false,i);
 		    )
 		)
 	);
     true
     )
+*-
+isVirtual (ChainComplex, Ideal, Ideal) := Boolean=> (C, I, irr) ->( 
+    annHH0 := ideal(image(C.dd_1));
+    Isat := ourSaturation(I,irr);
+    annHH0sat := ourSaturation(annHH0,irr);
+    if not(Isat == annHH0sat) then return (false,0);    
+    for i from 1 to length(C) do (
+	annHHi := ann HH_i(C);
+	if annHHi != ideal(sub(1,ring I)) then (
+		if annHHi == 0 then return (false,i);
+	    	if  ourSaturation(annHHi,irr) != 0 then (
+		    return (false,i);
+		    )
+		)
+	);
+    true
+    )
+
+findGensUpToIrrelevance = (J,n,irr) -> (
+-- Input: saturated ideal J and ZZ n
+-- Output: all subsets of size n of the generators of J that
+--         give the same saturated ideal as J
+    use ring(J);
+    comps := decompose irr;
+    lists := subsets(numgens(J),n);
+    output := {};
+    apply(lists, l -> (
+	<< "doing " << l << endl;
+	I := ideal(J_*_l);
+	if elapsedTime ourSaturation(ourSaturation(I,comps_0),comps_1) == J then (
+	    output = append(output,l);
+	         );
+	     )
+	 );
+     output
+	    )
 
 
 --------------------------
@@ -292,7 +374,6 @@ c = (pair -> {5 - first pair, last pair - 5}) \ findCorners m
 --Mike's Playspace--
 ---------------------
 restart
-needsPackage "Colon"
 needsPackage "VirtualResolutions"
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
@@ -302,7 +383,7 @@ S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}]
 irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4))
 I = paramCurve(1,3,4);
 numgens I
-genSat(I,2)
+findGensUpToIrrelevance(I,2,irr)
 J = ideal(I_2,I_3);
 r = res J
 betti' r
@@ -310,8 +391,8 @@ isVirtual(r,J,irr)
 
 
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-J' = saturateByElimination(I',irr)
-J' == saturate(I',irr)
+J' = ourSaturation(I',irr)
+J' = saturate(I',irr)
 r' = res J'
 betti' r'
 q1 = winnowProducts(S,r',{2,1})
