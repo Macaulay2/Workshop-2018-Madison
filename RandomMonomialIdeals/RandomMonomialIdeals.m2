@@ -93,7 +93,7 @@ export {
     "generateStatistics",
     "Mean", "StdDev", "Histogram",
     "plotTally",
-    "xAxisLabel","FillZeros"
+    "XAxisLabel","FillZeros"
 }
 
 
@@ -792,7 +792,7 @@ polarize (MonomialIdeal) := I -> (
     monomialIdeal apply(u, e -> product apply(n, i -> product(toList(0..e#i-1), j -> G#(p#i+j))))
     )
 
-plotTally = method(TypicalValue=>Picture, Options => {xAxisLabel => null,FillZeros => true})
+plotTally = method(TypicalValue=>Picture, Options => {XAxisLabel => null,FillZeros => true})
 plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
     xValues := sort keys t;
     if o.FillZeros then (
@@ -819,11 +819,11 @@ plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
             location := point(0.0,plotHeight-v*scalingFactor);
             textTag(location,labelText)));
     primitives := {yLabel}|bars|xLabels|yLabels;
-    if instance(o.xAxisLabel, String) then(
-	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.xAxisLabel);
+    if instance(o.XAxisLabel, String) then(
+	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.XAxisLabel);
 	    primitives = append(primitives, xAxisTag);
 	    )
-	else if o.xAxisLabel=!=null then error("xAxisLabel must be a string!");
+	else if o.XAxisLabel=!=null then error("XAxisLabel must be a string!");
     picture({formatGraphicPrimitives(primitives, hashTable{"stroke-width"=>0})})
 )
 
@@ -1162,6 +1162,57 @@ doc ///
     SaveBettis
     Verbose
     IncludeZeroIdeals
+///
+
+doc ///
+  Key
+    plotTally
+    (plotTally,Tally,RR,RR)
+    XAxisLabel
+    FillZeros
+    [plotTally, XAxisLabel]
+    [plotTally, FillZeros]
+  Headline
+    Creates a picture of a histogram from a tally.
+  Usage
+    plotTally(T, w, h)
+  Inputs
+    T: Tally
+    w: RR
+      width, in pixels, of the bars of the histogram
+    h: RR
+      height, in pixels, of the picture object created
+  Outputs
+    P: Picture
+  Description
+    Text
+     A simple histogram is produced in the following way: the keys of the tally are sorted and arranged along the
+     x-axis of the plot. The count for each key is given a bar of width $w$ (in pixels). The height of the bar is
+     made proportional to the maximum height (the input $h$) of the plot.
+     The total width of the picture is determined automatically.
+    Example
+     T = tally{0,0,0,0,0,0,0,1,0,0,2,0,0,1,3,8};
+     P = plotTally(T, 30.0, 200.0);
+    Text
+     The output is a @TO Picture@ object which consists of @TO FormattedGraphicPrimitives@. These objects are further
+     explained in the @TO Graphics@ package. To create the actual image file displaying your histogram, use the command
+     {\tt svgPicture(myPlot, "example.svg")}, which will save to a file named {\tt example.svg} in your current working
+     directory. (Make sure the @TO Graphics@ package is loaded.)
+    Text
+     By default, @TO plotTally@ will not label the histogram's x-axis. Use the {\tt XAxisLabel} option to add the label.
+    Example
+     T = tally{0,0,0,0,0,0,0,1,0,0,2,0,0,1,3,8};
+     P = plotTally(T, 30.0, 200.0, XAxisLabel => "f***s given");
+    Text
+     The plot $P$ defined above will, by default, have bars of height zero corresponding to
+     $x=\{4, 5, 6, 7\}$. To remove these empty values and consolidate the histogram, use the {\tt FillZeros} option.
+    Example
+     T = tally{0,0,0,0,0,0,0,1,0,0,2,0,0,1,3,8};
+     P = plotTally(T, 30.0, 200.0, XAxisLabel => "f***s given", FillZeros => false);
+  SeeAlso
+    tally
+    Graphics
+    svgPicture
 ///
 
 doc ///
@@ -2973,5 +3024,5 @@ needsPackage("RandomMonomialIdeals");
 installPackage("RandomMonomialIdeals",RemakeAllDocumentation=>true);
 
 check RandomMonomialIdeals 
-viewHelp RandomMonomialIdeals
+viewHelp plotTally
 
