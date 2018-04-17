@@ -749,8 +749,8 @@ depthStats (List) := o-> (ideals) -> (
 )
 
 
-isProjDimMaximum = method(TypicalValue=>Boolean);
-isProjDimMaximum (MonomialIdeal) := M -> (
+isProjDimMaximal = method(TypicalValue=>Boolean);
+isProjDimMaximal (MonomialIdeal) := M -> (
     n := #gens(ring M);
     G := apply(flatten entries mingens M, e -> flatten exponents e);
     if #G < n then return false;
