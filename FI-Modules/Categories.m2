@@ -7,6 +7,9 @@ FIMatrix = new Type of MutableHashTable
 -- A Matrix of FI Ring elements: a ring (the ambient FI ring of the
 -- matrix elts, rowdegs a list of row labels, coldegs a list of column
 -- degress, matrix a table of FIRingElements FIRing = new Type of Type
+
+FIRing = new Type of Ring
+
 globalAssignment FIRing
 
 -- FI MORPHISMS
