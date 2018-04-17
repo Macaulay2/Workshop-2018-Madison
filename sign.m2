@@ -4,7 +4,7 @@ non-zero sign vectors of a given vector subspace.
 
 Authors: 
 Jacob Zoromski (jzoromski@wisc.edu)
-
+Polly Yu (pollyyu@math.wisc.edu)
 
 Packages used: Polyhedra
 
@@ -26,6 +26,13 @@ by the span of the columns of a matrix M
 Input: M, a matrix
 Output: signs, a list of sign vectors (as lists)
 
+4) signClosure
+Description: Computes the closure of the sign space, i.e. all sign vectors
+of L plus all possible sign vectors made by replacing non-zero
+entries of a vector in L with 0.
+Input: L, a list of lists (the sign vectors)
+Output: closureVectors, a list of lists (more sign vectors)
+
 Example:
 M = transpose matrix {{{1,1,0,-1},{0,2,1,-1}}
 transpose matrix signSpace(M) = 
@@ -39,21 +46,21 @@ transpose matrix signSpace(M) =
 sgn = (v) -> (
     V := matrix v;
     signVector := new List;
-    for i from 0 to numRows(V) - 1 do (
+    apply(numRows(V), i -> (
 	if V_(i,0) > 0 then signVector = append(signVector, 1)
 	else if V_(i,0) < 0 then signVector = append(signVector, -1)
 	else signVector = append(signVector,0)
-	);
+	       )
+        );
     signVector
     )
 
 
 signMatrices = (n) -> (
-    minus1 := toList(1..n);
-    minus1 = apply(minus1, i -> -1);
-    plus1 := apply(minus1, i -> 1);
+    minus1 := apply(n, i -> -1);
+    plus1 = apply(n, i -> 1);
     listMatrices := toList(minus1..plus1);
-    listMatrices  = apply(listMatrices, v -> diagonalMatrix v );
+    listMatrices  = apply(listMatrices, v -> diagonalMatrix v);
     listMatrices
     )
 
@@ -76,8 +83,9 @@ signSpace = (M) -> (
     --Finds interior vector of each cone by adding its rays
     interiorVectors = apply(listRays, C -> (
 	    S := C_0;
-	    for j from 1 to numColumns C - 1 do (
-	    	S = S + C_j);
+	    apply(1..(numColumns(C)-1), j ->  (
+	    	S = S + C_j)
+	    );
 	    S
 	    )
 	);
@@ -88,3 +96,23 @@ signSpace = (M) -> (
     signVectors
     )
 
+
+signClosure = (L) -> (
+    dimension := #(L#0);
+    zeroes := toList(1..dimension);
+    zeroes = apply(zeroes, i -> 0);
+    ones := apply(zeroes, i -> 1);
+    listMatrices := toList(zeroes..ones);
+    listMatrices = apply(listMatrices, v -> diagonalMatrix v);
+    closureVectors = apply(L, x -> (
+	    X := transpose matrix {x};
+	    closureX := apply(listMatrices, M -> M * X);
+	    closureX
+	    )
+	);
+    closureVectors = flatten(closureVectors);
+    closureVectors = unique(closureVectors);
+    --turns each vector from a matrix into a list
+    closureVectors = apply(closureVectors, v -> apply(dimension, j -> v_(j,0)));	
+    closureVectors
+    )
