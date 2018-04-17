@@ -90,10 +90,9 @@ export {
     "Model",
     "ER",
     "statistics",
-    "generateStatistics",
     "Mean", "StdDev", "Histogram",
     "plotTally",
-    "xAxisLabel","FillZeros"
+    "XAxisLabel","FillZeros"
 }
 
 
@@ -220,22 +219,20 @@ writeSample (Sample, String) := (s, filename) -> (
     realpath filename | "Data.txt" << serialize s.Data << close; -- Write other data
 )
 
-
 statistics = method(TypicalValue => HashTable)
-statistics (Sample, Function) := HashTable => (s,f) -> (
+statistics (Sample, Function) := HashTable => (s,f) ->( 
     fData := apply(s.Data,f);
-    mean := (sum fData)/s.SampleSize; -- <- should the mean be returned as RR? 
+    mean := sub((sum fData)/s.SampleSize,RR); -- <- should the mean be returned as RR? 
     new HashTable from {Mean=>mean,
      StdDev=>sqrt(sum apply(fData, x-> (mean-x)^2)/s.SampleSize),
      Histogram=>tally fData}
 )
 
-generateStatistics = method(TypicalValue => List)
-generateStatistics (Model,Function,ZZ) := List => (model,f,N) -> (
+statistics (Model,ZZ,Function) := HashTable => (m,N,f) -> (
     meanSum := 0;
     stDevSum := 0;
     scan(N,i->(
-        currIdeal := ideal(model.Generate());
+        currIdeal := m.Generate();
         currDatum := f currIdeal;
         meanSum = meanSum + currDatum;
         stDevSum = stDevSum + currDatum^2;
@@ -244,7 +241,8 @@ generateStatistics (Model,Function,ZZ) := List => (model,f,N) -> (
     mean := sub(1/N*meanSum, RR);
     var := sub(1/N*stDevSum-mean^2, RR);
     stdDev := var^(1/2);
-    (mean, stdDev)
+    new HashTable from {Mean=>mean,
+	                StdDev=>stdDev}
 ) 
 	
 createRing := (baseRing,n) -> (
@@ -791,6 +789,42 @@ polarize (MonomialIdeal) := I -> (
     monomialIdeal apply(u, e -> product apply(n, i -> product(toList(0..e#i-1), j -> G#(p#i+j))))
     )
 
+plotTally = method(TypicalValue=>Picture, Options => {XAxisLabel => null,FillZeros => true})
+plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
+    xValues := sort keys t;
+    if o.FillZeros then (
+        smallest := min xValues;
+        largest := max xValues;
+        xValues = toList(smallest..largest));
+    topY := toRR max(0,max values t);
+    scalingFactor := plotHeight/topY;
+    yLabel := textTag(point(0.0, plotHeight*0.5), "#");
+    yStepSize := max(floor (topY/20),1);
+    yTickValues := yStepSize*toList(0..19);
+    xMargin := 20;
+    bars := apply(#xValues, i-> (
+            xVal := (xValues#i);
+            h := if t#?xVal then toRR t#xVal else 0_RR;
+            bottomLeft := point(toRR i*(barWidth*1.5) + xMargin, plotHeight);
+            rectangle(bottomLeft, barWidth, -h*scalingFactor)));
+    xLabels := apply(#xValues, i-> (
+            labelText := toString(xValues#i);
+            location := point(toRR i*(barWidth*1.5) + 0.4*barWidth + xMargin, plotHeight*1.1);
+            textTag(location,labelText)));
+    yLabels := apply(yTickValues, v-> (
+            labelText := toString v;
+            location := point(0.0,plotHeight-v*scalingFactor);
+            textTag(location,labelText)));
+    primitives := {yLabel}|bars|xLabels|yLabels;
+    if instance(o.XAxisLabel, String) then(
+	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.XAxisLabel);
+	    primitives = append(primitives, xAxisTag);
+	    )
+	else if o.XAxisLabel=!=null then error("XAxisLabel must be a string!");
+    picture({formatGraphicPrimitives(primitives, hashTable{"stroke-width"=>0})})
+)
+
+
 --********************--
 --  Internal methods  --
 --********************--
@@ -842,45 +876,11 @@ matrix(BettiTally, ZZ, ZZ) := opts -> (B,lowestDegree, highestDegree) -> (
      )
 
 
-rectangle := (p,w,h) -> (
+rectangle = (p,w,h) -> (
     (x,y) := (p#0,p#1);
     polygon({p,point(toRR x+w,toRR y),point(toRR x+w,toRR y+h),point(toRR x,toRR y+h)})
 )
 
-plotTally = method(TypicalValue=>Picture, Options => {xAxisLabel => null,FillZeros => true})
-plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
-    xValues := sort keys t;
-    if o.FillZeros then (
-        smallest := min xValues;
-        largest := max xValues;
-        xValues = toList(smallest..largest));
-    topY := toRR max(0,max values t);
-    scalingFactor := plotHeight/topY;
-    yLabel := textTag(point(0.0, plotHeight*0.5), "#");
-    yStepSize := max(floor (topY/20),1);
-    yTickValues := yStepSize*toList(0..19);
-    xMargin := 20;
-    bars := apply(#xValues, i-> (
-            xVal := (xValues#i);
-            h := if t#?xVal then toRR t#xVal else 0_RR;
-            bottomLeft := point(toRR i*(barWidth*1.5) + xMargin, plotHeight);
-            rectangle(bottomLeft, barWidth, -h*scalingFactor)));
-    xLabels := apply(#xValues, i-> (
-            labelText := toString(xValues#i);
-            location := point(toRR i*(barWidth*1.5) + 0.4*barWidth + xMargin, plotHeight*1.1);
-            textTag(location,labelText)));
-    yLabels := apply(yTickValues, v-> (
-            labelText := toString v;
-            location := point(0.0,plotHeight-v*scalingFactor);
-            textTag(location,labelText)));
-    primitives := {yLabel}|bars|xLabels|yLabels;
-    if instance(o.xAxisLabel, String) then(
-	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.xAxisLabel);
-	    primitives = append(primitives, xAxisTag);
-	    )
-	else if o.xAxisLabel=!=null then error("xAxisLabel must be a string!");
-    picture({formatGraphicPrimitives(primitives, hashTable{"stroke-width"=>0})})
-)
 
 
 --****************--
@@ -998,16 +998,16 @@ doc ///
  Headline
   randomly generates lists of monomials in fixed number of variables up to a given degree
  Usage
-  randomMonomialSets(ZZ,ZZ,RR,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,RR,ZZ)
-  randomMonomialSets(ZZ,ZZ,ZZ,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,ZZ,ZZ)
-  randomMonomialSets(ZZ,ZZ,List,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,List,ZZ)
+  randomMonomialSets(n, D, p, N)
+  randomMonomialSets(R, D, p, N)
+  randomMonomialSets(n, D, M, N)
+  randomMonomialSets(R, D, M, N)
+  randomMonomialSets(n, D, L, N)
+  randomMonomialSets(R, D, L, N)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which the monomials are to live if $n$ is not specified
   D: ZZ
     maximum degree
@@ -1015,9 +1015,9 @@ doc ///
      the probability of selecting a monomial, OR
   M: ZZ
      number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree at most $D$  OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ in each set, up to the maximum number of monomials in $n$ variables of degree exactly $i$
   N: ZZ
     number of sets to be generated
@@ -1044,14 +1044,14 @@ doc ///
  Headline
   randomly generates homogeneous lists of monomials in fixed number of variables of a given degree
  Usage
-  randomHomogeneousMonomialSets(ZZ,ZZ,RR,ZZ)
-  randomHomogeneousMonomialSets(PolynomialRing,ZZ,RR,ZZ)
-  randomHomogeneousMonomialSets(ZZ,ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialSets(PolynomialRing,ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialSets(n, D, p, N)
+  randomHomogeneousMonomialSets(R, D, p, N)
+  randomHomogeneousMonomialSets(n, D, M, N)
+  randomHomogeneousMonomialSets(R, D, M, N)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which the monomials are to live if $n$ is not specified
   D: ZZ
     degree
@@ -1162,6 +1162,57 @@ doc ///
 ///
 
 doc ///
+  Key
+    plotTally
+    (plotTally,Tally,RR,RR)
+    XAxisLabel
+    FillZeros
+    [plotTally, XAxisLabel]
+    [plotTally, FillZeros]
+  Headline
+    Creates a picture of a histogram from a tally.
+  Usage
+    plotTally(T, w, h)
+  Inputs
+    T: Tally
+    w: RR
+      width, in pixels, of the bars of the histogram
+    h: RR
+      height, in pixels, of the picture object created
+  Outputs
+    P: Picture
+  Description
+    Text
+     A simple histogram is produced in the following way: the keys of the tally are sorted and arranged along the
+     x-axis of the plot. The count for each key is given a bar of width $w$ (in pixels). The height of the bar is
+     made proportional to the maximum height (the input $h$) of the plot.
+     The total width of the picture is determined automatically.
+    Example
+     T = tally{0,0,0,0,0,0,0,1,0,0,2,0,0,1,3,8};
+     P = plotTally(T, 30.0, 200.0);
+    Text
+     The output is a @TO Picture@ object which consists of @TO FormattedGraphicPrimitives@. These objects are further
+     explained in the @TO Graphics@ package. To create the actual image file displaying your histogram, use the command
+     {\tt svgPicture(myPlot, "example.svg")}, which will save to a file named {\tt example.svg} in your current working
+     directory. (Make sure the @TO Graphics@ package is loaded.)
+    Text
+     By default, @TO plotTally@ will not label the histogram's x-axis. Use the {\tt XAxisLabel} option to add the label.
+    Example
+     T = tally{0,0,0,0,0,0,0,1,0,0,2,0,0,1,3,8};
+     P = plotTally(T, 30.0, 200.0, XAxisLabel => "f***s given");
+    Text
+     The plot $P$ defined above will, by default, have bars of height zero corresponding to
+     $x=\{4, 5, 6, 7\}$. To remove these empty values and consolidate the histogram, use the {\tt FillZeros} option.
+    Example
+     T = tally{0,0,0,0,0,0,0,1,0,0,2,0,0,1,3,8};
+     P = plotTally(T, 30.0, 200.0, XAxisLabel => "f***s given", FillZeros => false);
+  SeeAlso
+    tally
+    Graphics
+    svgPicture
+///
+
+doc ///
  Key
   degStats
   (degStats,List)
@@ -1206,12 +1257,12 @@ doc ///
  Headline
   generates random sets of monomial ideals
  Usage
-  randomMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
-  randomMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
-  randomMonomialIdeals(PolynomialRing,ZZ,List,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,RR,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,List,ZZ)
+  randomMonomialIdeals(R, D, p, N)
+  randomMonomialIdeals(R, D, M, N)
+  randomMonomialIdeals(R, D, L, N)
+  randomMonomialIdeals(n, D, p, N)
+  randomMonomialIdeals(n, D, M, N)
+  randomMonomialIdeals(n, D, L, N)
  Inputs
   R: PolynomialRing
     the ring to generate a random monomial ideal in, OR
@@ -1223,9 +1274,9 @@ doc ///
      probability to select a monomial in the ER model, OR
   M: ZZ
      the number of monomials, up to the maximum number of monomials in $n$ variables of degree at most $D$, used to generate each ideal, OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ used to generate each ideal, up to the maximum number of monomials in $n$ variables of degree exactly $i$.
   N: ZZ
     the number of random monomial ideals to be generated
@@ -1299,10 +1350,10 @@ doc ///
  Headline
   generates random sets of homogeneous monomial ideals
  Usage
-  randomHomogeneousMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
-  randomHomogeneousMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialIdeals(ZZ,ZZ,RR,ZZ)
-  randomHomogeneousMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialIdeals(R, D, p, N)
+  randomHomogeneousMonomialIdeals(R, D, M, N)
+  randomHomogeneousMonomialIdeals(n, D, p, N)
+  randomHomogeneousMonomialIdeals(n, D, M, N)
  Inputs
   R: PolynomialRing
     the ring to generate a random homogeneous monomial ideal in, OR
@@ -1359,16 +1410,16 @@ doc ///
  Headline
   randomly generates a list of monomials in fixed number of variables up to a given degree
  Usage
-  randomMonomialSet(ZZ,ZZ,RR)
-  randomMonomialSet(PolynomialRing,ZZ,RR)
-  randomMonomialSet(ZZ,ZZ,ZZ)
-  randomMonomialSet(PolynomialRing,ZZ,ZZ)
-  randomMonomialSet(ZZ,ZZ,List)
-  randomMonomialSet(PolynomialRing,ZZ,List)
+  randomMonomialSet(n, D, p)
+  randomMonomialSet(R, D, p)
+  randomMonomialSet(n, D, M)
+  randomMonomialSet(R, D, M)
+  randomMonomialSet(n, D, L)
+  randomMonomialSet(R, D, L)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which monomials are to live if $n$ is not specified
   D: ZZ
     maximum degree
@@ -1376,9 +1427,9 @@ doc ///
      the probability of selecting a monomial, OR
   M: ZZ
      number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree at most $D$  OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ in each set, up to the maximum number of monomials in $n$ variables of degree exactly $i$
  Outputs
   : List
@@ -1457,14 +1508,14 @@ doc ///
  Headline
   randomly generates a homogeneous list of monomials in fixed number of variables of a given degree
  Usage
-  randomHomogeneousMonomialSet(ZZ,ZZ,RR)
-  randomHomogeneousMonomialSet(PolynomialRing,ZZ,RR)
-  randomHomogeneousMonomialSet(ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialSet(PolynomialRing,ZZ,ZZ)
+  randomHomogeneousMonomialSet(n, D, p)
+  randomHomogeneousMonomialSet(R, D, p)
+  randomHomogeneousMonomialSet(n, D, M)
+  randomHomogeneousMonomialSet(R, D, M)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R : PolynomialRing
     the ring in which monomials are to live if $n$ is not specified
   D: ZZ
     degree
@@ -2159,6 +2210,12 @@ doc ///
 doc ///
  Key
   ER
+  (ER,ZZ,ZZ,RR)
+  (ER,PolynomialRing,ZZ,RR)
+  (ER,ZZ,ZZ,ZZ)
+  (ER,PolynomialRing,ZZ,ZZ)
+  (ER,ZZ,ZZ,List)
+  (ER,PolynomialRing,ZZ,List)
  Headline
   model for sampling from Erdos-Renyi type distributions on monomials
  Description
@@ -2169,176 +2226,35 @@ doc ///
   Example
    n=4; D=8; p=0.05;
    myModel = ER(n,D,p)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,ZZ,ZZ,RR)
- Headline
-  Erdos-Renyi type distribution on monomials over (n,D,p)
- Usage
-  ER(ZZ,ZZ,RR)
- Inputs
-  n: ZZ
-    number of variables
-  D: ZZ
-    maximum degree
-  p: RR
-     the probability of selecting a monomial
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
   Text
-   Creates an ER-type model for sampling monomials in $n$ variables of degree at most $D$ independently with probability $p$.
+   To generate monomial ideals in a particular ring $R$, use a polynomial ring as input, rather than the number of variables. 
   Example
-   n=3; D=4; p=0.1;
-   myModel = ER(n,D,p)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,PolynomialRing,ZZ,RR)
- Headline
-  Erdos-Renyi type distribution on monomials over (R,D,p)
- Usage
-  ER(PolynomialRing,ZZ,RR)
- Inputs
-  R: PolynomialRing
-    the ring in which monomials are chosen from
-  D: ZZ
-    maximum degree
-  p: RR
-     the probability of selecting a monomial
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
-  Text
-   Creates an ER-type model for sampling monomials of degree at most $D$ from the ring $R$ independently with probability $p$.
-  Example
-   D=4; p=0.1;
-   myModel = ER(ZZ/101[a..d],D,p)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,ZZ,ZZ,ZZ)
- Headline
-  Erdos-Renyi type distribution on monomials over (n,D,M)
- Usage
-  ER(ZZ,ZZ,ZZ)
- Inputs
-  n: ZZ
-    number of variables
-  D: ZZ
-    maximum degree
-  M: ZZ
-     number of monomials in the set
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
-  Text
-   Creates an ER-type model for sampling a set of $M$ monomials in $n$ variables of degree at most $D$.
+   R=ZZ/101[a..d]; D=4; p=0.1;
+   myModel = ER(R,D,p)
+  Text 
+   To specify the number of monomial generators, rather than pass the probability parameter $p$, use the {\tt ER(n,D,M)} invocation.
   Example
    n=3; D=4; M=5;
    myModel = ER(n,D,M)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,PolynomialRing,ZZ,ZZ)
- Headline
-  Erdos-Renyi type distribution on monomials over (R,D,M)
- Usage
-  ER(PolynomialRing,ZZ,ZZ)
- Inputs
-  R: PolynomialRing
-    the ring in which monomials are chosen from
-  D: ZZ
-    maximum degree
-  M: ZZ
-     number of monomials in the set
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
   Text
-   Creates an ER-type model for sampling a set of $M$ monomials of degree at most $D$ from the ring $R$.
+   The next example uses a named polynomial ring as well as a specified number of generators.
   Example
-   D=4; M=5;
-   myModel = ER(ZZ/101[a..d],4,5)
- SeeAlso
-  randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,ZZ,ZZ,List)
- Headline
-  Graded Erdos-Renyi type distribution on monomials over (n,D,L)
- Usage
-  ER(ZZ,ZZ,List)
- Inputs
-  n: ZZ
-    number of variables
-  D: ZZ
-    maximum degree
-  L: List 
-     of real numbers whose i-th entry is the probability of selecing a monomial of degree i, 
-     or of integers whose i-th entry is the number of monomials of degree i in each set
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
+   R=ZZ/101[a..d]; D=4; M=5;
+   myModel = ER(R,D,M)
   Text
-   Creates a graded ER-type model for sampling monomials in $n$ variables of degree at most $D$.
+   You can also pass a @TO List@ of real numbers whose $i$th entry is the probability of selecting a monomial of degree i, 
+     or of integers whose $i$th entry is the number of monomials of degree i in each set.
   Example
    n1=3; D1=4; L1={0.1,0.2,0.3,0.4};
    n2=3; D2=4; L2={1,2,2,1};
    myModel1 = ER(n1,D1,L1)
-   myModel2 = ER(n2,D2,L2)
+   myModel2 = ER(ZZ/5[a,b,c],D2,L2)
  SeeAlso
   randomMonomialSets
-///
-
-doc ///
- Key
-  (ER,PolynomialRing,ZZ,List)
- Headline
-  Graded Erdos-Renyi type distribution on monomials over (R,D,L)
- Usage
-  ER(PolynomialRing,ZZ,List)
- Inputs
-  R: PolynomialRing
-    the ring in which monomials are chosen from
-  D: ZZ
-    maximum degree
-  L: List 
-     of real numbers whose i-th entry is the probability of selecing a monomial of degree i, 
-     or of integers whose i-th entry is the number of monomials of degree i in each set
- Outputs
-  : Model
-   Erdos-Renyi type model
- Description
-  Text
-   Creates a graded ER-type model for sampling monomials of degree at most $D$ from the ring $R$.
-  Example
-   D1=4; L1={0.1,0.2,0.3,0.4};
-   D2=4; L2={1,2,2,1};
-   myModel1 = ER(ZZ/101[a..d],D1,L1)
-   myModel2 = ER(ZZ/101[a..d],D2,L2)
- SeeAlso
-  randomMonomialSets
+  randomMonomialIdeals
+  statistics
+  Model
+  Sample
 ///
 
 
@@ -2346,15 +2262,21 @@ doc ///
  Key
   statistics
   (statistics,Sample,Function)
+  (statistics,Model,ZZ,Function)
  Headline
   generate statistics for a sample
  Usage
-  statistics(Sample,Function)
+  statistics(s,f)
+  statistics(m,N,f)
  Inputs
-  S: Sample
+  s: Sample
     Sample to run statistics on
   f: Function
     function over the data
+  m: Model
+    Model to generate statistics on
+  N: ZZ
+    Sample Size
  Outputs
   : HashTable
    containing statistics for the sample
@@ -2364,8 +2286,16 @@ doc ///
    to each element in the sample, and its result is then used to calculate a mean, 
    standard deviation, and histogram.
   Example
-   s=sample(ER(6,3,0.2),15);
+   s=sample(ER(6,3,0.2),15)
    statistics(s, degree@@ideal)
+  Text
+   If memory runs out, statistics can be run with a model instead of a sample.
+   Each element generated by the model will be immediately discarded after data is
+   gathered on it, circumventing the need to store a large sample.
+  Example
+   model=ER(6,3,0.2)
+   sampleSize=15
+   statistics(model, sampleSize, degree@@ideal)
 ///
 
 doc ///
@@ -2443,8 +2373,13 @@ doc ///
        a squarefree monomial ideal in a new polynomial ring
   Description
     Text
-      Polarization takes each minimal generator of a monomial ideal to squarefree 
-      See (@HREF"http://www.mast.queensu.ca/~ggsmith/Papers/monomials_m2.pdf"@) for details.
+      Polarization takes each minimal generator of a monomial ideal to a squarefree monomial
+      in a new ring. The procedure is to define a new variable $z_{i,j}$ for the $j$th power of
+      the $i$th variable in the original ring. For instance, if $x$ is sent to 
+      the monomial $z_{0,0}$, then the monomial $x^3$ will be sent to $z_{0,0}z_{0,1}z_{0,2}$, and
+      the monomial $x^3y^2$ will become $z_{0,0}z_{0,1}z_{0,2}z_{1,0}z_{1,1}$.
+      See @HREF"http://www.mast.queensu.ca/~ggsmith/Papers/monomials_m2.pdf"@ for some details
+      and for the algorithm on which this code was based.
     Example
       R = QQ[x,y,z];
       I = monomialIdeal(x^2,y^3,x*y^2*z,y*z^4);
@@ -3072,6 +3007,10 @@ TEST///
   stat = statistics(sample(ER(5,5,1.0),10),x->#x);
   assert(stat.Mean == 251)
   assert(stat.StdDev == 0)
+  
+  stat = statistics(ER(5,5,1.0),10,x->#x);
+  assert(stat.Mean == 251)
+  assert(stat.StdDev == 0)
 ///
 
 --********************--
@@ -3105,5 +3044,5 @@ needsPackage("RandomMonomialIdeals");
 installPackage("RandomMonomialIdeals",RemakeAllDocumentation=>true);
 
 check RandomMonomialIdeals 
-viewHelp RandomMonomialIdeals
+viewHelp randomMonomialIdeals
 
