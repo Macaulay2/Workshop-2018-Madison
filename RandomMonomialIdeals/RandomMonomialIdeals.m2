@@ -1052,7 +1052,7 @@ doc ///
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which the monomials are to live if $n$ is not specified
   D: ZZ
     degree
@@ -1275,9 +1275,9 @@ doc ///
      probability to select a monomial in the ER model, OR
   M: ZZ
      the number of monomials, up to the maximum number of monomials in $n$ variables of degree at most $D$, used to generate each ideal, OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ used to generate each ideal, up to the maximum number of monomials in $n$ variables of degree exactly $i$.
   N: ZZ
     the number of random monomial ideals to be generated
@@ -2374,8 +2374,13 @@ doc ///
        a squarefree monomial ideal in a new polynomial ring
   Description
     Text
-      Polarization takes each minimal generator of a monomial ideal to squarefree 
-      See (@HREF"http://www.mast.queensu.ca/~ggsmith/Papers/monomials_m2.pdf"@) for details.
+      Polarization takes each minimal generator of a monomial ideal to a squarefree monomial
+      in a new ring. The procedure is to define a new variable $z_{i,j}$ for the $j$th power of
+      the $i$th variable in the original ring. For instance, if $x$ is sent to 
+      the monomial $z_{0,0}$, then the monomial $x^3$ will be sent to $z_{0,0}z_{0,1}z_{0,2}$, and
+      the monomial $x^3y^2$ will become $z_{0,0}z_{0,1}z_{0,2}z_{1,0}z_{1,1}$.
+      See @HREF"http://www.mast.queensu.ca/~ggsmith/Papers/monomials_m2.pdf"@ for some details
+      and for the algorithm on which this code was based.
     Example
       R = QQ[x,y,z];
       I = monomialIdeal(x^2,y^3,x*y^2*z,y*z^4);
@@ -3040,5 +3045,5 @@ needsPackage("RandomMonomialIdeals");
 installPackage("RandomMonomialIdeals",RemakeAllDocumentation=>true);
 
 check RandomMonomialIdeals 
-viewHelp plotTally
+viewHelp randomMonomialIdeals
 
