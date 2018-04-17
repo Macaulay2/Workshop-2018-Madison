@@ -17,7 +17,6 @@ newPackage ("CurvesP1P2",
 
 needsPackage "SimpleDoc"
 needsPackage "RandomSpaceCurves";
-load "Colon.m2"
 export{
     "randomRationalCurve",
     "randomMonomialCurve",
@@ -38,11 +37,12 @@ export{
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 
-randomRationalCurve = (d,e)->(
-    R := ZZ/101[s,t];
+randomRationalCurve = method() 
+randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
+    R := F[s,t];
     ---
-    S1 := ZZ/101[x_0, x_1];
-    S2 := ZZ/101[y_0,y_1,y_2];
+    S1 := F[x_0, x_1];
+    S2 := F[y_0,y_1,y_2];
     S = tensor(S1,S2);
     ---
     U = tensor(R,S);   
@@ -52,9 +52,12 @@ randomRationalCurve = (d,e)->(
     ---
     J := minors(2,M1)+minors(2,M2);
     J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
-    I = sub(eliminate({s,t},J'),S)
+    sub(eliminate({s,t},J'),S)
     )
 
+randomRationalCurve (ZZ,ZZ) := (d,e)->(
+    randomRationalCurve(d,e,ZZ/101)
+    )
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e)=(degree,degree)
@@ -65,24 +68,29 @@ randomRationalCurve = (d,e)->(
 ------ associated map P^1---->P^1xP^2,
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomMonomialCurve = (d,e)->(
-    R := ZZ/101[s,t];
+randomMonomialCurve = method() 
+randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
+    R := F[s,t];
     ---
-    S1 := ZZ/101[x_0, x_1];
-    S2 := ZZ/101[y_0,y_1,y_2];
+    S1 := F[x_0, x_1];
+    S2 := F[y_0,y_1,y_2];
     S = tensor(S1,S2);
     ---
     U = tensor(R,S);  
     ---
-    B = drop(drop(flatten entries basis({e,0,0},U),1),-1);
-    f = (random(B))#0;
+    B := drop(drop(flatten entries basis({e,0,0},U),1),-1);
+    f := (random(B))#0;
     ---
     M1 := matrix {{s^d,t^d},{x_0,x_1}};
     M2 := matrix {{s^e,t^e,f},{y_0,y_1,y_2}};
     ---
     J := minors(2,M1)+minors(2,M2);
     J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
-    I = sub(eliminate({s,t},J'),S)
+    sub(eliminate({s,t},J'),S)
+    )
+
+randomMonomialCurve (ZZ,ZZ) := (d,e)->(
+    randomMonomialCurve(d,e,ZZ/101)
     )
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -94,12 +102,14 @@ randomMonomialCurve = (d,e)->(
 ----- and the projection P3----->P2 on the last three variables
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-
-curveFromP3toP1P2 = (J) ->(
+curveFromP3toP1P2 = method(Options => {PreserveDegree => true}) 
+curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
     R := ring J;
     Vars := flatten entries vars R;
     ---
-    if (saturate((J+ideal(Vars#0,Vars#1)))==ideal(Vars)) or (saturate((J+ideal(Vars#1,Vars#2,Vars#3)))==ideal(Vars)) then error "Given curve intersects places of projection.";
+    if opts.PreserveDegree == true then (
+	    if (saturate((J+ideal(Vars#0,Vars#1)))==ideal(Vars)) or (saturate((J+ideal(Vars#1,Vars#2,Vars#3)))==ideal(Vars)) then error "Given curve intersects places of projection.";
+	);
     ---
     S1 := coefficientRing ring J [x_0, x_1];
     S2 := coefficientRing ring J [y_0,y_1,y_2];
@@ -112,8 +122,8 @@ curveFromP3toP1P2 = (J) ->(
     M1 := matrix {{Var#0,Var#1},{x_0,x_1}};
     M2 := matrix {{Var#1,Var#2,Var#3},{y_0,y_1,y_2}};
     ---
-    C' = sub(J,U);
-    D = minors(2,M1)+minors(2,M2);
+    C' := sub(J,U);
+    D := minors(2,M1)+minors(2,M2);
     ---
     BL1 := ideal(Var#0,Var#1);
     BL2 := ideal(Var#1,Var#2,Var#3);
@@ -122,8 +132,8 @@ curveFromP3toP1P2 = (J) ->(
     B3 := apply(3,i->VarU#(6+i));
     B := intersect(ideal(B1),ideal(B2),ideal(B3),BL1,BL2);
     ---
-    K  := saturate(C'+D,B);
-    I =  sub(eliminate(Var,K),S)
+    K := saturate(C'+D,B,MinimalGenerators=>false);
+    sub(eliminate(Var,K),S)
 )
 
 --------------------------------------------------------------------
@@ -137,39 +147,44 @@ curveFromP3toP1P2 = (J) ->(
 ----- and the projection P3----->P2 on the last three variables
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomCurve = method() 
-randomCurve (ZZ,ZZ) := (d,g) ->(
-    R = ZZ/101[z_0,z_1,z_2,z_3];
-    apply(1000,i->(
-	    N = i;
+
+randomCurve = method(Options => {Bound => 1000}) 
+randomCurve (ZZ,ZZ,Ring) := randomCurve => opts -> (d,g,F)->(
+    R := F[z_0,z_1,z_2,z_3];
+    apply(opts.Bound,i->(
 	    C = (random spaceCurve)(d,g,R);
-	    if (saturate(C+ideal(z_0,z_1))!=ideal(z_0,z_1,z_2,z_3)) and (saturate(C+ideal(z_1,z_2,z_3))!=ideal(z_0,z_1,z_2,z_3)) then break C
+	    if (saturate(C+ideal(z_0,z_1))!=ideal(z_0,z_1,z_2,z_3)) and (saturate(C+ideal(z_1,z_2,z_3))!=ideal(z_0,z_1,z_2,z_3)) then break C;
 	    ));
     if (saturate(C+ideal(z_0,z_1))==ideal(z_0,z_1,z_2,z_3)) or (saturate(C+ideal(z_1,z_2,z_3))==ideal(z_0,z_1,z_2,z_3)) then error "Unable to find curve not intersecting places of projection.";
     ---
-    S1 = ZZ/101[x_0, x_1];
-    S2 = ZZ/101[y_0,y_1,y_2];
+    S1 := F[x_0, x_1];
+    S2 := F[y_0,y_1,y_2];
     S = tensor(S1,S2);
     ---
     U = tensor(R,S);   
     --- 
-    M1 = matrix {{z_0,z_1},{x_0,x_1}};
-    M2 = matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
+    M1 := matrix {{z_0,z_1},{x_0,x_1}};
+    M2 := matrix {{z_1,z_2,z_3},{y_0,y_1,y_2}};
     ---
-    C' = sub(C,U);
-    D = minors(2,M1)+minors(2,M2);
-    ---
+    C' := sub(C,U);
+    D := minors(2,M1)+minors(2,M2);
+    --- Base locus of porjection
     BL1 := ideal(z_0,z_1);
     BL2 := ideal(z_1,z_2,z_3);
+    --- Irrelevant ideal intersect base locus
     B1 := ideal(z_0,z_1,z_2,z_3);
     B2 := ideal(x_0,x_1);
     B3 := ideal(y_0,y_1,y_2);
     B := intersect(B1,B2,B3,BL1,BL2);
     ---
-    K  = saturate(C'+D,B);
-    I =  sub(eliminate({z_0,z_1,z_2,z_3},K),S)
-    )
+    K  := saturate(C'+D,B,MinimalGenerators=>false);
+    sub(eliminate({z_0,z_1,z_2,z_3},K),S)
+)
 
+randomCurve (ZZ,ZZ) := randomCurve => opts -> (d,g)->(
+    randomCurve(d,g,ZZ/101)
+    )
+    
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (M,B)=(Module,Ideal)
@@ -207,19 +222,7 @@ saturationZero (Module,Ideal) := (M,B) ->(
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 saturationZero (Ideal,Ideal) := (I,B) ->(
-    M := comodule I;
-    Vars := flatten entries vars ring B;
-    bGens := flatten entries mingens B;
-    for i from 0 to #bGens-1 do (
-    	  b := bGens#i;
-	  bVars := support b;
-	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
-	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
-	      P := sub(presentation M,R);
-	      G = gb P; 
-	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
-    );
-    true
+    saturationZero(comodule I,B)
 )
 
 --------------------------
