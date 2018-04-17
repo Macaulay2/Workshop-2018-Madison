@@ -1,10 +1,11 @@
 {*
-Description: Main method of the file is signSpace, which finds the
+Description: Methods to compute sign patterns of vector spaces.
+Main method of the file is signSpace, which finds the
 non-zero sign vectors of a given vector subspace. 
 
 Authors: 
-Jacob Zoromski (jzoromski@wisc.edu)
 Polly Yu (pollyyu@math.wisc.edu)
+Jacob Zoromski (jzoromski@wisc.edu)
 
 Packages used: Polyhedra
 
@@ -24,7 +25,7 @@ Output: listMatrices, a list of matrices
 Description: Computes all non-zero sign vectors of a linear subspace given 
 by the span of the columns of a matrix M
 Input: M, a matrix
-Output: signs, a list of sign vectors (as lists)
+Output: signVectors, a list of sign vectors (as lists)
 
 4) signClosure
 Description: Computes the closure of the sign space, i.e. all sign vectors
