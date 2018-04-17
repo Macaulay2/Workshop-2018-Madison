@@ -327,8 +327,6 @@ colDegrees FIMatrix := M -> M.coldegs
 
 
 /// TEST 
-
-
 -- FI
 
 restart
