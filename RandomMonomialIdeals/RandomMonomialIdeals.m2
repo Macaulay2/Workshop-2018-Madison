@@ -754,34 +754,33 @@ depthStats (List) := o-> (ideals) -> (
 )
 
 
+anyCartesianProduct := (L,f) -> (
+    if #L==0 then return false;
+    if #L==1 then return any(L_0,x -> f({x}));
+    firstList := L_-1;
+    any(firstList, x->anyCartesianProduct(drop(L,-1),l -> f(l|{x})))
+)
+
 isProjDimMaximal = method(TypicalValue=>Boolean);
 isProjDimMaximal (MonomialIdeal) := M -> (
-    n := #gens(ring M);
-    G := apply(flatten entries mingens M, e -> flatten exponents e);
+    R := ring M;
+    badIdeal := product(gens R))*M;
+    n := #gens(R);
+    G := apply(flatten entries mingens M, flatten@@exponents);
     if #G < n then return false;
     possibleExponents := for i from 0 to n-1 list(
 	X := sort apply(G, e -> e_i);
 	tooSmall := X_(n-2);
 	X = unique drop(X, n-1);
-	if X_0 == tooSmall then X = drop(X, 1) else X
+	if X_0 == tooSmall then drop(X, 1) else X
 	);
-    possibleLCMs := apply(toList fold(cartesianProduct, apply(possibleExponents, set)), toList@@deepSplice);
-    --given LCM, find dominant set with that LCM
-    for LCM in possibleLCMs do(
-        bad := false;
-        domSet := for i from 0 to n-1 list (
-	    A := select(1, G, e -> (
-	        all(n, j -> (if j == i then e_j == LCM_j else e_j < LCM_j))
-	        ));
-	    if A === {} then bad = true;
-	    flatten A
-        );
-        if not bad then(
-	    if all(G, g -> not all(n, j -> g_j < LCM_j)) then return true
-	    );
-	);
-    false
-    )
+    anyCartesianProduct(possibleExponents,LCM ->(
+        lcmMon := R_LCM;
+        if lcmMon%badIdeal==0 or lcmMon%M != 0 then return false;
+        all(n,i -> (
+                any(G, e -> (
+	                all(n, j -> (if j == i then e_j == LCM_j else e_j < LCM_j))))))))
+)
 
 polarize = method(TypicalValue => MonomialIdeal);
 
@@ -1006,16 +1005,16 @@ doc ///
  Headline
   randomly generates lists of monomials in fixed number of variables up to a given degree
  Usage
-  randomMonomialSets(ZZ,ZZ,RR,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,RR,ZZ)
-  randomMonomialSets(ZZ,ZZ,ZZ,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,ZZ,ZZ)
-  randomMonomialSets(ZZ,ZZ,List,ZZ)
-  randomMonomialSets(PolynomialRing,ZZ,List,ZZ)
+  randomMonomialSets(n, D, p, N)
+  randomMonomialSets(R, D, p, N)
+  randomMonomialSets(n, D, M, N)
+  randomMonomialSets(R, D, M, N)
+  randomMonomialSets(n, D, L, N)
+  randomMonomialSets(R, D, L, N)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which the monomials are to live if $n$ is not specified
   D: ZZ
     maximum degree
@@ -1023,9 +1022,9 @@ doc ///
      the probability of selecting a monomial, OR
   M: ZZ
      number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree at most $D$  OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ in each set, up to the maximum number of monomials in $n$ variables of degree exactly $i$
   N: ZZ
     number of sets to be generated
@@ -1052,14 +1051,14 @@ doc ///
  Headline
   randomly generates homogeneous lists of monomials in fixed number of variables of a given degree
  Usage
-  randomHomogeneousMonomialSets(ZZ,ZZ,RR,ZZ)
-  randomHomogeneousMonomialSets(PolynomialRing,ZZ,RR,ZZ)
-  randomHomogeneousMonomialSets(ZZ,ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialSets(PolynomialRing,ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialSets(n, D, p, N)
+  randomHomogeneousMonomialSets(R, D, p, N)
+  randomHomogeneousMonomialSets(n, D, M, N)
+  randomHomogeneousMonomialSets(R, D, M, N)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which the monomials are to live if $n$ is not specified
   D: ZZ
     degree
@@ -1265,12 +1264,12 @@ doc ///
  Headline
   generates random sets of monomial ideals
  Usage
-  randomMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
-  randomMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
-  randomMonomialIdeals(PolynomialRing,ZZ,List,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,RR,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
-  randomMonomialIdeals(ZZ,ZZ,List,ZZ)
+  randomMonomialIdeals(R, D, p, N)
+  randomMonomialIdeals(R, D, M, N)
+  randomMonomialIdeals(R, D, L, N)
+  randomMonomialIdeals(n, D, p, N)
+  randomMonomialIdeals(n, D, M, N)
+  randomMonomialIdeals(n, D, L, N)
  Inputs
   R: PolynomialRing
     the ring to generate a random monomial ideal in, OR
@@ -1282,9 +1281,9 @@ doc ///
      probability to select a monomial in the ER model, OR
   M: ZZ
      the number of monomials, up to the maximum number of monomials in $n$ variables of degree at most $D$, used to generate each ideal, OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ used to generate each ideal, up to the maximum number of monomials in $n$ variables of degree exactly $i$.
   N: ZZ
     the number of random monomial ideals to be generated
@@ -1358,10 +1357,10 @@ doc ///
  Headline
   generates random sets of homogeneous monomial ideals
  Usage
-  randomHomogeneousMonomialIdeals(PolynomialRing,ZZ,RR,ZZ)
-  randomHomogeneousMonomialIdeals(PolynomialRing,ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialIdeals(ZZ,ZZ,RR,ZZ)
-  randomHomogeneousMonomialIdeals(ZZ,ZZ,ZZ,ZZ)
+  randomHomogeneousMonomialIdeals(R, D, p, N)
+  randomHomogeneousMonomialIdeals(R, D, M, N)
+  randomHomogeneousMonomialIdeals(n, D, p, N)
+  randomHomogeneousMonomialIdeals(n, D, M, N)
  Inputs
   R: PolynomialRing
     the ring to generate a random homogeneous monomial ideal in, OR
@@ -1418,16 +1417,16 @@ doc ///
  Headline
   randomly generates a list of monomials in fixed number of variables up to a given degree
  Usage
-  randomMonomialSet(ZZ,ZZ,RR)
-  randomMonomialSet(PolynomialRing,ZZ,RR)
-  randomMonomialSet(ZZ,ZZ,ZZ)
-  randomMonomialSet(PolynomialRing,ZZ,ZZ)
-  randomMonomialSet(ZZ,ZZ,List)
-  randomMonomialSet(PolynomialRing,ZZ,List)
+  randomMonomialSet(n, D, p)
+  randomMonomialSet(R, D, p)
+  randomMonomialSet(n, D, M)
+  randomMonomialSet(R, D, M)
+  randomMonomialSet(n, D, L)
+  randomMonomialSet(R, D, L)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R: PolynomialRing
     the ring in which monomials are to live if $n$ is not specified
   D: ZZ
     maximum degree
@@ -1435,9 +1434,9 @@ doc ///
      the probability of selecting a monomial, OR
   M: ZZ
      number of monomials in the set, up to the maximum number of monomials in $n$ variables of degree at most $D$  OR
-  : List
+  L: List
      of real numbers whose $i$-th entry is the probability of selecting a monomial of degree $i$, OR
-  : List
+  L: List
      of integers whose $i$-th entry is the number of monomials of degree $i$ in each set, up to the maximum number of monomials in $n$ variables of degree exactly $i$
  Outputs
   : List
@@ -1516,14 +1515,14 @@ doc ///
  Headline
   randomly generates a homogeneous list of monomials in fixed number of variables of a given degree
  Usage
-  randomHomogeneousMonomialSet(ZZ,ZZ,RR)
-  randomHomogeneousMonomialSet(PolynomialRing,ZZ,RR)
-  randomHomogeneousMonomialSet(ZZ,ZZ,ZZ)
-  randomHomogeneousMonomialSet(PolynomialRing,ZZ,ZZ)
+  randomHomogeneousMonomialSet(n, D, p)
+  randomHomogeneousMonomialSet(R, D, p)
+  randomHomogeneousMonomialSet(n, D, M)
+  randomHomogeneousMonomialSet(R, D, M)
  Inputs
   n: ZZ
     number of variables, OR
-  : PolynomialRing
+  R : PolynomialRing
     the ring in which monomials are to live if $n$ is not specified
   D: ZZ
     degree
@@ -2382,8 +2381,13 @@ doc ///
        a squarefree monomial ideal in a new polynomial ring
   Description
     Text
-      Polarization takes each minimal generator of a monomial ideal to squarefree 
-      See (@HREF"http://www.mast.queensu.ca/~ggsmith/Papers/monomials_m2.pdf"@) for details.
+      Polarization takes each minimal generator of a monomial ideal to a squarefree monomial
+      in a new ring. The procedure is to define a new variable $z_{i,j}$ for the $j$th power of
+      the $i$th variable in the original ring. For instance, if $x$ is sent to 
+      the monomial $z_{0,0}$, then the monomial $x^3$ will be sent to $z_{0,0}z_{0,1}z_{0,2}$, and
+      the monomial $x^3y^2$ will become $z_{0,0}z_{0,1}z_{0,2}z_{1,0}z_{1,1}$.
+      See @HREF"http://www.mast.queensu.ca/~ggsmith/Papers/monomials_m2.pdf"@ for some details
+      and for the algorithm on which this code was based.
     Example
       R = QQ[x,y,z];
       I = monomialIdeal(x^2,y^3,x*y^2*z,y*z^4);
@@ -3048,5 +3052,5 @@ needsPackage("RandomMonomialIdeals");
 installPackage("RandomMonomialIdeals",RemakeAllDocumentation=>true);
 
 check RandomMonomialIdeals 
-viewHelp plotTally
+viewHelp randomMonomialIdeals
 
