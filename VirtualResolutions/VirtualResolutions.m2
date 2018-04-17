@@ -411,6 +411,42 @@ randomCurveP1P2 (ZZ,ZZ) := randomCurveP1P2 => opts -> (d,g)->(
     randomCurveP1P2(d,g,ZZ/101)
     )
 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (M,B)=(Module,Ideal)
+----- Output: Returns true if saturate(M,B)==0 and false otherwise
+----- Description: This checks whether the saturation of a module M
+----- with respects to an ideal B is zero. This is done by checking 
+----- whether for each generator of B some power of it annihilates
+----- the module M. We do this generator by generator.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+saturationZero = method() 
+saturationZero (Module,Ideal) := (M,B) ->(
+    Vars := flatten entries vars ring B;
+    bGens := flatten entries mingens B;
+    for i from 0 to #bGens-1 do (
+    	  b := bGens#i;
+	  bVars := support b;
+	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
+	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
+	      P := sub(presentation M,R);
+	      G = gb P; 
+	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
+    );
+    true
+)
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (I,B)=(Ideal,Ideal)
+----- Output: Returns true if saturate(comodule I,B)==0 and false otherwise.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+saturationZero (Ideal,Ideal) := (I,B) ->(
+    saturationZero(comodule I,B)
+)
+
 --------------------------
 -- Begining of the documentation
 ------------------------
