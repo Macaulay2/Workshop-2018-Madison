@@ -34,7 +34,7 @@ multidoc ///
     the fist matrix matches the \tt{rows} argument of the second matrix.
    Example
     f = LinFI(QQ)
-    m = matrix({1,2},{{2f_{1}-2f_{2},f_{1}+f_{2}+f_{3}},{f_{12}-f_{21},f_{12}+f_{23}+f_{31}}},{2,3})
+    m = matrix({1,2},{{2*f_{1}-2*f_{2},f_{1}+f_{2}+f_{3}},{f_{12}-f_{21},f_{12}+f_{23}+f_{31}}},{2,3})
     o = matrix({2,3},{{f_{12},f_{23}-f_{32}},{0,f_{1,2,3}+f_{2,3,1}+f_{3,1,2}}},{2,3})
     
    Output
@@ -153,7 +153,8 @@ multidoc ///
    longer, and the structure maps will be block sums of the maps already described.
    Example
     f = LinFI(QQ)
-    m = matrix({1},{{f_{1}+3f_{3}}},{3})
+    m = matrix({1},{{f_{1}+3*f_{3}}},{3})
+    FICofree({4},m)
     
    Output
     [1 1 1 1 1 1 0 0 3 0 3 0 0 0 3 0 3 0 0 0 3 0 3 0]
@@ -189,7 +190,7 @@ multidoc ///
    Example
     f = LinFI(QQ)
     m = matrix({2},{{f_{12}-f{21}}},{2})
-    o = matrix({4},{{f_{1234}+8f_{5432}}},{5})
+    o = matrix({4},{{f_{1234}+8*f_{5432}}},{5})
     FIStructureMap(m, o)
     
    Output
@@ -223,9 +224,11 @@ multidoc ///
     f = LinFI(QQ)
     m = matrix({1},{{f_{2}-f{1}}},{2})
     o = matrix({2},{{f_{12}+f_{21},f_{12}}},{2,3})
+    Ext^0(m, o)
     Ext^1(m, o)
     
   Output
+    0
     QQ^1
 
 ///

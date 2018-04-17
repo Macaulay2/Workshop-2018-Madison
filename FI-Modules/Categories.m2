@@ -1,8 +1,12 @@
 FIMorphism = new Type of HashTable
+-- a list, representing the images of {1..n} under an injective
+-- function to ZZ
 FIRingElement = new Type of HashTable
+-- The Type for elements of arbitrary FI Rings
 FIMatrix = new Type of MutableHashTable
-FIRing = new Type of Type
-
+-- A Matrix of FI Ring elements: a ring (the ambient FI ring of the
+-- matrix elts, rowdegs a list of row labels, coldegs a list of column
+-- degress, matrix a table of FIRingElements FIRing = new Type of Type
 globalAssignment FIRing
 
 -- FI MORPHISMS
