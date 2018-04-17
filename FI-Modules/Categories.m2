@@ -22,14 +22,14 @@ FI List := l -> (
     if #l >#unique l then error "FI: list does not give injective map"
     else if all (l,i -> class i === ZZ and i<1) then error "FI: list is not a list of positive integers"
     else new FIMorphism from hashTable{ (symbol morphismList) => l}
-    )
+)
 
 -- composition of FI morphisms, as injective functions. The domain and
 -- range have to agree. So (FI {2,1,5,6}) * (FI {1,4}) should be (FI {2,6})
 FIMorphism * FIMorphism := (f, g) -> (
     if target f > source g then error "Morphisms are not composable."
     else new FIMorphism from hashTable{ (symbol morphismList) => apply(f.morphismList, i -> (g.morphismList)#(i-1))}
-    )
+)
 
 -- target is the domain of the FI morphism, and source is the smallest
 -- {1..n} that contains the image
@@ -44,10 +44,11 @@ FIMorphism#{Standard,AfterNoPrint} = f -> (
      << " " << source f << " ---> " << target f;
      dumbfix = " --"; -- local syntax highlighting fix
      << endl;
-     )
+)
  
 -- nets for printing
 net FIMorphism := l -> net l.morphismList
+
 
 FIMorphism == FIMorphism := (f,g) -> f.morphismList == g.morphismList
 
@@ -241,7 +242,7 @@ fiMatrix (List,List,List) := (rowdeglist,fiEntries,coldeglist) -> (
     if #rowdeglist =!= #fiEntries then error "Row degrees don't match matrix";
     if #coldeglist =!= #(fiEntries#0) then error "Col degrees don't match matrix";
     if not all(#rowdeglist, i -> all(fiEntries#i, m->isFromSource(m,rowdeglist#i))) then error "The sources of the entries don't match the degrees in the rows.";
-    if not all(fiEntries, row -> all(#coldeglist, i->isFromTarget(row#i,coldeglist#i))) then error "The targets of the entries don't match the degrees in the columns.";
+    if not all(fiEntries, row -> all(#coldeglist, i->isToTarget(row#i,coldeglist#i))) then error "The targets of the entries don't match the degrees in the columns.";
     -- find a common ring to promote all entries to. For now, just
     -- expect them to be from the same ring. If not, throw an error.
     return new FIMatrix from hashTable {
@@ -392,5 +393,18 @@ R = ZZ/101
 RFI = fiRing(R)
 f = fiRingElement(FI{1,3,5,110},RFI)
 100*f
+
+
+-- Demo for Aida
+
+restart
+load "Categories.m2"
+
+RFI = fiRing(ZZ/3)
+m = RFI_{4,2,1}
+n = RFI_{1,6,2}
+m-n
+5*m
+
 
 ///
