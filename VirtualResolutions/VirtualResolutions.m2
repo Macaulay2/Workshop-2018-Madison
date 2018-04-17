@@ -26,6 +26,7 @@ newPackage ("VirtualResolutions",
     	{Name => "Ayah Almousa",       Email => "aka66@cornell.edu"},
     	{Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://www-users.math.umn.edu/~cberkesc/"},
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
+	{Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://www.math.umn.edu/~loper012"},
         {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu"}
     	},
     PackageExports => {
@@ -88,6 +89,7 @@ findCorners = m -> (
     corners
     )
 
+-----------------------------------------------------------
 -- This is a temporary fast saturation. Keep this up to date
 -- with any changes in Colon.m2 (hopefully we can just change
 -- this to saturate(I,irr)
@@ -95,7 +97,7 @@ ourSaturation = (I,irr) -> (
     saturationByElimination(I,irr)
     )
 
--- This is the temporary fast saturation that Mike created
+-- This is the temporary fast saturation that Mike Stillman created
 eliminationInfo = method()
 eliminationInfo Ring := (cacheValue symbol eliminationInfo)(R -> (
      n := numgens R;
@@ -145,8 +147,13 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
     intersectionByElimination L
     )
 --This is where the fast saturation functions end
+-----------------------------------------------------------------------
 
-
+--This method checks if a given complex is a virtual resoltion.
+--Input: Chain Complex - proposed virtual resolution
+--       Ideal (or module) - what the virtual resolution resolves
+--       Ideal - the irrelevant ideal of the ring
+--Output: Boolean - true if complex is virtual resolution, false otherwise
 isVirtual = method();
 -* I need to test this still
 isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->( 
