@@ -1,4 +1,4 @@
-FIMorphism = new Type of BasicList
+FIMorphism = new Type of HashTable
 FIRingElement = new Type of HashTable
 FIMatrix = new Type of MutableHashTable
 FIRing = new Type of Type
@@ -10,29 +10,31 @@ globalAssignment FIRing
 
 FI = method()
 
-FI List := l -> (
-    if #l == 2 then new FIMorphism from l
-    else new FIMorphism from {drop(l, -1), last l}
+FI List := l -> (  
+    if #l >#unique l then error "FI: list does not give injective map"
+    else if all (l,i -> class i === ZZ and i<1) then error "FI: list is not a list of positive integers"
+    else new FIMorphism from hashTable{ (symbol morphismList) => l}
     )
 
-FIMorphism * FIMorphism := (g, f) -> (
-    if f#1 < g#1 then error "Morphisms are not composable."
-    else new FIMorphism from {apply(#(g#0), i -> f#0#(g#0#i-1)), f#1}
+FIMorphism * FIMorphism := (f, g) -> (
+    if target f > source g then error "Morphisms are not composable."
+    else new FIMorphism from hashTable{ (symbol morphismList) => apply(f.morphismList, i -> (g.morphismList)#(i-1))}
     )
 
-target FIMorphism := f -> last f
+target FIMorphism := f -> max f.morphismList
 
-source FIMorphism := f -> (length first f) 
+source FIMorphism := f -> length f.morphismList
 
 FIMorphism#{Standard,AfterPrint} = 
 FIMorphism#{Standard,AfterNoPrint} = f -> (
      << endl;                 -- double space
      << concatenate(interpreterDepth:"o") << lineNumber << " : FIMorphism";
      << " " << source f << " ---> " << target f;
+     dumbfix = " --";
      << endl;
      )
 
-net FIMorphism := l -> net "["|net l#0|net ","|net l#1|net"]"
+net FIMorphism := l -> net l.morphismList
 
 
 
@@ -57,11 +59,13 @@ fiRing (Ring) := R -> (
 	);
     R * RFI := (r,m) -> (
         new RFI from hashTable{
-            (symbol ring) => F;
+            (symbol ring) => RFI,
             (symbol terms) => hashTable apply( keys terms m, key -> key => r*coefficient(m,key))
         }
     );
     RFI * R := (m,r) -> r*m;
+    ZZ * RFI := (r,m) -> (r_R)*m;
+    RFI * ZZ := (m,r) -> m*(r_R);
     RFI * RFI := (m,n) -> (
         eltsum = 0_RFI;
         for mkey in keys terms m do
@@ -72,7 +76,7 @@ fiRing (Ring) := R -> (
     );
     RFI - RFI := (m, n) -> m + (-1)_R*n;
     return RFI
-    ) 
+) 
 
 
 coefficient (FIRingElement, FIMorphism) := (m,f) -> (
@@ -119,16 +123,16 @@ net FIRingElement := f -> (
    myNet := net "";
    isZp := (class coefficientRing ring f === QuotientRing and ambient coefficientRing ring f === ZZ);
    for t in pairs f.terms do (
-      tempNet := net t#1;
+      coefNet := net t#1;
+      coefSign := ("-" == first last coefNet);
       printParens := ring t#1 =!= QQ and ring t#1 =!= ZZ and not isZp and (size t#1 > 1 or (isField ring t#1 and numgens coefficientRing ring t#1 > 0 and size sub(t#1, coefficientRing ring t#1) > 1));
       myNet = myNet | (
-        if isZp and tempNet#0#0 != "-" and not firstTerm then net "+"
-        else if not isZp and not firstTerm and t#1>0 then net "+"
+        if (not coefSign or printParens) and not firstTerm then net "+"
         else net ""
       ) | (
         if printParens then net "(" else net ""
       ) | (
-        if t#1 != 1 and t#1 != -1 then tempNet
+        if t#1 != 1 and t#1 != -1 then coefNet
         else if t#1 == -1 then net "-"
         else net ""
       ) | (
@@ -141,11 +145,11 @@ net FIRingElement := f -> (
    myNet
 )
 
-isFromTarget=method()
+isToTarget=method()
 
-isFromTarget (FIRingElement,Thing) := (m,b) -> (
+isToTarget (FIRingElement,Thing) := (m,b) -> (
         if m === 0_(ring m) then return true
-        else return all (keys terms m,key ->target key == b)
+        else return all (keys terms m,key ->target key <= b)
     )    
 
 isFromSource=method()
@@ -155,11 +159,11 @@ isFromSource (FIRingElement, Thing) := (m,a) -> (
         else return all (keys terms m,key -> source key == a)
     )
 
-isHomogeneous FIRingElement := m -> (
+{*isHomogeneous FIRingElement := m -> (
         if m === 0_(ring m) then return true
         else return all (keys terms m,key -> source key == source first keys terms m and target key == target first keys terms m)
     )
-
+*}
 
 coefficientRing FIRing := R -> last R.baseRings
 
@@ -232,6 +236,7 @@ FIMatrix#{Standard,AfterNoPrint} = M -> (
         );
      );
      <<" <--- ";
+     dumbfix = " --";
      if #M.coldegs == 0 then << "0"
      else (
         firstTerm = true;
@@ -268,17 +273,19 @@ ring FIMatrix := M -> M.ring
 FIMatrix * FIMatrix := (M, N) -> (
     entriesM := entries M;
     entriesN := entries N;
-    if numColumns M == numRows N then (
-	new FIMatrix from hashTable{
-	    (symbol ring) => ring M,
-	    (symbol matrix) => apply(numRows M, 
-		i -> apply(numColumns N, 
-		    j -> sum apply(numColumns M, k -> entriesM#i#k*entriesN#k#j)
-		    )
-		),
-	    (symbol cache) => new CacheTable from {}
-	    }
-	)
+    if colDegrees M == rowDegrees N then (
+    new FIMatrix from hashTable{
+        (symbol ring) => ring M,
+        (symbol rowdegs) => rowDegrees M,
+        (symbol coldegs) => colDegrees N,
+        (symbol matrix) => apply(numRows M, 
+        i -> apply(numColumns N, 
+            j -> sum apply(numColumns M, k -> entriesM#i#k*entriesN#k#j)
+            )
+        ),
+        (symbol cache) => new CacheTable from {}
+        }
+    )
     )
 
 rowDegrees = method()
@@ -291,6 +298,17 @@ colDegrees FIMatrix := M -> M.coldegs
 
 
 /// TEST 
+
+
+-- FI
+
+restart
+load "Categories.m2"
+
+f = FI{1,3}
+g = FI{2,6,5,1}
+f*g
+
 
 restart
 load "Categories.m2"
@@ -313,7 +331,28 @@ h = FI{5,2,6,1,3,7}
 x = fiRingElement(f,R);
 y = fiRingElement(g,R);
 z = fiRingElement(h,R);
-mat = fiMatrix ({2,5},{{x,0_R},{0_R,y+t^2*z}},{5,7})
+mat = fiMatrix ({2,5},{{x,0_R},{0_R,2*y+(-t^2-t)*z}},{5,7})
+mat1 = fiMatrix( {5,7}, {{fiRingElement(FI({2,3,5,1,6,6}),R),fiRingElement(FI({4,6,1,3,7,7}),R)},{0_R,fiRingElement(FI({4,3,1,5,6,7,2,7}),R)}}, {6,7} )
+mat*mat1
 
+-- John's multiplication Test
+
+restart
+load "Categories.m2"
+
+R = fiRing(QQ)
+m = fiMatrix({1,2},{{2*fiRingElement(FI{1,2},R)-2*fiRingElement(FI{2,2},R),fiRingElement(FI{1,3},R)+fiRingElement(FI{2,3},R)+fiRingElement(FI{3,3},R)},{fiRingElement(FI{1,2,2},R)-fiRingElement(FI{2,1,2},R),fiRingElement(FI{1,2,3},R)+fiRingElement(FI{2,3,3},R)+fiRingElement(FI{3,1,3},R)}},{2,3})
+o = fiMatrix({2,3},{{fiRingElement(FI{1,2,2},R),fiRingElement(FI{2,3,3},R)-fiRingElement(FI{3,2,3},R)},{0_R,fiRingElement(FI{1,2,3,3},R)+fiRingElement(FI{2,3,1,3},R)+fiRingElement(FI{3,1,2,3},R)}},{2,3})
+m*o
+
+-- Demo for Dan
+
+restart
+load "Categories.m2"
+
+R = ZZ/101
+RFI = fiRing(R)
+f = fiRingElement(FI{1,3,5,110},RFI)
+100*f
 
 ///
