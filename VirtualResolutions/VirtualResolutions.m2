@@ -275,12 +275,14 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     --- Defines P1x(P1xP2)
     U := tensor(R,S);   
     --- Defines graph of morphisms in P1x(P1xP2)
-    M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
-    M2 := matrix {apply(3,i->random({e,0,0},U)),{y_0,y_1,y_2}};
+    --M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
+    M1 := matrix {apply(2,i->random({d,0,0},U)),{(vars(U))_2_0,(vars(U))_3_0}};
+    --M2 := matrix {apply(3,i->random({e,0,0},U)),{y_0,y_1,y_2}};
+    M2 := matrix {apply(3,i->random({e,0,0},U)),{(vars(U))_4_0,(vars(U))_5_0,(vars(U))_6_0}};
     J := minors(2,M1)+minors(2,M2);
     --- Computes saturation and then eliminates producing curve in P1xP2
-    J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
-    sub(eliminate({s,t},J'),S)
+    J' := saturate(J,sub(ideal(s,t),U),MinimalGenerators=>false);
+    sub(eliminate({sub(s,U),sub(t,U)},J'),S)
     )
 
 --------------------------------------------------------------------
@@ -1015,8 +1017,8 @@ isVirtual(r,J,irr)
 
 
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-J' = ourSaturation(I',irr)
-J' = saturate(I',irr)
+J' = moduleSat(I',irr)
+J' == saturate(I',irr)
 r' = res J'
 betti' r'
 q1 = winnowProducts(S,r',{2,1})
@@ -1031,3 +1033,18 @@ isVirtual(q3,I',irr)
 q1' = multiWinnow(S,r',{{3,3}})
 q1' == q1 --multiWinnow doesn't act like winnowProducts
           -- i.e. doesn't add vector n
+
+
+
+I = randomRationalCurve(3,4)
+var S
+degrees(S)
+
+
+lst = apply(2,i->random({3,0,0},U))
+M1 = matrix {apply(2,i->random({3,0,0},U)),{x_0,x_1}}
+use U
+length(lst)
+M1 = matrix{lst,{(vars(U))_2_0,(vars(U))_3_0}}
+compactMatrixForm = false
+M1
