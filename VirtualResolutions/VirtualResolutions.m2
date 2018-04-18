@@ -74,6 +74,17 @@ multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
     chainComplex (L_{0..N - 1} | L')
     );
 
+multiWinnow (Ring, ChainComplex, List) := (S,F,alphas) ->(
+    if any(alphas, alpha -> #alpha =!= degreeLength S) then error "degree has wrong length";
+    L := apply(length F, i ->(
+	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
+    N := 0;
+    L / (m -> if m != 0 then N = N + 1);
+    T := res coker syz L_(N - 1);
+    L' := for i from min T to max T - 1 list T.dd_(i+1);
+    chainComplex (L_{0..N - 1} | L')
+    );
+
 --Given ideal J, irrelevant ideal, and a vector A, computes free resolution of J intersected with Ath power of the irrelevant ideal
 --Only a Virtual resolution for 'sufficiently positive' powers of B
 --See Theorem 5.1 of [BES]
@@ -1016,3 +1027,7 @@ isVirtual(q2,I',irr)
 
 q3 = winnowProducts(S,r',{1,0})
 isVirtual(q3,I',irr)
+
+q1' = multiWinnow(S,r',{{3,3}})
+q1' == q1 --multiWinnow doesn't act like winnowProducts
+          -- i.e. doesn't add vector n
