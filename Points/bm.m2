@@ -111,6 +111,19 @@ affineFatPoints = (X,mu,R) -> (
     affineBM(R,phi)
     )
 
+--Projective version of Buchberger-Möller algorithm
+--computes a GB of a homogeneous ideal which is, degree by degree,
+--the kernel of a K-linear map phi : K[x_1..x_n] -> K^s.
+--Follows Kreuzer-Robbiano, Computational Commutative Algebra 2, Thm. 6.3.24.
+--Again phi generalizes evaluation at points and is passed as a Macaulay2 function
+--We call the ring R instead of S, and we use S instead of script S.
+--IMPORTANT: now the computation is done degree by degree so we also need to pass
+--a stopping value, which is known for (fat) points.
+--When the Hilbert function of the ideal under construction reaches the stopping
+--value, we know we have enough generators for the ideal, so we can stop.
+--Also, since the quotient is not finite dimensional,
+--we do not save standard monomials.
+
 end
 
 --some sample computations for fat points
@@ -177,6 +190,17 @@ load "bm.m2"
 time (G,inG,O)=affineFatPoints(X,mu,R);
 time J=intersect(apply(X,mu,(p,m)->(ideal((gens R)-p))^m));
 
+--reduced points over a finite field
+restart
+K=ZZ/32003
+R=K[x_1..x_8]
+X=entries random(K^20,K^8);
+load "bm.m2"
+time (G,inG,O)=affinePoints(X,R);
+time J=intersect(apply(X,p->ideal((gens R)-p)));
+needsPackage "Points"
+time K=affinePoints(transpose matrix X,R);
+
 ---------------------------------------------------------
 ---------------------------------------------------------
 ---------------------------------------------------------
@@ -200,3 +224,54 @@ evaluateDerivatives = (X,mu,f) -> (
     return flatten L;
     )
 
+------------------
+
+projectiveBM = (R,phi,stopvalue) -> (
+    G := {}; --holds Gröbner basis
+    inG := {}; --holds generators of initial ideal
+    S := {}; --holds polynomials for intermediate steps
+    L := {1_R}; --start with 1
+    d := 0;
+    K := coefficientRing R;
+    s := #(phi 1_R); --dimension of codomain of phi
+    while d >= 0 do (
+	I := promote(ideal(inG),R);
+	HP := hilbertPolynomial(I,Projective=>false);
+	if HP == stopvalue then
+	);
+    M := map(K^0,K^s,0); --an s by 0 matrix over K
+    --we introduce a hash table H to hold positions of
+    --pivots of M, keys are columns, values are rows
+    H := new MutableHashTable;
+    while L != {} do (
+	t := min L;
+	L = drop(L,1);
+	w := map(K^1,K^s,{phi t});
+	--reduce w against rows of matrix M
+	(v,a,q) := reduceVector(w,M,H);
+	g := dotProductLists(a,S);
+	--if v==0 we have a GB element
+	if v == 0 then (
+	    G = G | {t-g};
+	    inG = inG | {t};
+	    --remove redundant elements
+	    L = select(L,u->u % t != 0);
+	    )
+	--if v!=0 we don't have a GB element, we modify some data
+	else (
+	    --add a row to M and record new pivot position
+	    H#q = numRows M;
+	    M = M || v;
+	    --we found a polynomial not evaluating to zero
+	    --its leading coefficient becomes a standard monomial
+	    S = S | {t-g};
+	    O = O | {t};
+	    --add new monomials to list
+	    U := apply(sort gens R,u->u*t);
+	    J := promote(ideal(L|inG),R);
+	    --remove redundant elements
+	    L = sort(L | select(U,u->u % J != 0));
+	    );
+	);
+    return (G,inG,O);
+    )
