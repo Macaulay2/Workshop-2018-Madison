@@ -27,7 +27,7 @@ newPackage ("VirtualResolutions",
     	{Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://www-users.math.umn.edu/~cberkesc/"},
 	{Name => "Juliette Bruce",     Email => "jebruce@wisc.edu",    HomePage => "https://juliettebruce.github.io"},
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
-	{Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://http://www-users.math.umn.edu/~loper012/"},
+	{Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://www-users.math.umn.edu/~loper012/"},
         {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu"}
     	},
     PackageExports => {
@@ -1018,7 +1018,7 @@ isVirtual(r,J,irr)
 
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
 J' = moduleSat(I',irr)
-J' == saturate(I',irr)
+J' = saturate(I',irr)
 r' = res J'
 betti' r'
 q1 = winnowProducts(S,r',{2,1})
@@ -1033,7 +1033,24 @@ isVirtual(q3,I',irr)
 q1' = multiWinnow(S,r',{{3,3}})
 q1' == q1 --multiWinnow doesn't act like winnowProducts
           -- i.e. doesn't add vector n
-
+isVirtual(q1',I',irr)
+q2' = multiWinnow(S,r',{{2,3}})
+betti' q2'
+isVirtual(q2',I',irr)
+prune HH q2'
+saturate(ideal(image(q2'.dd_1)),irr) == J'
+--Test for isVirtual (but bug in multiWinnow)
+S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}]
+irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4))
+I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
+J' = saturate(I',irr)
+r' = res J'
+q1 = multiWinnow(S,r',{{3,3}})
+q2 = multiWinnow(S,r',{{2,3}})
+q3 = multiWinnow(S,r',{{1,3}})
+assert(isVirtual(q1,I',irr))
+assert(isVirtual(q2,I',irr) == (false,1))
+assert(isVirtual(q2,I',irr) == (false,0))
 
 
 I = randomRationalCurve(3,4)
