@@ -815,6 +815,26 @@ TEST ///
     assert (degree randomCurveP1P2(5,2,Bound=>10) == 5+5)
     ///       
 
+------ Tests for saturationZero     
+TEST ///
+    S = ZZ/11[x_0,x_1,x_2,x_3,x_4];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    I' = saturate(I,irr);
+    R = S^1/I';
+    t = (saturate(R,irr)==0);
+    assert (saturationZero(R,irr)==t)
+    ///
+
+TEST ///
+    S = ZZ/11[x_0,x_1,x_2,x_3,x_4];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    I' = saturate(I,irr);
+    R = S^1/I';
+    t = (saturate(R,irr)==0);
+    assert (saturationZero(I',irr)==t)
+    /// 
 end--
 
 restart
