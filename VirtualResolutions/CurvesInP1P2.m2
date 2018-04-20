@@ -496,24 +496,24 @@ TEST ///
 
 ------ Tests for curveFromP3toP1P2        
 TEST ///
-    R = ZZ/101[z_0,z_1,z_2,z_3];
+    ZZ/101[z_0,z_1,z_2,z_3];
     C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-    dim curveFromP3toP1P2(C) == 3
+    assert (dim curveFromP3toP1P2(C) == 3)
     ///
     
 TEST ///
-    R = ZZ/101[z_0,z_1,z_2,z_3];
+    ZZ/101[z_0,z_1,z_2,z_3];
     C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-    dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3
+    assert (dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3)
     ///
 
 ------ Tests for randomCurveP1P2
 TEST ///
-    assert (dim randomCurveP1P2(3,0,ZZ/2) == 3)
+    assert (dim randomCurveP1P2(3,0,ZZ/11) == 3)
     ///  
 
 TEST ///
-    assert (degree randomCurveP1P2(3,0,ZZ/2) == 3+3)
+    assert (degree randomCurveP1P2(3,0,ZZ/11) == 3+3)
     ///  
         
 TEST ///
@@ -546,5 +546,26 @@ TEST ///
 
 TEST ///
     assert (degree randomCurveP1P2(5,2,Bound=>10) == 5+5)
-    ///       
+    ///
+    
+------ Tests for saturationZero     
+TEST ///
+    S = ZZ/11[x_0,x_1,x_2,x_3,x_4];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    I' = saturate(I,irr);
+    R = S^1/I';
+    t = (saturate(R,irr)==0);
+    assert (saturationZero(R,irr)==t)
+    ///
+
+TEST ///
+    S = ZZ/11[x_0,x_1,x_2,x_3,x_4];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    I' = saturate(I,irr);
+    R = S^1/I';
+    t = (saturate(R,irr)==0);
+    assert (saturationZero(I',irr)==t)
+    ///     
 end--
