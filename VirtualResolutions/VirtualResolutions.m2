@@ -265,24 +265,25 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     -- Defines P1
     s := getSymbol "s";
     t := getSymbol "t";
-    R := F[s,t];
+    R := F(monoid[s,t]);
     --- Defines P1xP2
     x := getSymbol "x";
     y := getSymbol "y";
-    S1 := F[x_0, x_1];
-    S2 := F[y_0,y_1,y_2];
+    S1 := F(monoid[x_0, x_1]);
+    S2 := F(monoid[y_0,y_1,y_2]);
     S := tensor(S1,S2);
     --- Defines P1x(P1xP2)
-    U := tensor(R,S);   
+    U := tensor(R,S);
+    uVars := flatten entries vars U;   
     --- Defines graph of morphisms in P1x(P1xP2)
     --M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
-    M1 := matrix {apply(2,i->random({d,0,0},U)),{(vars(U))_2_0,(vars(U))_3_0}};
+    M1 := matrix {apply(2,i->random({d,0,0},U)),{uVars#2,uVars#3}};
     --M2 := matrix {apply(3,i->random({e,0,0},U)),{y_0,y_1,y_2}};
-    M2 := matrix {apply(3,i->random({e,0,0},U)),{(vars(U))_4_0,(vars(U))_5_0,(vars(U))_6_0}};
+    M2 := matrix {apply(3,i->random({e,0,0},U)),{uVars#4,uVars#5,uVars#6}};
     J := minors(2,M1)+minors(2,M2);
     --- Computes saturation and then eliminates producing curve in P1xP2
-    J' := saturate(J,sub(ideal(s,t),U),MinimalGenerators=>false);
-    sub(eliminate({sub(s,U),sub(t,U)},J'),S)
+    J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
+    sub(eliminate({uVars#0,uVars#1},J'),S)
     )
 
 --------------------------------------------------------------------
@@ -309,27 +310,28 @@ randomRationalCurve (ZZ,ZZ) := (d,e)->(
 randomMonomialCurve = method() 
 randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     --- Defines P1
-    s := local s;
-    t := local t;
+    s := getSymbol "s";
+    t := getSymbol "t";
     R := F[s,t];
     --- Defines P1xP2
     x := getSymbol "x";
     y := getSymbol "y";
-    S1 := F[x_0, x_1];
-    S2 := F[y_0,y_1,y_2];
+    S1 := F(monoid[x_0, x_1]);
+    S2 := F(monoid[y_0,y_1,y_2]);
     S := tensor(S1,S2);
     --- Defines P1x(P1xP2)
     U := tensor(R,S);  
+    uVars := flatten entries vars U;
     --- Choose random monomial to define map to P2.
     B := drop(drop(flatten entries basis({e,0,0},U),1),-1);
     f := (random(B))#0;
     --- Defines graph of morphisms in P1x(P1xP2)
-    M1 := matrix {{s^d,t^d},{x_0,x_1}};
-    M2 := matrix {{s^e,t^e,f},{y_0,y_1,y_2}};
+    M1 := matrix {{(uVars#0)^d,(uVars#1)^d},{uVars#2,uVars#3}};
+    M2 := matrix {{(uVars#0)^e,(uVars#1)^e,f},{uVars#4,uVars#5,uVars#6}};
     J := minors(2,M1)+minors(2,M2);
     --- Computes saturation and then eliminates producing curve in P1xP2
-    J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
-    sub(eliminate({s,t},J'),S)
+    J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
+    sub(eliminate({uVars#0,uVars#1},J'),S)
     )
 
 --------------------------------------------------------------------
@@ -370,18 +372,17 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
     --- Defines P1xP2
     x := getSymbol "x";
     y := getSymbol "y";
-    S1 := coefficientRing ring J [x_0, x_1];
-    S2 := coefficientRing ring J [y_0,y_1,y_2];
+    S1 := (coefficientRing ring J) monoid([x_0, x_1]);
+    S2 := (coefficientRing ring J) monoid([y_0,y_1,y_2]);
     S := tensor(S1,S2);
     --- Defines P3x(P1xP2)
     U := tensor(R,S);   
-    urVars := apply(rVars,i->sub(i,U));
     uVars := flatten entries vars U;
     --- Place curve in P3x(P1xP2)
     C' := sub(J,U);
     --- Defines graph of projection
-    M1 := matrix {{urVars#0,urVars#1},{x_0,x_1}};
-    M2 := matrix {{urVars#1,urVars#2,urVars#3},{y_0,y_1,y_2}};
+    M1 := matrix {{uVars#0,uVars#1},{uVars#4,uVars#5}};
+    M2 := matrix {{uVars#1,uVars#2,uVars#3},{uVars#6,uVars#7,uVars#8}};
     D := minors(2,M1)+minors(2,M2);
     --- Intersects irrelevant ideal with base locus
     B1 := ideal(apply(4,i->uVars#i));
@@ -390,7 +391,7 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
     B := intersect(B1,B2,B3,sub(BL,U));
     --- Computes saturation and then eliminates producing curve in P1xP2
     K := saturate(C'+D,B,MinimalGenerators=>false);
-    sub(eliminate(urVars,K),S)
+    sub(eliminate({uVars#0,uVars#1,uVars#2,uVars#3},K),S)
 )
 
 --------------------------------------------------------------------
@@ -408,11 +409,11 @@ randomCurveP1P2 = method(Options => {Bound => 1000})
 randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     --- Defines P3
     z := getSymbol "z";
-    R := F[z_0,z_1,z_2,z_3];
+    R := F(monoid[z_0,z_1,z_2,z_3]);
     rVars := flatten entries vars R;
     --- Base locus of porjection
-    BL1 := ideal(z_0,z_1);
-    BL2 := ideal(z_1,z_2,z_3);
+    BL1 := ideal(rVars#0,rVars#1);
+    BL2 := ideal(rVars#1,rVars#2,rVars#3);
     BL := intersect(BL1,BL2);
     --- Randomly generates curve in P3 until finds one not intersecting
     --- base locus of projection or until Bound is reached.
@@ -438,6 +439,7 @@ randomCurveP1P2 (ZZ,ZZ) := randomCurveP1P2 => opts -> (d,g)->(
     randomCurveP1P2(d,g,ZZ/101)
     )
 
+    
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (M,B)=(Module,Ideal)
