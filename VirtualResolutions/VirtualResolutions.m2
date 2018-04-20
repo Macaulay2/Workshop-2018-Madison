@@ -263,8 +263,8 @@ findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => (J,n,irr) -> (
 randomRationalCurve = method() 
 randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     -- Defines P1
-    s := local s;
-    t := local t;
+    s := getSymbol "s";
+    t := getSymbol "t";
     R := F[s,t];
     --- Defines P1xP2
     x := getSymbol "x";
