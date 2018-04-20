@@ -40,13 +40,13 @@ export{
 randomRationalCurve = method() 
 randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     -- Defines P1
-    R := F[s,t];
+    R := F(monoid[getSymbol "s", getSymbol "t"]);
     --- Defines P1xP2
     S1 := F[x_0, x_1];
     S2 := F[y_0,y_1,y_2];
-    S = tensor(S1,S2);
+    S := tensor(S1,S2);
     --- Defines P1x(P1xP2)
-    U = tensor(R,S);   
+    U := R**S;   
     --- Defines graph of morphisms in P1x(P1xP2)
     M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
     M2 := matrix {apply(3,i->random({e,0,0},U)),{y_0,y_1,y_2}};
@@ -55,6 +55,7 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     J' := saturate(J,ideal(s,t),MinimalGenerators=>false);
     sub(eliminate({s,t},J'),S)
     )
+
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
