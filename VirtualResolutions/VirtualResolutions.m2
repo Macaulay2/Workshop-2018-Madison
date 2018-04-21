@@ -848,7 +848,82 @@ TEST ///
     R = S^1/I';
     t = (saturate(R,irr)==0);
     assert (saturationZero(I',irr)==t)
-    /// 
+    ///
+    
+-------Tests for isVirtual
+TEST ///
+    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    d1 = matrix{{x_1^3*x_2+x_1^3*x_3+x_0^3*x_4,
+	    x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
+	    x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
+	    x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
+    d2 = map(source d1, ,{{x_3^2, x_4^2, -x_2^2},
+	{-x_1*x_2-x_1*x_3, 0, x_0*x_4},
+	{x_0, -x_1, 0},
+	{0, x_0, x_1}});
+    C = chainComplex({d1,d2});
+    assert(isVirtual(C,I,irr) == true)
+    ///
+
+TEST ///
+    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
+	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
+	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
+    C = chainComplex({d1})
+    assert(isVirtual(C,I,irr) == false)
+    ///
+
+TEST ///
+    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
+	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
+	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
+    C = chainComplex({d1})
+    assert(isVirtual(C,I,irr,ShowVirtualFailure => true) == (false,1))
+    ///
+
+TEST ///
+    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
+    C = chainComplex({d1});
+    assert(isVirtual(C,I,irr) == false)
+    ///
+
+TEST ///
+    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
+    C = chainComplex({d1});
+    assert(isVirtual(C,I,irr,ShowVirtualFailure => true) == (false,0))
+    ///
+    
+TEST ///
+    S = ZZ/101[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(random({1,2},S),random({3,1},S),random({2,2},S));
+    r = res I;
+    assert(isVirtual(r,I,irr) == true)
+    ///
+
+TEST ///
+    S = ZZ/101[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(random({1,2},S),random({4,1},S),random({2,2},S));
+    J = ourSaturation(I,irr);
+    r = res J;
+    assert(isVirtual(r,J,irr) == true)
+    ///
+ 
 end--
 
 restart
@@ -1092,9 +1167,19 @@ C1d2 = map(source Cd1, ,{{x_3^2, x_4^2, -x_2^2},
 	{0, x_0, x_1}})
 C1 = chainComplex({C1d1,C1d2})
 isVirtual(C1,I',irr)
-q1
-q2 = multiWinnow(S,r',{{2,3}})
-q3 = multiWinnow(S,r',{{1,3}})
+q2
+q2.dd_1_2
+d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
+	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
+	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}}
+C2 = chainComplex({d1})
+C2 == q2
+isVirtual(q2,I',irr)
+isVirtual(C2,I',irr)
+q3.dd_1
+d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}}
+C = chainComplex({d1})
+C == q3
 assert(isVirtual(q1,I',irr))
 assert(isVirtual(q2,I',irr) == (false,1))
 assert(isVirtual(q2,I',irr) == (false,0))
