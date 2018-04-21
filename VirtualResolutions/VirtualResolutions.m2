@@ -251,9 +251,8 @@ findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => (J,n,irr) -> (
     lists := subsets(numgens(J),n);
     output := {};
     apply(lists, l -> (
-	<< "doing " << l << endl;
 	I := ideal(J_*_l);
-	if elapsedTime ourSaturation(ourSaturation(I,comps_0),comps_1) == J then (
+	if ourSaturation(ourSaturation(I,comps_0),comps_1) == J then (
 	    output = append(output,l);
 	         );
 	     )
@@ -850,7 +849,7 @@ TEST ///
     assert (saturationZero(I',irr)==t)
     ///
     
--------Tests for isVirtual
+------ Tests for isVirtual
 TEST ///
     S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
@@ -922,6 +921,27 @@ TEST ///
     J = ourSaturation(I,irr);
     r = res J;
     assert(isVirtual(r,J,irr) == true)
+    ///
+
+----- Tests for findGensUpToIrrelevance
+TEST ///
+    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    J = ourSaturation(I,irr);
+    lst = {{0,1}};
+    assert(findGensUpToIrrelevance(J,2,irr) == lst)
+    ///
+    
+    
+TEST ///
+    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    J = ourSaturation(I,irr);
+    lst = {{0, 1, 2}, {0, 1, 3}, {0, 2, 3}, {0, 1, 4}, {0, 2, 4}, {0, 1,5},
+	 {0, 3, 5}, {0, 4, 5}, {0, 1, 6}, {0, 1, 7}};
+    assert(findGensUpToIrrelevance(J,3,irr) == lst)
     ///
  
 end--
@@ -1116,8 +1136,8 @@ load "CapeCod.m2"
 S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}]
 irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4))
 I = paramCurve(1,3,4);
-numgens I
-findGensUpToIrrelevance(I,2,irr)
+numgens J
+findGensUpToIrrelevance(J',2,irr)
 J = ideal(I_2,I_3);
 r = res J
 betti' r
