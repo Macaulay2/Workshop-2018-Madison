@@ -55,7 +55,8 @@ export{
     "randomCurve",
     "saturationZero",
     "Bound",
-    "PreserveDegree"
+    "PreserveDegree",
+    "ShowVirtualFailure"
     }
 
 debug Core
@@ -191,18 +192,29 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
 --       Ideal (or module) - what the virtual resolution resolves
 --       Ideal - the irrelevant ideal of the ring
 --Output: Boolean - true if complex is virtual resolution, false otherwise
-isVirtual = method();
-isVirtual (ChainComplex, Ideal, Ideal) := Boolean=> (C, I, irr) ->( 
+isVirtual = method(Options => {ShowVirtualFailure => false})
+isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> ( 
     annHH0 := ideal(image(C.dd_1));
     Isat := ourSaturation(I,irr);
     annHH0sat := ourSaturation(annHH0,irr);
-    if not(Isat == annHH0sat) then return (false,0);    
+    if not(Isat == annHH0sat) then (
+	if opts.ShowVirtualFailure then (
+	    return (false,0);
+	    );
+	return false
+	);    
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring I)) then (
-		if annHHi == 0 then return (false,i);
+		if annHHi == 0 then (
+		    if opts.ShowVirtualFailure then return (false,i);
+		    );
+		    return false;
 	    	if  ourSaturation(annHHi,irr) != 0 then (
-		    return (false,i);
+		    if opts.ShowVirtualFailure then (
+			return (false,i);
+			);
+		    return false;
 		    )
 		)
 	);
@@ -1025,7 +1037,6 @@ restart
 needsPackage "VirtualResolutions"
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-load "badsaturations.m2"
 
 S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}]
 irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4))
@@ -1050,7 +1061,7 @@ q2 = winnowProducts(S,r',{1,1})
 isVirtual(q2,I',irr)
 
 q3 = winnowProducts(S,r',{1,0})
-isVirtual(q3,I',irr)
+isVirtual(q3,I',irr,ShowVirtualFailure => true)
 
 q1' = multiWinnow(S,r',{{3,3}})
 q1' == q1 --multiWinnow doesn't act like winnowProducts
@@ -1068,6 +1079,20 @@ I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
 J' = saturate(I',irr)
 r' = res J'
 q1 = multiWinnow(S,r',{{3,3}})
+S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}]
+irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4))
+I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
+C1d1 = matrix{{x_1^3*x_2+x_1^3*x_3+x_0^3*x_4,
+	    x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
+	    x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
+	    x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}}
+C1d2 = map(source Cd1, ,{{x_3^2, x_4^2, -x_2^2},
+	{-x_1*x_2-x_1*x_3, 0, x_0*x_4},
+	{x_0, -x_1, 0},
+	{0, x_0, x_1}})
+C1 = chainComplex({C1d1,C1d2})
+isVirtual(C1,I',irr)
+q1
 q2 = multiWinnow(S,r',{{2,3}})
 q3 = multiWinnow(S,r',{{1,3}})
 assert(isVirtual(q1,I',irr))
@@ -1078,12 +1103,3 @@ assert(isVirtual(q2,I',irr) == (false,0))
 I = randomRationalCurve(3,4)
 var S
 degrees(S)
-
-
-lst = apply(2,i->random({3,0,0},U))
-M1 = matrix {apply(2,i->random({3,0,0},U)),{x_0,x_1}}
-use U
-length(lst)
-M1 = matrix{lst,{(vars(U))_2_0,(vars(U))_3_0}}
-compactMatrixForm = false
-M1
