@@ -778,13 +778,13 @@ TEST ///
 TEST ///
     R = ZZ/101[z_0,z_1,z_2,z_3];
     C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-    dim curveFromP3toP1P2(C) == 3
+    assert dim curveFromP3toP1P2(C) == 3
     ///
     
 TEST ///
     R = ZZ/101[z_0,z_1,z_2,z_3];
     C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-    dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3
+    assert dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3
     ///
 
 ------ Tests for randomCurveP1P2
