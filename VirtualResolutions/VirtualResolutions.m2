@@ -23,7 +23,7 @@ newPackage ("VirtualResolutions",
     Date => "April 14, 2018",
     Headline => "Methods for virtual resolutions on products of projective spaces",
     Authors =>{
-    	{Name => "Ayah Almousa",       Email => "aka66@cornell.edu"},
+    	{Name => "Ayah Almousa",       Email => "aka66@cornell.edu",   HomePage => "http://www.math.cornell.edu/~aalmousa "},
     	{Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://www-users.math.umn.edu/~cberkesc/"},
 	{Name => "Juliette Bruce",     Email => "jebruce@wisc.edu",    HomePage => "https://juliettebruce.github.io"},
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
@@ -60,35 +60,49 @@ export{
     }
 
 debug Core
---Given a toric variety and its free resolution, keeps only summands in resolution of specified degrees
+
+
+--If list contains only one multidegree, then it will keep only summands with less than or equal to that degree
 --See Theorem 4.1 of [BES]
---TODO: Split multiWinnow and resolveTail
 multiWinnow = method();
+--Input: F a free chain complex on Cox (X), alphas a list of degrees
+--Output: A subcomples of summands generated only in degrees in the list alphas.
+--If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
 multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength ring X) then error "degree has wrong length";
     L := apply(length F, i ->(
-	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
-    N := 0;
-    L / (m -> if m != 0 then N = N + 1);
-    T := res coker syz L_(N - 1);
-    L' := for i from min T to max T - 1 list T.dd_(i+1);
-    chainComplex (L_{0..N - 1} | L')
+	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m))
     );
+  
 
+--Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
+--If list contains only one multidegree, then it will keep only summands with less than or equal to that degree
+--See Theorem 4.1 of [BES]
 multiWinnow (Ring, ChainComplex, List) := (S,F,alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength S) then error "degree has wrong length";
     L := apply(length F, i ->(
-	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
-    N := 0;
-    L / (m -> if m != 0 then N = N + 1);
-    T := res coker syz L_(N - 1);
-    L' := for i from min T to max T - 1 list T.dd_(i+1);
-    chainComplex (L_{0..N - 1} | L')
+	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m))
     );
+
+
+resolveTail = method();
+--Input: A chain complex
+--Output: The resolution of the tail end of the complex appended to the chain complex
+--It is not known if applying multiWinnow and then resolveTail yields a Virtual Resolution or not
+--TODO: Write tests
+resolveTail(ChainComplex) : = (F) ->(
+   N := 0;
+   F / (m -> if m != 0 then N = N + 1);
+   T := res coker syz F_(N - 1);
+   F' := for i from min T to max T - 1 list T.dd_(i+1);
+   chainComplex (F_{0..N - 1} | F')
+);
+
 
 --Given ideal J, irrelevant ideal, and a vector A, computes free resolution of J intersected with Ath power of the irrelevant ideal
 --Only a Virtual resolution for 'sufficiently positive' powers of B
 --See Theorem 5.1 of [BES]
+--TODO: Fix, write tests
 
 intersectionRes = method();
 intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
