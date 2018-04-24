@@ -322,8 +322,6 @@ multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
     cohomologyTable(C''', {-N,-N},{N,N})
     )
 
-
-
 coarseMultigradedRegularity = M -> (
     F := res M;
     el := length F;
