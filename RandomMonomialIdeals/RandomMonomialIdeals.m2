@@ -996,26 +996,28 @@ plotTally(Tally,RR,RR) := Picture => o -> (t, barWidth, plotHeight) -> (
         xValues = toList(smallest..largest));
     topY := toRR max(0,max values t);
     scalingFactor := plotHeight/topY;
-    yLabel := textTag(point(0.0, plotHeight*0.5), "#");
-    yStepSize := max(floor (topY/20),1);
-    yTickValues := yStepSize*toList(0..19);
-    xMargin := 20;
+    yStepCount := floor (plotHeight/20);
+    if yStepCount < 1 then error("You need a greater plot height!");
+    yStepSize := round(topY/yStepCount);
+    yTickValues := yStepSize*toList(0..yStepCount);
+    xMargin := 60.0;
+    yMargin := 30.0;
     bars := apply(#xValues, i-> (
             xVal := (xValues#i);
             h := if t#?xVal then toRR t#xVal else 0_RR;
-            bottomLeft := point(toRR i*(barWidth*1.5) + xMargin, plotHeight);
+            bottomLeft := point(toRR i*(barWidth*1.5) + xMargin, plotHeight + yMargin);
             rectangle(bottomLeft, barWidth, -h*scalingFactor)));
     xLabels := apply(#xValues, i-> (
             labelText := toString(xValues#i);
-            location := point(toRR i*(barWidth*1.5) + 0.4*barWidth + xMargin, plotHeight*1.1);
+            location := point(toRR i*(barWidth*1.5) + 0.4*barWidth + xMargin, plotHeight*1.1 + yMargin);
             textTag(location,labelText)));
     yLabels := apply(yTickValues, v-> (
-            labelText := toString v;
-            location := point(0.0,plotHeight-v*scalingFactor);
+            labelText := "--" | toString v | "--";
+            location := point(xMargin/3, plotHeight-v*scalingFactor + yMargin);
             textTag(location,labelText)));
-    primitives := {yLabel}|bars|xLabels|yLabels;
+    primitives := bars|xLabels|yLabels;
     if instance(o.XAxisLabel, String) then(
-	    xAxisTag := textTag(point(0.5*#xValues*barWidth + xMargin, plotHeight*1.3), o.XAxisLabel);
+	    xAxisTag := textTag(point(0.5*(#xValues*barWidth + xMargin), plotHeight*1.3 + yMargin), o.XAxisLabel);
 	    primitives = append(primitives, xAxisTag);
 	    )
 	else if o.XAxisLabel=!=null then error("XAxisLabel must be a string!");
