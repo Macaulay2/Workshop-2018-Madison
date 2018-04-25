@@ -90,7 +90,7 @@ resolveTail = method();
 --Output: The resolution of the tail end of the complex appended to the chain complex
 --It is not known if applying multiWinnow and then resolveTail yields a Virtual Resolution or not
 --TODO: Write tests
-resolveTail(ChainComplex) : = (F) ->(
+resolveTail(ChainComplex) := (F) ->(
    N := 0;
    F / (m -> if m != 0 then N = N + 1);
    T := res coker syz F_(N - 1);
@@ -110,13 +110,8 @@ intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     L := decompose irr;
     irrelevantIntersection := {};
     for i from 0 to N do (
-<<<<<<< HEAD
-	irrelevantIntersection = append(irrelevantIntersection, intersect J, L_i^(a_i));
-	)
-=======
 	irrelevantIntersection = append(irrelevantIntersection, intersect J, L_i^(A_i));
 	);
->>>>>>> f3a3c69a19e92bdbbe630e36226443bad45e0f4d
     res intersect(irrelevantIntersection)
    )
 
