@@ -56,7 +56,8 @@ export{
     "saturationZero",
     "Bound",
     "PreserveDegree",
-    "ShowVirtualFailure"
+    "ShowVirtualFailure",
+    "GeneralElements"
     }
 
 debug Core
@@ -255,13 +256,19 @@ isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->(
     )
 *-
 
-findGensUpToIrrelevance = method();
-findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => (J,n,irr) -> (
+findGensUpToIrrelevance = method(Options => {GeneralElements => false});
+findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => opts -> (J,n,irr) -> (
 -- Input: saturated ideal J and ZZ n
 -- Output: all subsets of size n of the generators of J that
 --         give the same saturated ideal as J
     use ring(J);
     comps := decompose irr;
+    if GeneralElements == true then (
+	degs := degrees(J);
+	allmatches := unique(apply(degs,i->positions(degs, j -> j == i)));
+	K := ideal(apply(allmatches,i->sum(apply(i,j->random(ZZ/32003) * J_(j)))));
+	J = K;
+	);
     lists := subsets(numgens(J),n);
     output := {};
     apply(lists, l -> (
@@ -1222,3 +1229,30 @@ assert(isVirtual(q2,I',irr) == (false,0))
 I = randomRationalCurve(3,4)
 var S
 degrees(S)
+
+--little helper function
+J = J'
+numgens J
+degs = degrees(J)
+matches = {}
+matches = apply(degs,i ->  apply(degs,j -> if i == j then j))
+position(degs,i -> i==degs_0)
+newdegs = drop(degs,{0,0})
+degs == newdegs
+length(newdegs)
+length(degs)
+matches = {}
+while length(degs) > 0 do (
+    postns = positions(degs,i->i==degs_0);
+    if length(postns) > 1 then (
+	matches = append(matches,postns);
+	);
+    degs = delete(degs_0,degs);
+    )
+
+--The bottom two lines are what I should replace the ideal with
+-- for more general elements
+allmatches = unique(apply(degs,i->positions(degs, j -> j == i)))
+K = ideal(apply(allmatches,i->sum(apply(i,j->random(ZZ/32003) * J_(j)))))
+
+matches = allmatches_(positions(allmatches,i->length(i)>1))
