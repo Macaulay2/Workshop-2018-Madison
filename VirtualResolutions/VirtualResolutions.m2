@@ -236,44 +236,56 @@ isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> (
     true
     )
 
--* I need to test this still (the part that is commented out
-isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->( 
+isVirtual (ChainComplex, Module, Ideal) := Boolean => opts -> (C, M, irr) ->( 
     annM := ann(M);
     annHH0 := ann(HH_0(C));
     annMsat := ourSaturation(annM,irr);
     annHH0sat := ourSaturation(annHH0,irr);
-    if not(annMsat == annHH0sat) then return (false,0);    
+    if not(annMsat == annHH0sat) then (
+	if opts.ShowVirtualFailure  then return (false,0);
+	return false;
+	);    
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring M)) then (
-		if annHHi == 0 then return (false,i);
+		if annHHi == 0 then (
+		    if opts.ShowVirtualFailure then return (false,i);
+		    return false;
+		    );
 	    	if  ourSaturation(annHHi,irr) != 0 then (
-		    return (false,i);
+		    if opts.ShowVirtualFailure then return (false,i);
+		    return false;
 		    )
 		)
 	);
     true
     )
-*-
+
 
 findGensUpToIrrelevance = method(Options => {GeneralElements => false});
 findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => opts -> (J,n,irr) -> (
--- Input: saturated ideal J and ZZ n
+-- Input: ideal J and ZZ n
 -- Output: all subsets of size n of the generators of J that
 --         give the same saturated ideal as J
-    use ring(J);
+    R := ring(J);
+    Jsat := ourSaturation(J,irr);
     comps := decompose irr;
-    if GeneralElements == true then (
+    if opts.GeneralElements == true then (
 	degs := degrees(J);
+	--place of all all unique degrees
 	allmatches := unique(apply(degs,i->positions(degs, j -> j == i)));
+	--creates an ideal where if degrees of generators match
+	--  those generators are replaced by one generator that
+	--  is a random combination of all generators of that degree
 	K := ideal(apply(allmatches,i->sum(apply(i,j->random(ZZ/32003) * J_(j)))));
 	J = K;
 	);
     lists := subsets(numgens(J),n);
     output := {};
+    if opts.GeneralElements == true then output = {J};
     apply(lists, l -> (
 	I := ideal(J_*_l);
-	if ourSaturation(ourSaturation(I,comps_0),comps_1) == J then (
+	if ourSaturation(ourSaturation(I,comps_0),comps_1) == Jsat then (
 	    output = append(output,l);
 	         );
 	     )
@@ -1166,7 +1178,6 @@ isVirtual(r,J,irr)
 
 
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-J' = moduleSat(I',irr)
 J' = saturate(I',irr)
 r' = res J'
 betti' r'
