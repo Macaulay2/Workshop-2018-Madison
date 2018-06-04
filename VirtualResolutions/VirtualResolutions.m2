@@ -223,9 +223,9 @@ isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> (
 	if annHHi != ideal(sub(1,ring I)) then (
 		if annHHi == 0 then (
 		    if opts.ShowVirtualFailure then return (false,i);
-		    );
 		    return false;
-	    	if  ourSaturation(annHHi,irr) != 0 then (
+		    );
+	    	if  ourSaturation(annHHi,irr) != ideal(sub(1,ring I)) then (
 		    if opts.ShowVirtualFailure then (
 			return (false,i);
 			);
@@ -252,7 +252,7 @@ isVirtual (ChainComplex, Module, Ideal) := Boolean => opts -> (C, M, irr) ->(
 		    if opts.ShowVirtualFailure then return (false,i);
 		    return false;
 		    );
-	    	if  ourSaturation(annHHi,irr) != 0 then (
+	    	if  ourSaturation(annHHi,irr) != ideal(sub(1,ring irr)) then (
 		    if opts.ShowVirtualFailure then return (false,i);
 		    return false;
 		    )
@@ -948,12 +948,13 @@ TEST ///
     ///
 
 TEST ///
+-- This one might take too long...
     S = ZZ/101[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(random({1,2},S),random({4,1},S),random({2,2},S));
+    I = ideal(random({1,2},S),random({3,1},S),random({2,2},S));
     J = ourSaturation(I,irr);
     r = res J;
-    assert(isVirtual(r,J,irr) == true)
+    assert(isVirtual(r,I,irr) == true)
     ///
 
 ----- Tests for findGensUpToIrrelevance
