@@ -13,16 +13,9 @@ newPackage(
         DebuggingMode => true
         )
 
-export {
-    "ComprehensiveGroebnerBasisLocus",
-    "isConsistent", 
-    "minimalDicksonBasis", 
-    "comprehensiveGS"
-}
+export {"ComprehensiveGroebnerBasisLocus", "comprehensiveGS"}
 
 ComprehensiveGroebnerSystemLocus = new Type of HashTable 
-
-
 
 net ComprehensiveGroebnerSystemLocus := x -> (
      orderedPairs := {("Equations",x#"Equations"),("Inequations",x#"Inequations"),("gb",x#"gb")};    
@@ -34,12 +27,9 @@ net ComprehensiveGroebnerSystemLocus := x -> (
           "}"
           ))
 
-
-
 makeCGSL = (E,N,F) -> (
     new ComprehensiveGroebnerSystemLocus from hashTable({"Equations"=>E,"Inequations"=>N,"gb"=>F})    
 )
-
 
 isConsistent = method()
 isConsistent(List, List) := Boolean => (E, N) -> (
@@ -98,7 +88,6 @@ comprehensiveGS(List, List, List) := List => opts -> (E, N, F) -> (
     cgs = simplifyCGS(cgs);
     return apply(cgs, i -> makeCGSL(i_0,i_1,i_2))
 )
-
 
 CGBPoly =  (E, N, F, opts) -> (
     -- E = a list of polynomials
@@ -190,13 +179,11 @@ CGBPoly =  (E, N, F, opts) -> (
     return unique join(CGS,flatten L)
 )
 
-
 simplifyPolynomial= (g) -> (
      RRy:=ring(g);
      cRRy:=coefficientRing(RRy);
      lift(coefficient(RRy_0,g),cRRy)
 );
-
 
 simplifyInequation = (N) -> (
     if N == {} then return N;
@@ -211,14 +198,16 @@ simplifyCGS = (cgs) -> (
     unique apply(cgs, i-> {i_0,simplifyInequation(i_1),apply(i_2, g -> simplifyPolynomial g)})
 )
 
-
+-------------------------------------------------------------------------------
+--- documentation
+-------------------------------------------------------------------------------
 beginDocumentation()
 
 doc ///
 Key
   ParametricGB
 Headline
-  for computing parametric Groebner bases, also known as comprehensive Groebner bases, and comprehensive Groebner systems
+  Compute parametric Groebner bases
 Description
   Text
     This package implements Algorithm CGB-Polynomial from Kapur, Sun, and Wang 2013. 
@@ -230,8 +219,6 @@ Description
     cgs= comprehensiveGS(E, N, F)
 SeeAlso
 ///
-
---export {"isConsistent", "minimalDicksonBasis", "comprehensiveGS"}
 
 doc ///
 Key
@@ -249,8 +236,6 @@ Description
     cgs= comprehensiveGS(E, N, F)
     peek first cgs
 ///
-
-
 
 doc ///
 Key
@@ -305,8 +290,6 @@ Description
     minimalDicksonBasis(L)
 ///
 
-
-
 doc ///
 Key
   comprehensiveGS
@@ -341,18 +324,8 @@ end
 uninstallPackage("ParametricGB")
 restart
 installPackage("ParametricGB",RemakeAllDocumentation=>true)
-loadPackage("ParametricGB")
-
+loadPackage "ParametricGB"
 viewHelp "ParametricGB"
-
-
-
-
-
-TEST ///
--- test code and assertions here
--- may have as many TEST sections as needed
-///
 
 -- Example 1
 -- See KSW 2013 section 5 p. 138
