@@ -1,6 +1,15 @@
 -- list of examples for testing parametric Groebner computations
 -- source: KSW = Kapur, Sun, Wang "An efficient method for computing comprehensive Groebner bases"
 
+-- example 0, twisted cubic
+restart
+needsPackage "ParametricGB"
+
+R=QQ[x_0..x_3]
+M=matrix {{x_0,x_1,x_2},{x_1,x_2,x_3}}
+I=minors(2,M)
+betti res I
+
 -- example 1, KSW Example 5.1
 restart
 needsPackage "ParametricGB"
