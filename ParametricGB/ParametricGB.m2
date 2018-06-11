@@ -50,7 +50,7 @@ comprehensiveGroebnerSystem(List, List, List) := List => (E, N, F) -> (
     Gr = apply(Gr, g -> sub(g, kU));
 
     PGB := {};
-    if not isConsistent(E, prod(Gr, N)) then (
+    if isConsistent(E, prod(Gr, N)) then (
     	PGB = {(E, prod(Gr, N), {1})};
 	);
 
@@ -202,7 +202,7 @@ isConsistent(List, List) := Boolean => (E, N) -> (
     -- N = a list of polynomials in k[U]
     -- returns if V(E) \ V(N) is nonempty
 
-    if #E == 0 then return true;
+    if #E == 0 then return #N > 0;
     for f in N do (
 	if f % (ideal E) == 0 then continue;
 	if not isInRadical(f, ideal E) then return true;
