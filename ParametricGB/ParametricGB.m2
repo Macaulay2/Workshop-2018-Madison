@@ -13,8 +13,70 @@ newPackage(
         DebuggingMode => true
         )
 
-export {"ComprehensiveGroebnerBasisLocus", "comprehensiveGS"}
+export {"comprehensiveGroebnerSystem", "comprehensiveGroebnerBasis"}
 
+-------------------------------------------------------------------------------
+--- comprehensive Groebner systems
+-------------------------------------------------------------------------------
+comprehensiveGroebnerSystem = method()
+comprehensiveGroebnerSystem(List) := List => (F) -> (
+    -- F = a list of polynomials in k[U][X]
+    -- returns a list containing the branches of a minimal comprehensive Groebner system of F
+    
+    comprehensiveGroebnerSystem({}, {1}, F)
+    )
+comprehensiveGroebnerSystem(List, List, List) := List => (E, N, F) -> (
+    -- E = a list of polynomials in k[U]
+    -- N = a list of polynomials in k[U]
+    -- F = a list of polynomials in k[U][X]
+    -- returns a list containing the branches of a minimal comprehensive Groebner system of F
+    --     on V(E) \ V(N)
+
+    -- handle special cases of trivial input
+    if #F == 0 or not isConsistent(E, N) then return {};
+
+    -- get the main rings k[U][X] and k[U] we are working over    
+    kUX := ring first F;
+    kU := coefficientRing kUX;
+
+    F = F | apply(E, e -> sub(e, kUX));
+    G := first entries gens gb ideal F;
+
+    -- if the ideal is <1> then we are done
+    if any(G, g -> g == 1) then return {(E, N, {1})};
+
+    -- find all the elements in G that are actually in k[U], then sub them into k[U]
+    Gr := select(G, g -> (degree g)#0 == 0);
+    Gr = apply(Gr, g -> sub(g, kU));
+
+    PGB := {};
+    if not isConsistent(E, prod(Gr, N)) then (
+    	PGB = {(E, prod(Gr, N), {1})};
+	);
+
+    if not isConsistent(Gr, N) then (
+        return PGB;
+	)
+    else (
+	Gm := noncomparable(select(G, g -> (degree g)#0 != 0));
+	H := apply(Gm, leadCoefficient);
+	h := if #H == 0 then 1 else lcm H;
+	if isConsistent(Gr, prod(N, {h})) then (
+	    PGB = append(PGB, (Gr, prod(N, {h}), Gm));
+	    );
+	PGB = PGB | flatten for i to #H-1 list (
+	                        comprehensiveGroebnerSystem(append(Gr, H#i),
+	                                                    prod(N, {product(take(H, i))}),
+		                                            select(G, g -> (degree g)#0 != 0))
+			        );
+	);
+
+    PGB
+    )
+
+-------------------------------------------------------------------------------
+--- comprehensive Groebner bases
+-------------------------------------------------------------------------------
 ComprehensiveGroebnerSystemLocus = new Type of HashTable 
 
 net ComprehensiveGroebnerSystemLocus := x -> (
@@ -31,59 +93,11 @@ makeCGSL = (E,N,F) -> (
     new ComprehensiveGroebnerSystemLocus from hashTable({"Equations"=>E,"Inequations"=>N,"gb"=>F})    
 )
 
-isConsistent = method()
-isConsistent(List, List) := Boolean => (E, N) -> (
-    -- E = a list of polynomials in k[U]
-    -- N = a list of polynomials in k[U]
-    -- returns if V(E) \ V(N) is empty (i.e. the constraints are inconsistent)
-
-    if #E == 0 then return true;
-    for f in N do (
-	if f % (ideal E) == 0 then continue;
-	if not isInRadical(f, ideal E) then return true;
-	);
-    false
+comprehensiveGroebnerBasis = method(Options => {Verbosity => 0})
+comprehensiveGroebnerBasis(List) := List => opts -> (F) -> (
+    comprehensiveGroebnerBasis({}, {1}, F, Verbosity => opts.Verbosity)
     )
-
-isInRadical = method()
-isInRadical(RingElement, Ideal) := Boolean => (f, I) -> (
-    -- f = a polynomial
-    -- I = a polynomial ideal
-    -- returns if f is in the radical of I
-
-    y := local y;
-    R := ring I;
-    Ry := (coefficientRing R)(monoid [gens R, y]);
-    phi := map(Ry, R, drop(first entries vars Ry, -1));
-    y = (gens Ry)_-1;
-    ideal(gens phi(I), 1 - phi(f)*y) == 1
-    )
-isInRadical(ZZ, Ideal) := Boolean => (f, I) -> (
-    -- f = a polynomial (with no variable terms)
-    -- I = a polynomial ideal
-    -- returns if f is in the radical of I
-
-    isInRadical(sub(f, ring I), I)
-    )
-
-minimalDicksonBasis = method()
-minimalDicksonBasis(List) := List => (G) -> (
-    -- G = a list of polynomials
-    -- returns minimal Dickson basis (Def 4.3, page 133)
-
-    J:=flatten entries mingens ideal(apply(G, g-> leadMonomial g));
-    P:=partition(i -> leadMonomial(i),G);
-    return apply(J, m -> first(P#m))
-)
-
-prod = (A,B) -> (
-   if A=={} then return B;
-   if B=={} then return A;     
-   return unique flatten apply(A, a -> apply(B, b -> a*b))
-)
-
-comprehensiveGS = method(Options => {Verbosity => 0})
-comprehensiveGS(List, List, List) := List => opts -> (E, N, F) -> (
+comprehensiveGroebnerBasis(List, List, List) := List => opts -> (E, N, F) -> (
     cgs:=CGBPoly(E,N,F,opts);
     cgs = simplifyCGS(cgs);
     return apply(cgs, i -> makeCGSL(i_0,i_1,i_2))
@@ -179,6 +193,81 @@ CGBPoly =  (E, N, F, opts) -> (
     return unique join(CGS,flatten L)
 )
 
+-------------------------------------------------------------------------------
+--- consistency of constraints
+-------------------------------------------------------------------------------
+isConsistent = method()
+isConsistent(List, List) := Boolean => (E, N) -> (
+    -- E = a list of polynomials in k[U]
+    -- N = a list of polynomials in k[U]
+    -- returns if V(E) \ V(N) is nonempty
+
+    if #E == 0 then return true;
+    for f in N do (
+	if f % (ideal E) == 0 then continue;
+	if not isInRadical(f, ideal E) then return true;
+	);
+    false
+    )
+
+isInRadical = method()
+isInRadical(RingElement, Ideal) := Boolean => (f, I) -> (
+    -- f = a polynomial
+    -- I = a polynomial ideal
+    -- returns if f is in the radical of I
+
+    y := local y;
+    R := ring I;
+    Ry := (coefficientRing R)(monoid [gens R, y]);
+    phi := map(Ry, R, drop(first entries vars Ry, -1));
+    y = (gens Ry)_-1;
+    ideal(gens phi(I), 1 - phi(f)*y) == 1
+    )
+isInRadical(ZZ, Ideal) := Boolean => (f, I) -> (
+    -- f = a polynomial (with no variable terms)
+    -- I = a polynomial ideal
+    -- returns if f is in the radical of I
+
+    isInRadical(sub(f, ring I), I)
+    )
+
+-------------------------------------------------------------------------------
+--- utilities
+-------------------------------------------------------------------------------
+minimalDicksonBasis = method()
+minimalDicksonBasis(List) := List => (G) -> (
+    -- G = a list of polynomials
+    -- returns minimal Dickson basis (Def 4.3, page 133)
+
+    J:=flatten entries mingens ideal(apply(G, g-> leadMonomial g));
+    P:=partition(i -> leadMonomial(i),G);
+    return apply(J, m -> first(P#m))
+)
+
+noncomparable = method()
+noncomparable(List) := List => (G) -> (
+    -- G = a set of polynomials in k[U][X]
+    -- returns Noncomparable(G) from 4.1 in KapurSunWang2010
+
+    F := {};
+    for g in G do (
+	if all(F, f -> (leadMonomial g) % (leadMonomial f) != 0) then (
+	    F = select(F, f -> (leadMonomial f) % (leadMonomial g) != 0);
+	    F = append(F, g);
+	    );
+	);
+    F
+    )
+
+prod = method()
+prod(List, List) := List => (A, B) -> (
+    -- A = a list of polynomials
+    -- B = a list of polynomials
+    -- returns the list {ab | a in A and b in B}
+
+    flatten for a in A list for b in B list a*b
+    )
+
 simplifyPolynomial= (g) -> (
      RRy:=ring(g);
      cRRy:=coefficientRing(RRy);
@@ -216,7 +305,7 @@ Description
     E={}
     N={1_(coefficientRing(R))}
     F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGS(E, N, F)
+    cgs= comprehensiveGroebnerBasis(E, N, F)
 SeeAlso
 ///
 
@@ -233,7 +322,7 @@ Description
     E={}
     N={1_(coefficientRing(R))}
     F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGS(E, N, F)
+    cgs= comprehensiveGroebnerBasis(E, N, F)
     peek first cgs
 ///
 
@@ -292,12 +381,12 @@ Description
 
 doc ///
 Key
-  comprehensiveGS
-  (comprehensiveGS,List,List,List)
+  comprehensiveGroebnerBasis
+  (comprehensiveGroebnerBasis,List,List,List)
 Headline
   compute a comprehensive Groebner system
 Usage
-  comprehensiveGS(E,N,F)
+  comprehensiveGroebnerBasis(E,N,F)
 Inputs
   E : List
     a list of equations 
@@ -316,7 +405,7 @@ Description
     E={}
     N={1_(coefficientRing(R))}
     F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGS(E, N, F)
+    cgs= comprehensiveGroebnerBasis(E, N, F)
 ///
 
 end
@@ -335,7 +424,7 @@ R = QQ[a,b,c][x1,x2]
 E = {}
 N = {1_(coefficientRing(R))}
 F = {a*x1 - b, b*x2 - a, c*x1^2 - x2, c*x2^2 - x1}
-cgb = comprehensiveGS(E, N, F)
+cgb = comprehensiveGroebnerBasis(E, N, F)
 #cgb
 checkedcgb = ///{{{}, {b*c^2-b, a*c^2-a, b^3*c-a^3, a^3*c-b^3, a^6-b^6}, {(b*c^2-b)*y, (a*c^2-a)*y, (b^3*c-a^3)*y, (a^3*c-b^3)*y, (a^6-b^6)*y}}, {{b*c^2-b, a*c^2-a, b^3*c-a^3, a^3*c-b^3, a^6-b^6}, {b}, {(b*x2-a)*y, (b*x1-a*c*x2)*y}}, {{b, a}, {c}, {(c*x2^2-x1)*y, (c*x1^2-x2)*y}}, {{c, b, a}, {1}, {x2*y-c*x1^2, x1*y-c*x2^2}}}///;
 assert(toString(cgb) === checkedcgb)
@@ -352,7 +441,7 @@ R=QQ[c_1,c_2][x_0..x_3]
 E={}
 N={1_(coefficientRing(R))}
 F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-cgs= comprehensiveGS(E, N, F)
+cgs= comprehensiveGroebnerBasis(E, N, F)
 #cgs
 cgs_0   -- This is stupid
 cgs_1   -- The generic fiber
