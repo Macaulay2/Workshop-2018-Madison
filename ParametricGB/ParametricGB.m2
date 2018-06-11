@@ -13,7 +13,7 @@ newPackage(
         DebuggingMode => true
         )
 
-export {"comprehensiveGroebnerSystem", "comprehensiveGroebnerBasis"}
+export {"comprehensiveGroebnerSystem"}
 
 -------------------------------------------------------------------------------
 --- comprehensive Groebner systems
@@ -54,10 +54,7 @@ comprehensiveGroebnerSystem(List, List, List) := List => (E, N, F) -> (
     	PGB = {(E, prod(Gr, N), {1})};
 	);
 
-    if not isConsistent(Gr, N) then (
-        return PGB;
-	)
-    else (
+    if isConsistent(Gr, N) then (
 	Gm := noncomparable(select(G, g -> (degree g)#0 != 0));
 	H := apply(Gm, leadCoefficient);
 	h := if #H == 0 then 1 else lcm H;
@@ -299,160 +296,63 @@ Headline
   Compute parametric Groebner bases
 Description
   Text
-    This package implements Algorithm CGB-Polynomial from Kapur, Sun, and Wang 2013. 
+    This package implements the Kapur-Sun-Wang algorithm for computing comprehensive
+    Groebner systems and comprehensive Groebner bases.
   Example
-    R=QQ[c_1,c_2][x_0..x_3]
-    E={}
-    N={1_(coefficientRing(R))}
-    F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGroebnerBasis(E, N, F)
+    R = QQ[a,b,c][x,y];
+    F = {a*x - b, b*y - a, c*x^2 - y, c*y^2 - x};
+    CGS = comprehensiveGroebnerSystem F
 SeeAlso
 ///
 
 doc ///
 Key
-  ComprehensiveGroebnerSystemLocus
-Headline
-  a type for each element in a comprehensive Groebner system
-Description
-  Text
-    Each element of a comprehensive Groebner system consists of a constructible set of the form V(E)-V(N), where E is a set of equations and N is a set of inequations, and a Groebner basis for the family over that locus.
-  Example
-    R=QQ[c_1,c_2][x_0..x_3]
-    E={}
-    N={1_(coefficientRing(R))}
-    F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGroebnerBasis(E, N, F)
-    peek first cgs
-///
-
-doc ///
-Key
-  isConsistent
-  (isConsistent,List,List)
-Headline
-  determines whether a constructible set is nonempty
-Usage
-  isConsistent(E,N)
-Inputs
-  E : List
-    a list of equations 
-  N : List 
-    a list of inequations
-Outputs
-  b : Boolean
-    whether the constructible set V(E)-V(N) is nonempty
-Description
-  Text
-    The consistency of a constructible set is defined in Kapur, Sun, Wang 2010, Definition 2.3.
-    To be added: discuss how we implement the test.
-  Example
-    R=QQ[c_1,c_2][x_0..x_3]
-    E={}
-    N={1_(coefficientRing(R))}
-    isConsistent(E,N)
-    isConsistent({c_1},{c_2})
-    isConsistent({c_1},{c_1^2*c_2})
-///
-
-doc ///
-Key
-  minimalDicksonBasis
-  (minimalDicksonBasis,List)
-Headline
-  computes a minimal Dickson basis for a list of polynomials
-Usage
-  minimalDicksonBasis(L)
-Inputs
-  L : List
-    a list of polynomials
-Outputs
-  M : List
-    a minimal Dickson basis for the polynomials in L
-Description
-  Text
-    A minimal Dickson basis is defined in Kapur, Sun, Wang 2013, Definition 4.3.
-    It may not be unique.
-  Example
-    R=QQ[c_1,c_2][x_0..x_3]
-    L={c_1*x_1*x_2-x_3^2,x_1*x_2^2+x_3^3,x_1^2+x_2^2+x_3^2}
-    minimalDicksonBasis(L)
-///
-
-doc ///
-Key
-  comprehensiveGroebnerBasis
-  (comprehensiveGroebnerBasis,List,List,List)
+  comprehensiveGroebnerSystem
+  (comprehensiveGroebnerSystem, List, List, List)
+  (comprehensiveGroebnerSystem, List)
 Headline
   compute a comprehensive Groebner system
 Usage
-  comprehensiveGroebnerBasis(E,N,F)
+  CGS = comprehensiveGroebnerSystem F
+  CGS = comprehensiveGroebnerSystem(E, N, F)
 Inputs
   E : List
-    a list of equations 
+      a list of equations
   N : List 
-    a list of inequations
+      a list of inequations
   F : List
-    a list of polynomials  
+      a list of generators of an ideal
 Outputs
-  L : List
-    a list of pairs consisting of a constructible set and a Groebner basis
+  CGS : List
+        the comprehensive Groebner system    
 Description
   Text
-    This package implements Algorithm CGB-Polynomial from Kapur, Sun, and Wang 2013. 
+    The comprehensive Groebner system.
   Example
-    R=QQ[c_1,c_2][x_0..x_3]
-    E={}
-    N={1_(coefficientRing(R))}
-    F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-    cgs= comprehensiveGroebnerBasis(E, N, F)
+    R = QQ[a,b,c][x,y];
+    F = {a*x - b, b*y - a, c*x^2 - y, c*y^2 - x};
+    CGS = comprehensiveGroebnerSystem F
+///
+
+-------------------------------------------------------------------------------
+--- tests
+-------------------------------------------------------------------------------
+TEST /// -- comprehensiveGroebnerSystem
+R = QQ[a,b,c][x,y];
+F = {a*x - b, b*y - a, c*x^2 - y, c*y^2 - x};
+CGS = comprehensiveGroebnerSystem F
+assert(#CGS == 4)
 ///
 
 end
 
-uninstallPackage("ParametricGB")
+
+
+
+
+uninstallPackage "ParametricGB"
 restart
-installPackage("ParametricGB",RemakeAllDocumentation=>true)
-loadPackage "ParametricGB"
-viewHelp "ParametricGB"
+installPackage "ParametricGB"
+check ParametricGB
+viewHelp ParametricGB
 
--- Example 1
--- See KSW 2013 section 5 p. 138
-restart
-needsPackage "ParametricGB"
-R = QQ[a,b,c][x1,x2]
-E = {}
-N = {1_(coefficientRing(R))}
-F = {a*x1 - b, b*x2 - a, c*x1^2 - x2, c*x2^2 - x1}
-cgb = comprehensiveGroebnerBasis(E, N, F)
-#cgb
-checkedcgb = ///{{{}, {b*c^2-b, a*c^2-a, b^3*c-a^3, a^3*c-b^3, a^6-b^6}, {(b*c^2-b)*y, (a*c^2-a)*y, (b^3*c-a^3)*y, (a^3*c-b^3)*y, (a^6-b^6)*y}}, {{b*c^2-b, a*c^2-a, b^3*c-a^3, a^3*c-b^3, a^6-b^6}, {b}, {(b*x2-a)*y, (b*x1-a*c*x2)*y}}, {{b, a}, {c}, {(c*x2^2-x1)*y, (c*x1^2-x2)*y}}, {{c, b, a}, {1}, {x2*y-c*x1^2, x1*y-c*x2^2}}}///;
-assert(toString(cgb) === checkedcgb)
-cgb_0
-cgb_1
-cgb_2
-cgb_3
-
--- Example 2
--- Family containing the twisted cubic
-restart
-needsPackage "ParametricGB"
-R=QQ[c_1,c_2][x_0..x_3]
-E={}
-N={1_(coefficientRing(R))}
-F={c_1*x_0*x_2-c_2*x_1^2, c_1*x_0*x_3-c_2*x_1*x_2, c_1*x_1*x_3-c_2*x_2^2}
-cgs= comprehensiveGroebnerBasis(E, N, F)
-#cgs
-cgs_0   -- This is stupid
-cgs_1   -- The generic fiber
-cgs_2   -- c_2 = 0, c_1 \neq 0
-cgs_3   -- c_1 = c_2 = 0
-cgs_4   -- c_1(c_1-c_2) = 0, c_2 \neq 0
-cgs_5   -- 
-
-R=QQ[c_1,c_2][x_0..x_3]
-isConsistent({c_1},{c_2})
-isConsistent({c_1},{c_1^2*c_2})
-
-G={c_1*x_1*x_2-x_3^2,x_1*x_2^2+x_3^3,x_1^2+x_2^2+x_3^2}
-minimalDicksonBasis(G)
