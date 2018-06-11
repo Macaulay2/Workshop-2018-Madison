@@ -13,7 +13,7 @@ newPackage(
         DebuggingMode => true
         )
 
-export {"comprehensiveGroebnerSystem"}
+export {"comprehensiveGroebnerSystem", "comprehensiveGroebnerBasis"}
 
 -------------------------------------------------------------------------------
 --- comprehensive Groebner systems
@@ -74,6 +74,82 @@ comprehensiveGroebnerSystem(List, List, List) := List => (E, N, F) -> (
 -------------------------------------------------------------------------------
 --- comprehensive Groebner bases
 -------------------------------------------------------------------------------
+comprehensiveGroebnerBasis = method()
+comprehensiveGroebnerBasis(List) := List => (F) -> (
+    comprehensiveGroebnerBasis({}, {1}, F)
+    )
+comprehensiveGroebnerBasis(List, List, List) := List => (E, N, F) -> (
+    cgs:=CGBPoly(E,N,F);
+    cgs = simplifyCGS(cgs);
+    return apply(cgs, i -> makeCGSL(i_0,i_1,i_2))
+)
+
+CGBPoly = method()
+CGBPoly(List, List, List) := List => (E, N, F) -> (
+    -- E = a list of polynomials
+    -- N = a list of polynomials
+    -- F = a list of polynomials
+
+    -- Step 1
+    if not isConsistent(E,N) then return {};
+
+    -- Step 2
+    R:=ring(first F);
+    y:=getSymbol "y";
+    Ry:=R(monoid [y]);
+    y=Ry_0;
+    L1:=apply(F, f -> f*y);
+    L2:=apply(E, e -> e*y-e);
+    G0:= flatten entries gens gb ideal(join(L1,L2));
+
+    -- Step 3
+    G:=select(G0, g -> coefficient(y,g)!=0);
+    G1st:=apply(G, g-> coefficient(y,g));
+
+    -- Step 4
+    if member(1_Ry,G1st) then (
+        return {E,N,{first select(G, g-> coefficient(y,g)==1_Ry)}}	
+    );
+
+    -- Step 5
+    Gry:=select(G, g-> first coefficients(coefficient(y,g)) == matrix {{1_R}});
+    Gr:=apply(Gry, g -> lift(coefficient(y,g),coefficientRing(R)));
+    Gr = unique join(Gr,E);
+
+    -- Step 6
+    CGS:={};
+    if isConsistent(E,prod(Gr,N)) then (
+	CGS = {{flatten entries mingens ideal(E),prod(Gr,N),Gry}}	
+    );
+
+    -- Step 7
+    if not isConsistent(Gr,N) then return CGS;
+
+    -- Step 8
+    Gm:=minimalDicksonBasis(select(G1st, g-> not member(g,apply(Gr, h -> h*1_R))));
+    Gmy:=select(G, g-> not member(g,Gry));
+    Gmy=select(Gmy, g-> member(coefficient(y,g),Gm)); 
+
+    -- Step 9
+    H:=unique apply(Gm, g-> leadCoefficient(g));
+    h:=0;
+    if H!={} then h=lcm(H) else h=1;
+    if isConsistent(Gr,prod(N,{h})) then (
+        CGS = append(CGS,{flatten entries mingens ideal(Gr),prod(N,{h}),Gmy});	
+    );
+    newE:={};
+    newN:={};
+    newF:={};
+    L:=for i from 0 to #H-1 list (
+	newE=flatten entries mingens ideal(append(Gr,H_i));
+	newN=prod(N,{product apply(i-1, j -> H_j)});
+	newF=select(G, g -> not member(g,Gry));
+	newF = apply(newF, g -> coefficient(y,g)+coefficient(1_Ry,g));
+	CGBPoly(newE,newN,newF)	
+    );
+    return unique join(CGS,flatten L)
+)
+
 ComprehensiveGroebnerSystemLocus = new Type of HashTable 
 
 net ComprehensiveGroebnerSystemLocus := x -> (
@@ -88,106 +164,6 @@ net ComprehensiveGroebnerSystemLocus := x -> (
 
 makeCGSL = (E,N,F) -> (
     new ComprehensiveGroebnerSystemLocus from hashTable({"Equations"=>E,"Inequations"=>N,"gb"=>F})    
-)
-
-comprehensiveGroebnerBasis = method(Options => {Verbosity => 0})
-comprehensiveGroebnerBasis(List) := List => opts -> (F) -> (
-    comprehensiveGroebnerBasis({}, {1}, F, Verbosity => opts.Verbosity)
-    )
-comprehensiveGroebnerBasis(List, List, List) := List => opts -> (E, N, F) -> (
-    cgs:=CGBPoly(E,N,F,opts);
-    cgs = simplifyCGS(cgs);
-    return apply(cgs, i -> makeCGSL(i_0,i_1,i_2))
-)
-
-CGBPoly =  (E, N, F, opts) -> (
-    -- E = a list of polynomials
-    -- N = a list of polynomials
-    -- F = a list of polynomials
-
-    -- Step 1
-    if not isConsistent(E,N) then return {};
-    if opts.Verbosity > 0 then (
-	print concatenate("I am CGS on E=",toString(E),", N=",toString(N),", F=",toString(F)) << endl;
-    );
-    -- Step 2
-    R:=ring(first F);
-    y:=getSymbol "y";
-    Ry:=R(monoid [y]);
-    y=Ry_0;
-    L1:=apply(F, f -> f*y);
-    L2:=apply(E, e -> e*y-e);
-    G0:= flatten entries gens gb ideal(join(L1,L2));
-    -- Step 3
-    G:=select(G0, g -> coefficient(y,g)!=0);
-    if opts.Verbosity > 0 then (
-    	print concatenate("G=",toString(G))<< endl;
-    );
-    G1st:=apply(G, g-> coefficient(y,g));
-    if opts.Verbosity > 0 then (
-    	print concatenate("G1st=",toString(G1st))<< endl;
-    );
-    -- Step 4
-    if member(1_Ry,G1st) then (
-        return {E,N,{first select(G, g-> coefficient(y,g)==1_Ry)}}	
-    );
-    -- Step 5
-    Gry:=select(G, g-> first coefficients(coefficient(y,g)) == matrix {{1_R}});
-    if opts.Verbosity > 0 then (
-    	print concatenate("Gry=",toString(Gry)) << endl;
-    );
-    Gr:=apply(Gry, g -> lift(coefficient(y,g),coefficientRing(R)));
-    Gr = unique join(Gr,E);
-    if opts.Verbosity > 0 then (
-    	print concatenate("Gr=",toString(Gr)) << endl;
-    );
-    -- Step 6
-    CGS:={};
-    if isConsistent(E,prod(Gr,N)) then (
-	CGS = {{flatten entries mingens ideal(E),prod(Gr,N),Gry}}	
-    );
-    if opts.Verbosity > 0 then (
-    	print concatenate("CGS at end of Step 6 = ",toString CGS) << endl;
-    );
-    -- Step 7
-    if not isConsistent(Gr,N) then return CGS;
-    -- Step 8
-    Gm:=minimalDicksonBasis(select(G1st, g-> not member(g,apply(Gr, h -> h*1_R))));
-    if opts.Verbosity > 0 then (
-    	print concatenate("Gm=",toString(Gm)) << endl;
-    );
-    Gmy:=select(G, g-> not member(g,Gry));
-    Gmy=select(Gmy, g-> member(coefficient(y,g),Gm)); 
-    if opts.Verbosity > 0 then (
-    	print concatenate("Gmy=",toString(Gmy)) << endl;
-    );
-    -- Step 9
-    H:=unique apply(Gm, g-> leadCoefficient(g));
-    if opts.Verbosity > 0 then (
-    	print concatenate("H=",toString(H)) << endl;
-    );
-    h:=0;
-    if H!={} then h=lcm(H) else h=1;
-    if isConsistent(Gr,prod(N,{h})) then (
-        CGS = append(CGS,{flatten entries mingens ideal(Gr),prod(N,{h}),Gmy});	
-    );
-    if opts.Verbosity > 0 then (
-    	print concatenate("CGS at end of Step 9 = ",toString CGS) << endl;
-    );
-    newE:={};
-    newN:={};
-    newF:={};
-    L:=for i from 0 to #H-1 list (
-	newE=flatten entries mingens ideal(append(Gr,H_i));
-	newN=prod(N,{product apply(i-1, j -> H_j)});
-	newF=select(G, g -> not member(g,Gry));
-	newF = apply(newF, g -> coefficient(y,g)+coefficient(1_Ry,g));
-	if opts.Verbosity > 0 then (
-	    print concatenate("i=",toString(i),",{E,N,F}=",toString {newE,newN,newF}) << endl;
-        );
-	CGBPoly(newE,newN,newF,opts)	
-    );
-    return unique join(CGS,flatten L)
 )
 
 -------------------------------------------------------------------------------
