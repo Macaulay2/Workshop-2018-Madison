@@ -57,6 +57,7 @@ comprehensiveGroebnerSystem(List, List, List) := List => (E, N, F) -> (
     if isConsistent(Gr, N) then (
 	Gm := noncomparable(select(G, g -> (degree g)#0 != 0));
 	H := apply(Gm, leadCoefficient);
+	H = squareFreeFactors product H;
 	h := if #H == 0 then 1 else lcm H;
 	if isConsistent(Gr, prod(N, {h})) then (
 	    PGB = append(PGB, (Gr, prod(N, {h}), Gm));
@@ -270,6 +271,20 @@ prod(List, List) := List => (A, B) -> (
     -- returns the list {ab | a in A and b in B}
 
     flatten for a in A list for b in B list a*b
+    )
+
+squareFreeFactors = method()
+squareFreeFactors(RingElement) := List => (f) -> (
+    -- f = a polynomial
+    -- returns a list of factors of f
+    
+    for prod in factor f list prod#0
+    )
+squareFreeFactors(ZZ) := List => (f) -> (
+    -- f = a polynomial that is actually an integer
+    -- returns a list of factors of f
+    
+    for prod in factor f list prod#0
     )
 
 simplifyPolynomial= (g) -> (
