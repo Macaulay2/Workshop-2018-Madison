@@ -57,7 +57,7 @@ comprehensiveGroebnerSystem(List, List, List) := List => (E, N, F) -> (
     if isConsistent(Gr, N) then (
 	Gm := noncomparable(select(G, g -> (degree g)#0 != 0));
 	H := apply(Gm, leadCoefficient);
-	H = squareFreeFactors product H;
+	H = for prod in factor product H list prod#0;
 	h := if #H == 0 then 1 else lcm H;
 	if isConsistent(Gr, prod(N, {h})) then (
 	    CGS = append(CGS, (Gr, prod(N, {h}), Gm));
@@ -213,7 +213,7 @@ CGBMod(List, List, List) := List => (E, N, F) -> (
 	Gm := noncomparable(select(G, g -> (degree g)#0 != 0));
 	pGm := select(pG, pg -> (degree pg#0)#0 != 0 and member(pg#0, Gm));
 	H := apply(Gm, leadCoefficient);
-	H = squareFreeFactors product H;
+	H = for prod in factor product H list prod#0;
 	h := if #H == 0 then 1 else lcm H;
 	if isConsistent(Gr, prod(N, {h})) then (
 	    PGB = append(PGB, (Gr, prod(N, {h}), pGm));
@@ -318,20 +318,6 @@ prod(List, List) := List => (A, B) -> (
     -- returns the list {ab | a in A and b in B}
 
     flatten for a in A list for b in B list a*b
-    )
-
-squareFreeFactors = method()
-squareFreeFactors(RingElement) := List => (f) -> (
-    -- f = a polynomial
-    -- returns a list of factors of f
-    
-    for prod in factor f list prod#0
-    )
-squareFreeFactors(ZZ) := List => (f) -> (
-    -- f = a polynomial that is actually an integer
-    -- returns a list of factors of f
-    
-    for prod in factor f list prod#0
     )
 
 simplifyPolynomial= (g) -> (
