@@ -22,8 +22,9 @@ comprehensiveGroebnerSystem = method()
 comprehensiveGroebnerSystem(List) := List => (F) -> (
     -- F = a list of polynomials in k[U][X]
     -- returns a list containing the branches of a minimal comprehensive Groebner system of F
-    
-    comprehensiveGroebnerSystem({}, {1}, F)
+
+    R := coefficientRing ring first F;    
+    comprehensiveGroebnerSystem({}, {1_R}, F)
     )
 comprehensiveGroebnerSystem(List, List, List) := List => (E, N, F) -> (
     -- E = a list of polynomials in k[U]
@@ -255,10 +256,33 @@ isConsistent(List, List) := Boolean => (E, N) -> (
     -- returns if V(E) \ V(N) is nonempty
 
     if #E == 0 then return #N > 0;
+    I := ideal E;
     for f in N do (
-	if f % (ideal E) == 0 then continue;
-	if not isInRadical(f, ideal E) then return true;
+	if f % I == 0 then continue;
+	if dim I == 0 then (
+	    if not ZCheck(f, I) then return true;
+	    )
+	else (
+	    if CCheck(f, I) then continue;
+	    if ICheck(f, I) then continue;
+	    if not isInRadical(f, I) then return true;
+	    );
 	);
+    false
+    )
+
+ZCheck = method()
+ZCheck(RingElement, Ideal) := Boolean => (f, I) -> (
+    isInRadical(f, I)
+    )
+
+CCheck = method()
+CCheck(RingElement, Ideal) := Boolean => (f, I) -> (
+    false
+    )
+
+ICheck = method()
+ICheck(RingElement, Ideal) := Boolean => (f, I) -> (
     false
     )
 
