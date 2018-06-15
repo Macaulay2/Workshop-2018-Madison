@@ -120,7 +120,7 @@ CGB1 = elapsedTime comprehensiveGroebnerBasis(F, Strategy => "Module");
 CGB2 = elapsedTime comprehensiveGroebnerBasis(F, Strategy => "Polynomial");
 
 -- example 9, KSW P3P
--- cgs:
+-- cgs: 2477.95 (2449.58 in isConsistent)
 -- cgb:
 restart
 needsPackage "ParametricGB"
