@@ -497,7 +497,7 @@ saturationZero (Ideal,Ideal) := (I,B) ->(
 -- Begining of the tests and the documentation
 ----------------------------------------------
 
-load ("./tests.m2")
+--load ("./tests.m2")
 beginDocumentation()
 load ("./doc.m2")
 

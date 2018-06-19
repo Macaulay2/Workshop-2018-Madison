@@ -25,6 +25,7 @@ doc ///
 	    This is done by checking that the saturation of I and the saturation of the annihilator of HH_0(C)
 	    agree. Then checking that the higher homology groups of C are supported on the irrelevant ideal
 	Example
+	    R = ZZ/101[x,y];
        	    isVirtual(res ideal(x),ideal(x),ideal(x,y))
 ///
 
@@ -53,7 +54,10 @@ doc ///
 	    irr-saturation of I then that subset is added to a list. After running through all subsets, the list
 	    is outputted.
 	Example
-	    findGensUpToIrrelevance()
+	    R = ZZ/101[x_0,x_1,x_2,x_3,x_4,Degrees=>{2:{1,0},3:{0,1}}];
+	    B = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+	    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+	    findGensUpToIrrelevance(I,2,B)
     Caveat
 	    If no subset of generators generates the ideal up to saturation, then the empty list is outputted
 ///
@@ -125,7 +129,6 @@ doc ///
 	    If the no base ring is specified the computations is preformed over F=ZZ/101.
 	Example
 	    randomMonomialCurve(2,3,QQ)
-	    randomMonomialCurve(2,3)
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
 ///
@@ -156,7 +159,7 @@ doc ///
 	    preformed and the output curve in P^1xP^2 may have degree and genus different from C.
 	Example
 	    R = ZZ/101[z_0,z_1,z_2,z_3];
-            C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
+            J = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
 	    curveFromP3toP1P2(J)
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
@@ -191,9 +194,8 @@ doc ///
 	    Since curveFromP3toP1P2 relies on projecting from the point [0:0:0:1] and the line [0:0:s:t] randomCurveP1P2 attempts to find a curve in P^3, which
 	    does not intersect the base locus of these projections. (If the curve did intersect the base locus the resulting curve in P^1xP^2 would not have degree (d,d).)
 	    The number of attempts used to try to find such curves is controled by the Bound option, which by default is 1000.
-	Example
-	    randomCurve(3,0,QQ)
-	    randomCurve(3,0)
+	--Example
+	--    randomCurveP1P2(3,0,QQ)
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
 
@@ -223,7 +225,5 @@ doc ///
 	    generator by generator.
 
 	    If M is an ideal saturationZero checks whether the saturation comodule of M by B is zero.
-	Example
-	    randomCurve(3,0)
 
 ///
