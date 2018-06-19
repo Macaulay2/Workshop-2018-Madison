@@ -51,7 +51,7 @@ export{
     "multiWinnow",
     "randomRationalCurve",
     "randomMonomialCurve",
-    "randomCurve",
+    "randomCurveP1P2",
     "saturationZero",
     "Bound",
     "PreserveDegree",
@@ -373,7 +373,7 @@ randomMonomialCurve (ZZ,ZZ) := (d,e)->(
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 curveFromP3toP1P2 = method(Options => {PreserveDegree => true})
-curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
+curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     --- Defines P3
     R := ring J;
     rVars := flatten entries vars R;

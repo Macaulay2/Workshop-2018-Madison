@@ -194,8 +194,9 @@ doc ///
 	    Since curveFromP3toP1P2 relies on projecting from the point [0:0:0:1] and the line [0:0:s:t] randomCurveP1P2 attempts to find a curve in P^3, which
 	    does not intersect the base locus of these projections. (If the curve did intersect the base locus the resulting curve in P^1xP^2 would not have degree (d,d).)
 	    The number of attempts used to try to find such curves is controled by the Bound option, which by default is 1000.
-	--Example
-	--    randomCurveP1P2(3,0,QQ)
+	Example
+	    randomCurveP1P2(3,0)
+	    randomCurveP1P2(3,0,QQ)
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
 
