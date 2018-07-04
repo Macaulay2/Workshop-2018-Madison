@@ -1,7 +1,5 @@
--- This file contains a collection of examples for benchmarking the
--- ParametricGB package. Each example has timings in seconds for the two walk
--- strategies and Macaulay2's standard gb function. Timings were performed on a
--- 2.3GHz i7-3615QM using Macaulay2 1.11.
+-- This file contains a collection of examples for benchmarking the ParametricGB package.
+-- Timings were performed on a 2.3GHz i7-3615QM using Macaulay2 1.11.
 --
 -- sources:
 --   KSW = Kapur, Sun, Wang, "An efficient method for computing comprehensive Groebner bases"
@@ -120,7 +118,7 @@ CGB1 = elapsedTime comprehensiveGroebnerBasis(F, Strategy => "Module");
 CGB2 = elapsedTime comprehensiveGroebnerBasis(F, Strategy => "Polynomial");
 
 -- example 9, KSW P3P
--- cgs: 2477.95 (2449.58 in isConsistent)
+-- cgs: 2195.73
 -- cgb:
 restart
 needsPackage "ParametricGB"
