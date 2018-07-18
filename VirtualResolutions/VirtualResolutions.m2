@@ -10,11 +10,11 @@
 --check "VirtualResolutions"
 --*-
 ---------------------------------------------------------------------------
--- PURPOSE : 
---           
+-- PURPOSE :
 --
--- PROGRAMMERS : 
---               
+--
+-- PROGRAMMERS :
+--
 --
 -- UPDATE HISTORY : created 14 April 2018;
 ---------------------------------------------------------------------------
@@ -48,11 +48,10 @@ export{
     "findGensUpToIrrelevance",
     "HideZeros",
     "isVirtual",
-    "multiGradedRegularity",
     "multiWinnow",
     "randomRationalCurve",
     "randomMonomialCurve",
-    "randomCurve",
+    "randomCurveP1P2",
     "saturationZero",
     "Bound",
     "PreserveDegree",
@@ -74,7 +73,7 @@ multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
     L := apply(length F, i ->(
 	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m))
     );
-  
+
 
 --Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --If list contains only one multidegree, then it will keep only summands with less than or equal to that degree
@@ -115,32 +114,6 @@ intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
 	);
     res intersect(irrelevantIntersection)
    )
-
--- TODO: change cohomologyTable to return a Tally, then redo this.
-findCorners = m -> (
-    corners := {};
-    (rows, cols) := (new MutableList, new MutableList);
-    for r to numrows m - 1 do (
-    	for c to numcols m - 1 do (
-	    if m_(r, c) != 0 then (
-	    	if not rows#?r or rows#r === null then rows#r = 0;
-	    	if not cols#?c or cols#c === null then cols#c = infinity;
-	    	rows#r = max(c + 1, rows#r);
-	    	cols#c = min(r - 1, cols#c);
-    	    	)));
-    for r to numrows m - 2 do (
-    	if rows#r > rows#(r+1) then rows#(r+1) = rows#r;
-    	for c from 1 to numcols m - 1 do (
-	    if cols#(c-1) > cols#c then cols#(c-1) = cols#c;
-	    ));
-    for r to numrows m - 2 do (
-    	if rows#r < rows#(r+1) then (
-	    for c from 1 to numcols m - 1 do (
-	    	if cols#(c-1) < cols#c then (
-		    if r === cols#c and rows#r === c then corners = append(corners, {r, c});
-		    ))));
-    corners
-    )
 
 -----------------------------------------------------------
 -- This is a temporary fast saturation. Keep this up to date
@@ -208,7 +181,7 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
 --       Ideal - the irrelevant ideal of the ring
 --Output: Boolean - true if complex is virtual resolution, false otherwise
 isVirtual = method(Options => {ShowVirtualFailure => false})
-isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> ( 
+isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> (
     annHH0 := ideal(image(C.dd_1));
     Isat := ourSaturation(I,irr);
     annHH0sat := ourSaturation(annHH0,irr);
@@ -217,15 +190,15 @@ isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> (
 	    return (false,0);
 	    );
 	return false
-	);    
+	);
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring I)) then (
 		if annHHi == 0 then (
 		    if opts.ShowVirtualFailure then return (false,i);
-		    );
 		    return false;
-	    	if  ourSaturation(annHHi,irr) != 0 then (
+		    );
+	    	if  ourSaturation(annHHi,irr) != ideal(sub(1,ring I)) then (
 		    if opts.ShowVirtualFailure then (
 			return (false,i);
 			);
@@ -236,44 +209,56 @@ isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> (
     true
     )
 
--* I need to test this still (the part that is commented out
-isVirtual (ChainComplex, Module, Ideal) := Boolean=> (C, M, irr) ->( 
+isVirtual (ChainComplex, Module, Ideal) := Boolean => opts -> (C, M, irr) ->(
     annM := ann(M);
     annHH0 := ann(HH_0(C));
     annMsat := ourSaturation(annM,irr);
     annHH0sat := ourSaturation(annHH0,irr);
-    if not(annMsat == annHH0sat) then return (false,0);    
+    if not(annMsat == annHH0sat) then (
+	if opts.ShowVirtualFailure  then return (false,0);
+	return false;
+	);
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring M)) then (
-		if annHHi == 0 then return (false,i);
-	    	if  ourSaturation(annHHi,irr) != 0 then (
-		    return (false,i);
+		if annHHi == 0 then (
+		    if opts.ShowVirtualFailure then return (false,i);
+		    return false;
+		    );
+	    	if  ourSaturation(annHHi,irr) != ideal(sub(1,ring irr)) then (
+		    if opts.ShowVirtualFailure then return (false,i);
+		    return false;
 		    )
 		)
 	);
     true
     )
-*-
+
 
 findGensUpToIrrelevance = method(Options => {GeneralElements => false});
 findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => opts -> (J,n,irr) -> (
--- Input: saturated ideal J and ZZ n
+-- Input: ideal J and ZZ n
 -- Output: all subsets of size n of the generators of J that
 --         give the same saturated ideal as J
-    use ring(J);
+    R := ring(J);
+    Jsat := ourSaturation(J,irr);
     comps := decompose irr;
-    if GeneralElements == true then (
+    if opts.GeneralElements == true then (
 	degs := degrees(J);
+	--place of all all unique degrees
 	allmatches := unique(apply(degs,i->positions(degs, j -> j == i)));
+	--creates an ideal where if degrees of generators match
+	--  those generators are replaced by one generator that
+	--  is a random combination of all generators of that degree
 	K := ideal(apply(allmatches,i->sum(apply(i,j->random(ZZ/32003) * J_(j)))));
 	J = K;
 	);
     lists := subsets(numgens(J),n);
     output := {};
+    if opts.GeneralElements == true then output = {J};
     apply(lists, l -> (
 	I := ideal(J_*_l);
-	if ourSaturation(ourSaturation(I,comps_0),comps_1) == J then (
+	if ourSaturation(ourSaturation(I,comps_0),comps_1) == Jsat then (
 	    output = append(output,l);
 	         );
 	     )
@@ -284,15 +269,15 @@ findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => opts -> (J,n,irr) -> (
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e,F)=(degree,degree,base ring)
------ Output: The ideal of a random rational curve in P1xP2 of 
+----- Output: The ideal of a random rational curve in P1xP2 of
 ----- degree (d,e) defined over F.
 ----- Description: This randomly generates 2 forms of degree
------ d and 3 forms of degree 3 in the ring S (locally defined), 
+----- d and 3 forms of degree 3 in the ring S (locally defined),
 ----- and computes the ideal defining the image of the map of the
 ----- associated map P^1---->P^1xP^2.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomRationalCurve = method() 
+randomRationalCurve = method()
 randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     -- Defines P1
     s := getSymbol "s";
@@ -306,7 +291,7 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     S := tensor(S1,S2);
     --- Defines P1x(P1xP2)
     U := tensor(R,S);
-    uVars := flatten entries vars U;   
+    uVars := flatten entries vars U;
     --- Defines graph of morphisms in P1x(P1xP2)
     --M1 := matrix {apply(2,i->random({d,0,0},U)),{x_0,x_1}};
     M1 := matrix {apply(2,i->random({d,0,0},U)),{uVars#2,uVars#3}};
@@ -321,7 +306,7 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (d,e)=(degree,degree)
------ Output: The ideal of a random rational curve in P1xP2 of 
+----- Output: The ideal of a random rational curve in P1xP2 of
 ----- degree (d,e) defined over ZZ/101
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -334,12 +319,12 @@ randomRationalCurve (ZZ,ZZ) := (d,e)->(
 ----- Input: (d,e,F)=(degree,degree,base ring)
 ----- Output: The ideal of a random rational curve in P1xP2 of degree (d,e).
 ----- Description: This randomly generates 2 monomials of degree
------ d and 3 monomials of degree 3 in the ring S (locally defined), 
+----- d and 3 monomials of degree 3 in the ring S (locally defined),
 ----- and computes the ideal defining the image of the map of the
 ----- associated map P^1---->P^1xP^2.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomMonomialCurve = method() 
+randomMonomialCurve = method()
 randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     --- Defines P1
     s := getSymbol "s";
@@ -352,7 +337,7 @@ randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     S2 := F(monoid[y_0,y_1,y_2]);
     S := tensor(S1,S2);
     --- Defines P1x(P1xP2)
-    U := tensor(R,S);  
+    U := tensor(R,S);
     uVars := flatten entries vars U;
     --- Choose random monomial to define map to P2.
     B := drop(drop(flatten entries basis({e,0,0},U),1),-1);
@@ -387,8 +372,8 @@ randomMonomialCurve (ZZ,ZZ) := (d,e)->(
 ----- and the projection P3----->P2 on the last three variables.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-curveFromP3toP1P2 = method(Options => {PreserveDegree => true}) 
-curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
+curveFromP3toP1P2 = method(Options => {PreserveDegree => true})
+curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     --- Defines P3
     R := ring J;
     rVars := flatten entries vars R;
@@ -408,7 +393,7 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
     S2 := (coefficientRing ring J) monoid([y_0,y_1,y_2]);
     S := tensor(S1,S2);
     --- Defines P3x(P1xP2)
-    U := tensor(R,S);   
+    U := tensor(R,S);
     uVars := flatten entries vars U;
     --- Place curve in P3x(P1xP2)
     C' := sub(J,U);
@@ -432,12 +417,12 @@ curveFromP3toP1P2 (Ideal) := randomCurve => opts -> (J) ->(
 ----- Output: The ideal of a random curve in P1xP2 defined over F.
 ----- Description: This randomly generates a curve of degree d
 ----- and genus g in P3, and then computes the ideal of the correspnding
------ curve in P1xP2 given by considering the projection 
+----- curve in P1xP2 given by considering the projection
 ----- P3---->P1 on the first two variables.
 ----- and the projection P3----->P2 on the last three variables.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomCurveP1P2 = method(Options => {Bound => 1000}) 
+randomCurveP1P2 = method(Options => {Bound => 1000})
 randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     --- Defines P3
     z := getSymbol "z";
@@ -471,18 +456,18 @@ randomCurveP1P2 (ZZ,ZZ) := randomCurveP1P2 => opts -> (d,g)->(
     randomCurveP1P2(d,g,ZZ/101)
     )
 
-    
+
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (M,B)=(Module,Ideal)
 ----- Output: Returns true if saturate(M,B)==0 and false otherwise
 ----- Description: This checks whether the saturation of a module M
------ with respects to an ideal B is zero. This is done by checking 
+----- with respects to an ideal B is zero. This is done by checking
 ----- whether for each generator of B some power of it annihilates
 ----- the module M. We do this generator by generator.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-saturationZero = method() 
+saturationZero = method()
 saturationZero (Module,Ideal) := (M,B) ->(
     Vars := flatten entries vars ring B;
     bGens := flatten entries mingens B;
@@ -492,7 +477,7 @@ saturationZero (Module,Ideal) := (M,B) ->(
 	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
 	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
 	      P := sub(presentation M,R);
-	      G := gb P; 
+	      G := gb P;
 	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
     );
     true
@@ -508,464 +493,19 @@ saturationZero (Ideal,Ideal) := (I,B) ->(
     saturationZero(comodule I,B)
 )
 
---------------------------
--- Begining of the documentation
-------------------------
+----------------------------------------------
+-- Begining of the tests and the documentation
+----------------------------------------------
+
+--load ("./tests.m2")
 beginDocumentation()
+load ("./doc.m2")
 
-doc ///
-    Key
-    	isVirtual
-	(isVirtual,ChainComplex,Ideal,Ideal)
-    Headline
-    	checks if a chain complex is a virtual resolution of a given ideal
-    Usage
-    	isVirtual(C,I,irr)
-    Inputs
-    	C:ChainComplex
-	    chain complex we want to check is a virtual resolution
-	I:Ideal
-	    ideal that the virtual resolution should resolve
-	irr:Ideal
-	    irrelevant ideal of the ring
-    Outputs
-    	:Boolean
-	    true if C is a virtual resolution of I
-	    false if not
-    Description
-    	Text
-	    Given a chain complex C, ideal I, and irrelevant ideal irr, isVirtual returns true if
-	    C is a virtual resolution of I. If not, it returns false.
-	    
-	    This is done by checking that the saturation of I and the saturation of the annihilator of HH_0(C)
-	    agree. Then checking that the higher homology groups of C are supported on the irrelevant ideal    	
-	Example
-       	    isVirtual(res ideal(x),ideal(x),ideal(x,y))
-///
-
-doc ///
-    Key
-    	findGensUpToIrrelevance
-	(findGensUpToIrrelevance,Ideal,ZZ,Ideal)
-    Headline
-    	creates a list of n element subsets of the minimal generators that generate an ideal up to saturation
-    Usage
-    	findGensUpToIrrelevance(I,n,irr)
-    Inputs
-    	I:Ideal
-	    ideal we are intereseted in
-	n:ZZ
-	    size of subset of minimal generators of I that may generate I up to saturation with irr
-	irr:Ideal
-	    irrelvant ideal
-    Outputs
-    	:List
-	    all subsets of size n of generators of I that generate I up to saturation with irr
-    Description
-    	Text
-	    Given an ideal I, integer n, and irrelevant ideal irr, findGensUpToIrrelevance searches through
-	    all n-subsets of the generators of I. If a subset generates the same irr-saturated ideal as the
-	    irr-saturation of I then that subset is added to a list. After running through all subsets, the list
-	    is outputted.
-	Example
-	    findGensUpToIrrelevance()
-    Caveat
-	    If no subset of generators generates the ideal up to saturation, then the empty list is outputted
-///
-
-doc ///
-    Key
-    	randomRationalCurve
-	(randomRationalCurve,ZZ,ZZ,Ring)
-	(randomRationalCurve,ZZ,ZZ)
-    Headline
-    	creates the Ideal of a random rational curve of degree (d,e) in P^1xP^2
-    Usage
-    	randomRationalCurve(d,e,F)
-    	randomRationalCurve(d,e)
-    Inputs
-    	d:ZZ
-	    degree of curve on the P^1 factor of P^1xP^2
-	e:ZZ
-	    degree of curve on the P^2 factor of P^1xP^2
-	F:Ring
-	    base ring
-    Outputs
-    	:Ideal
-	    defining random rational curve in P1xP2 of degree (d,e) over F.
-    Description
-    	Text
-	    Given two positive integers d and e and a ring F randomRationalCurve returns the ideal of a random curve in P1xP2 of degree (d,e) defined over the base ring F. 
-	    
-	    This is done by randomly generating 2 homogenous polynomials of degree d and 3 homogenous polynomials of degree 3 in F[s,t] defining maps P^1->P^2 and P^1->P^3
-	    respectively. The graph of the product of these two maps in P^1x(P^1xP^2) is computed, from which a curve of bi-degree (d,e) in P^1xP^2 over F is obtained by 
-	    saturating and then eliminating. 
-	    
-	    If the no base ring is specified the computations is preformed over F=ZZ/101
-	Example
-	    randomRationalCurve(2,3,QQ)
-	    randomRationalCurve(2,3)
-    Caveat
-        This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.	
-///
-
-doc ///
-    Key
-    	randomMonomialCurve
-	(randomMonomialCurve,ZZ,ZZ,Ring)
-	(randomMonomialCurve,ZZ,ZZ)
-    Headline
-    	creates the Ideal of a random monomial curve of degree (d,e) in P^1xP^2
-    Usage
-    	randomMonomialCurve(d,e,F)
-    	randomMonomialCurve(d,e)
-    Inputs
-    	d:ZZ
-	    degree of curve on the P^1 factor of P^1xP^2
-	e:ZZ
-	    degree of curve on the P^2 factor of P^1xP^2
-	F:Ring
-	    base ring
-    Outputs
-    	:Ideal
-	    defining random monomial curve in P^1xP^2 of degree (d,e) over F.
-    Description
-    	Text
-	    Given two positive integers d and e and a ring F randomMonomialCurve returns the ideal of a random curve in P1xP2 of degree (d,e) defined over the base ring F. 
-	    
-	    This is done by randomly generating a monomial m of degree e in F[s,t], which is not s^e or t^e. This allows one to define two maps P^1->P^1 and P^1->P^2 
-	    given by {s^d,t^d} and {s^e,m,t^e} respectively. The graph of the product of these two maps in P^1x(P^1xP^2) is computed, from which a curve 
-	    of bi-degree (d,e) in P^1xP^2 over F is obtained by saturating and then eliminating. 
-	    
-	    If the no base ring is specified the computations is preformed over F=ZZ/101.
-	Example
-	    randomMonomialCurve(2,3,QQ)
-	    randomMonomialCurve(2,3)	
-    Caveat
-        This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
-///
-
-doc ///
-    Key
-    	curveFromP3toP1P2
-    Headline
-    	creates the Ideal of a curve in P^1xP^2 from the ideal of a curve in P^3
-    Usage
-    	I=curveFromP3toP1P2(J)
-    Inputs
-    	J:Ideal
-	    defining a curve in P^3.
-    Outputs
-    	I:Ideal
-	    defining a curve in P^1xP^2.
-    Description
-    	Text
-	    Given an ideal J defining a curve C in P^3 curveFromP3toP1P2 procudes the ideal of the curve in P^1xP^2 defined as follows: Consider the projections P^3->P^2 and P^3->P^1 
-	    from the point [0:0:0:1] and the line [0:0:s:t] respective. The product of these defines a map from P^3 to P^1xP^2. The curve produced by curveFromP3toP1P2 is the image of the input curve under this map.
-	    
-	    This computation is done by first constructing the graph in P^3x(P^1xP^2) of the product of the two projections P^3->P^2 and P^3->P^1 defined above. This graph is then 
-	    intersected with Cx(P^1xP^3). A curve in P^1xP^2 is then obtained from this by saturating and then eliminating. 
-	    
-	    Note the curve in P^1xP^2 will have degree and genus equal to the degree and genus of C as long as C does not intersect the base locus of the projection. If the option
-	    PreserveDegree => true curveFromP3toP1P2 will check whether C intersects the base locus, and if it does will return an error. If PreserveDegree => false this check is not
-	    preformed and the output curve in P^1xP^2 may have degree and genus different from C.
-	Example
-	    R = ZZ/101[z_0,z_1,z_2,z_3];
-            C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-	    curveFromP3toP1P2(J)
-    Caveat
-        This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
-///
-
-doc ///
-    Key
-    	randomCurveP1P2
-	(randomCurveP1P2,ZZ,ZZ,Ring)
-	(randomCurveP1P2,ZZ,ZZ)
-    Headline
-    	creates the Ideal of a random  curve of degree (d,d) and genus g in P^1xP^2.
-    Usage
-    	randomCurveP1P2(d,g,F)
-    	randomCurveP1P2(d,g)
-    Inputs
-    	d:ZZ
-	    degree of the curve.
-	g:ZZ
-	    genus of the curve.
-	F:Ring
-	    base ring
-    Outputs
-    	:Ideal
-	    defining random curve of degree (d,d) and genus g in P1xP2 over F.
-    Description
-    	Text
-	    Given a positive integer d, a non-negative integer g, and a ring F randomCurveP1P2 prouces a random curve of bi-degree (d,d) and genus g in P^1xP^2.
-	    This is done by using (random spaceCurve) function from the RandomSpaceCurve package to first generate a random curve of degree d and genus g in
-	    P^1xP^2, and then applying curveFromP3toP1P2 to produce a curve in P^1xP^2.
-	    
-	    Since curveFromP3toP1P2 relies on projecting from the point [0:0:0:1] and the line [0:0:s:t] randomCurveP1P2 attempts to find a curve in P^3, which
-	    does not intersect the base locus of these projections. (If the curve did intersect the base locus the resulting curve in P^1xP^2 would not have degree (d,d).)
-	    The number of attempts used to try to find such curves is controled by the Bound option, which by default is 1000.
-	Example
-	    randomCurve(3,0,QQ)
-	    randomCurve(3,0)
-    Caveat
-        This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
-
-///
-
-doc ///
-    Key
-    	saturationZero
-	(saturationZero,Module,Ideal)
-	(saturationZero,Ideal,Ideal)
-    Headline
-    	checks whether the saturation of a module with respects to a given ideal is zero
-    Usage
-    	saturationZero(M,B)
-	saturationZero(I,B)
-    Inputs
-    	M:Module
-	B:Ideal
-        I:Ideal
-    Outputs
-    	:Boolean
-    Description
-    	Text
-    	    Given an module M and an ideal B saturationZero checks whether the saturation of M by B is zero. If it is 
-	    saturationZero returns true otherwise it returns false. This is done without compute the saturation of M by B. 
-	    Instead we check whether for each generator of B some power of it annihilates the module M. We do this
-	    generator by generator.
-	    
-	    If M is an ideal saturationZero checks whether the saturation comodule of M by B is zero.
-	Example
-	    randomCurve(3,0)
-
-///
--------------------------
--- Beginning of the TESTS
--------------------------
------- Tests for randomRationalCurve        
-TEST ///
-    assert (dim randomRationalCurve(2,3,QQ) == 3)
-    ///
-    
-TEST ///
-    assert (degree randomRationalCurve(2,3,QQ) == 2+3)
-    ///
-    
-TEST ///
-    assert (dim randomRationalCurve(2,3,ZZ/11) == 3)
-    ///
-    
-TEST ///
-    assert (degree randomRationalCurve(2,3,ZZ/11) == 2+3)
-    ///
-       
-TEST ///
-    assert (dim randomRationalCurve(2,3) == 3)
-    ///
-
-TEST ///
-    assert (degree randomRationalCurve(2,3) == 2+3)
-    ///
-
------- Tests for randomMonomialCurve        
-TEST ///
-    assert (dim randomMonomialCurve(2,3,QQ) == 3)
-    ///
-
-TEST ///
-    assert (degree randomMonomialCurve(2,3,QQ) == 2+3)
-    ///
-    
-TEST ///
-    assert (dim randomMonomialCurve(2,3,ZZ/11) == 3)
-    ///
-
-TEST ///
-    assert (degree randomMonomialCurve(2,3,ZZ/11) == 2+3)
-    ///
-           
-TEST ///
-    assert (dim randomMonomialCurve(2,3) == 3)
-    ///
-
-TEST ///
-    assert (degree randomMonomialCurve(2,3) == 2+3)
-    ///
-
------- Tests for curveFromP3toP1P2        
-TEST ///
-    R = ZZ/101[z_0,z_1,z_2,z_3];
-    C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-    assert dim curveFromP3toP1P2(C) == 3
-    ///
-    
-TEST ///
-    R = ZZ/101[z_0,z_1,z_2,z_3];
-    C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-    assert dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3
-    ///
-
------- Tests for randomCurveP1P2
-TEST ///
-    assert (dim randomCurveP1P2(3,0,ZZ/2) == 3)
-    ///  
-
-TEST ///
-    assert (degree randomCurveP1P2(3,0,ZZ/2) == 3+3)
-    ///  
-        
-TEST ///
-    assert (dim randomCurveP1P2(5,2,ZZ/11,Bound=>10) == 3)
-    /// 
-
-TEST ///
-    assert (degree randomCurveP1P2(5,2,ZZ/11,Bound=>10) == 5+5)
-    /// 
-    
-TEST ///
-    assert (dim randomCurveP1P2(3,0) == 3)
-    ///  
-
-TEST ///
-    assert (degree randomCurveP1P2(3,0) == 3+3)
-    ///  
-    
-TEST ///
-    assert (dim randomCurveP1P2(3,0,Bound=>10) == 3)
-    ///  
-
-TEST ///
-    assert (degree randomCurveP1P2(3,0,Bound=>10) == 3+3)
-    ///  
-    
-TEST ///
-    assert (dim randomCurveP1P2(5,2,Bound=>10) == 3)
-    /// 
-
-TEST ///
-    assert (degree randomCurveP1P2(5,2,Bound=>10) == 5+5)
-    ///       
-
------- Tests for saturationZero     
-TEST ///
-    S = ZZ/11[x_0,x_1,x_2,x_3,x_4];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    I' = saturate(I,irr);
-    R = S^1/I';
-    t = (saturate(R,irr)==0);
-    assert (saturationZero(R,irr)==t)
-    ///
-
-TEST ///
-    S = ZZ/11[x_0,x_1,x_2,x_3,x_4];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    I' = saturate(I,irr);
-    R = S^1/I';
-    t = (saturate(R,irr)==0);
-    assert (saturationZero(I',irr)==t)
-    ///
-    
------- Tests for isVirtual
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    d1 = matrix{{x_1^3*x_2+x_1^3*x_3+x_0^3*x_4,
-	    x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
-	    x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
-	    x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
-    d2 = map(source d1, ,{{x_3^2, x_4^2, -x_2^2},
-	{-x_1*x_2-x_1*x_3, 0, x_0*x_4},
-	{x_0, -x_1, 0},
-	{0, x_0, x_1}});
-    C = chainComplex({d1,d2});
-    assert(isVirtual(C,I,irr) == true)
-    ///
-
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
-	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
-	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
-    C = chainComplex({d1})
-    assert(isVirtual(C,I,irr) == false)
-    ///
-
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
-	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
-	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
-    C = chainComplex({d1})
-    assert(isVirtual(C,I,irr,ShowVirtualFailure => true) == (false,1))
-    ///
-
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
-    C = chainComplex({d1});
-    assert(isVirtual(C,I,irr) == false)
-    ///
-
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
-    C = chainComplex({d1});
-    assert(isVirtual(C,I,irr,ShowVirtualFailure => true) == (false,0))
-    ///
-    
-TEST ///
-    S = ZZ/101[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(random({1,2},S),random({3,1},S),random({2,2},S));
-    r = res I;
-    assert(isVirtual(r,I,irr) == true)
-    ///
-
-TEST ///
-    S = ZZ/101[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(random({1,2},S),random({4,1},S),random({2,2},S));
-    J = ourSaturation(I,irr);
-    r = res J;
-    assert(isVirtual(r,J,irr) == true)
-    ///
-
------ Tests for findGensUpToIrrelevance
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    J = ourSaturation(I,irr);
-    lst = {{0,1}};
-    assert(findGensUpToIrrelevance(J,2,irr) == lst)
-    ///
-    
-    
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    J = ourSaturation(I,irr);
-    lst = {{0, 1, 2}, {0, 1, 3}, {0, 2, 3}, {0, 1, 4}, {0, 2, 4}, {0, 1,5},
-	 {0, 3, 5}, {0, 4, 5}, {0, 1, 6}, {0, 1, 7}};
-    assert(findGensUpToIrrelevance(J,3,irr) == lst)
-    ///
- 
 end--
+
+--------------------------------------
+-- Begining of the development section
+--------------------------------------
 
 restart
 needsPackage "SplendidComplexes"
@@ -1016,8 +556,8 @@ viewHelp BGG
 
 restart
 needsPackage "VirtualResolutions"
-needsPackage "SplendidComplexes"
-needsPackage "BGG"
+--needsPackage "SplendidComplexes"
+--needsPackage "BGG"
 needsPackage "TateOnProducts"
 load "CapeCod.m2"
 X = projectiveSpace(1)**projectiveSpace(1)
@@ -1028,7 +568,7 @@ irr = ideal X
 E = (coefficientRing S)[A_(0)..A_(3), SkewCommutative => true, Degrees=>degrees S]
 Q = presentation(S^1)
 D = res image symExt(Q, E)
-cohomologyTable(D, {-3,-3},{3,3})
+cohomologyMatrix(D, {-3,-3},{3,3})
 
 -- Not complete
 I = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
@@ -1036,10 +576,10 @@ J = saturate(I,irr)
 
 Q = presentation(S^1/I)
 D = res image symExt(Q, E)
-cohomologyTable(D, {-3,-3},{3,3})
+cohomologyMatrix(D, {-3,-3},{3,3})
 
 -- Better
-I = ideal(x_0^2*x_2^3)
+I' = ideal(x_0^2*x_2^3)
 J' = saturate(I',irr)
 
 
@@ -1056,7 +596,7 @@ multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
     print betti C;
     C' = res(coker transpose C.dd_(length C + min C), LengthLimit => 2 * length C);
     C' = C'[N];
---    C' := res(coker transpose C.dd_N, LengthLimit => 2 * N);    
+--    C' := res(coker transpose C.dd_N, LengthLimit => 2 * N);
     C'' = beilinsonWindow C';
 --    C''' = (ring C'')^{D}**(sloppyTateExtension C'');
 --    cohomologyTable(C''' ** E^{{-1,-1}}, {-N,-N},{N,N})
@@ -1164,7 +704,6 @@ isVirtual(r,J,irr)
 
 
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-J' = moduleSat(I',irr)
 J' = saturate(I',irr)
 r' = res J'
 betti' r'
