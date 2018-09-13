@@ -81,7 +81,8 @@ multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
 multiWinnow (Ring, ChainComplex, List) := (S,F,alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength S) then error "degree has wrong length";
     L := apply(length F, i ->(
-	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m))
+	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
+    chainComplex(L)
     );
 
 
@@ -90,6 +91,7 @@ resolveTail = method();
 --Output: The resolution of the tail end of the complex appended to the chain complex
 --It is not known if applying multiWinnow and then resolveTail yields a Virtual Resolution or not
 --TODO: Write tests
+--      Add length limit
 resolveTail(ChainComplex) := (F) ->(
    N := 0;
    F / (m -> if m != 0 then N = N + 1);
@@ -180,6 +182,7 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
 --       Ideal (or module) - what the virtual resolution resolves
 --       Ideal - the irrelevant ideal of the ring
 --Output: Boolean - true if complex is virtual resolution, false otherwise
+--TODO: need to fix for modules
 isVirtual = method(Options => {ShowVirtualFailure => false})
 isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> (
     annHH0 := ideal(image(C.dd_1));
@@ -432,7 +435,7 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     BL1 := ideal(rVars#0,rVars#1);
     BL2 := ideal(rVars#1,rVars#2,rVars#3);
     BL := intersect(BL1,BL2);
-    --- Randomly generates curve in P3 until finds one not intersecting
+       --- Randomly generates curve in P3 until finds one not intersecting
     --- base locus of projection or until Bound is reached.
     C := ideal(0);
     apply(opts.Bound,i->(
@@ -497,9 +500,10 @@ saturationZero (Ideal,Ideal) := (I,B) ->(
 -- Begining of the tests and the documentation
 ----------------------------------------------
 
---load ("./tests.m2")
+load ("./tests.m2")
 beginDocumentation()
 load ("./doc.m2")
+
 
 end--
 
@@ -507,6 +511,10 @@ end--
 -- Begining of the development section
 --------------------------------------
 
+restart
+uninstallPackage "VirtualResolutions"
+restart
+installPackage "VirtualResolutions"
 restart
 needsPackage "SplendidComplexes"
 needsPackage "VirtualResolutions"
