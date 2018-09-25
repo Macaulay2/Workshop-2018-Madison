@@ -245,7 +245,11 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
 --       Ideal irr - irrelevant ideal
 -- Output: all subsets of size of the generators of J that give
 --         the same ideal as J up to saturation by the irrelevant ideal
+--         If the option GeneralElements is set to true, then
+--         before outputting the subsets, the ideal generatered by the
+--         general elements is outputted
     R := ring(J);
+    k := coefficientRing(R);
     Jsat := ourSaturation(J,irr);
     comps := decompose irr;
     if opts.GeneralElements == true then (
@@ -255,7 +259,8 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
 	--creates an ideal where if degrees of generators match
  	--  those generators are replaced by one generator that
 	--  is a random combination of all generators of that degree
-	K := ideal(apply(allmatches,i->sum(apply(i,j->random(ZZ/32003) * J_(j)))));
+	K := ideal(apply(allmatches,i->sum(apply(i,
+			j-> random(k) * J_(j)))));
 	J = K;
 	);
     lists := subsets(numgens(J),n);
