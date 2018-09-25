@@ -178,13 +178,13 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
 -----------------------------------------------------------------------
 
 --This method checks if a given complex is a virtual resoltion.
---Input: Chain Complex - proposed virtual resolution
---       Ideal (or module) - what the virtual resolution resolves
---       Ideal - the irrelevant ideal of the ring
+--Input: Ideal I (or module) - what the virtual resolution resolves
+--       Ideal irr - the irrelevant ideal of the ring
+--       Chain Complex C - proposed virtual resolution
 --Output: Boolean - true if complex is virtual resolution, false otherwise
 --TODO: need to fix for modules
 isVirtual = method(Options => {ShowVirtualFailure => false})
-isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> (
+isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (
     annHH0 := ideal(image(C.dd_1));
     Isat := ourSaturation(I,irr);
     annHH0sat := ourSaturation(annHH0,irr);
@@ -212,7 +212,7 @@ isVirtual (ChainComplex, Ideal, Ideal) := Boolean => opts -> (C, I, irr) -> (
     true
     )
 
-isVirtual (ChainComplex, Module, Ideal) := Boolean => opts -> (C, M, irr) ->(
+isVirtual (Module, Ideal, ChainComplex) := Boolean => opts -> (M, irr,C) ->(
     annM := ann(M);
     annHH0 := ann(HH_0(C));
     annMsat := ourSaturation(annM,irr);
@@ -239,19 +239,21 @@ isVirtual (ChainComplex, Module, Ideal) := Boolean => opts -> (C, M, irr) ->(
 
 
 findGensUpToIrrelevance = method(Options => {GeneralElements => false});
-findGensUpToIrrelevance(Ideal,ZZ,Ideal):= List => opts -> (J,n,irr) -> (
--- Input: ideal J and ZZ n
--- Output: all subsets of size n of the generators of J that
---         give the same saturated ideal as J
+findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
+--Input: ZZ n - size of subset of generators to check
+--       Ideal J - ideal of ring
+--       Ideal irr - irrelevant ideal
+-- Output: all subsets of size of the generators of J that give
+--         the same ideal as J up to saturation by the irrelevant ideal
     R := ring(J);
     Jsat := ourSaturation(J,irr);
     comps := decompose irr;
     if opts.GeneralElements == true then (
 	degs := degrees(J);
-	--place of all all unique degrees
+	--place of all unique degrees
 	allmatches := unique(apply(degs,i->positions(degs, j -> j == i)));
 	--creates an ideal where if degrees of generators match
-	--  those generators are replaced by one generator that
+ 	--  those generators are replaced by one generator that
 	--  is a random combination of all generators of that degree
 	K := ideal(apply(allmatches,i->sum(apply(i,j->random(ZZ/32003) * J_(j)))));
 	J = K;

@@ -137,7 +137,7 @@ TEST ///
 	{x_0, -x_1, 0},
 	{0, x_0, x_1}});
     C = chainComplex({d1,d2});
-    assert(isVirtual(C,I,irr) == true)
+    assert(isVirtual(I,irr,C) == true)
     ///
 
 TEST ///
@@ -148,7 +148,7 @@ TEST ///
 	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
 	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
     C = chainComplex({d1})
-    assert(isVirtual(C,I,irr) == false)
+    assert(isVirtual(I,irr,C) == false)
     ///
 
 TEST ///
@@ -159,7 +159,7 @@ TEST ///
 	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
 	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
     C = chainComplex({d1})
-    assert(isVirtual(C,I,irr,ShowVirtualFailure => true) == (false,1))
+    assert(isVirtual(I,irr,C,ShowVirtualFailure => true) == (false,1))
     ///
 
 TEST ///
@@ -168,7 +168,7 @@ TEST ///
     I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
     d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
     C = chainComplex({d1});
-    assert(isVirtual(C,I,irr) == false)
+    assert(isVirtual(I,irr,C) == false)
     ///
 
 TEST ///
@@ -177,7 +177,7 @@ TEST ///
     I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
     d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
     C = chainComplex({d1});
-    assert(isVirtual(C,I,irr,ShowVirtualFailure => true) == (false,0))
+    assert(isVirtual(I,irr,C,ShowVirtualFailure => true) == (false,0))
     ///
 
 TEST ///
@@ -185,7 +185,7 @@ TEST ///
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
     I = ideal(random({1,2},S),random({3,1},S),random({2,2},S));
     r = res I;
-    assert(isVirtual(r,I,irr) == true)
+    assert(isVirtual(I,irr,r) == true)
     ///
 
 TEST ///
@@ -195,7 +195,7 @@ TEST ///
     I = ideal(random({1,2},S),random({3,1},S),random({2,2},S));
     J = ourSaturation(I,irr);
     r = res J;
-    assert(isVirtual(r,I,irr) == true)
+    assert(isVirtual(I,irr,r) == true)
     ///
 
 ----- Tests for findGensUpToIrrelevance
@@ -205,7 +205,7 @@ TEST ///
     I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
     J = ourSaturation(I,irr);
     lst = {{0,1}};
-    assert(findGensUpToIrrelevance(J,2,irr) == lst)
+    assert(findGensUpToIrrelevance(2,J,irr) == lst)
     ///
 
 
@@ -216,5 +216,5 @@ TEST ///
     J = ourSaturation(I,irr);
     lst = {{0, 1, 2}, {0, 1, 3}, {0, 2, 3}, {0, 1, 4}, {0, 2, 4}, {0, 1,5},
 	 {0, 3, 5}, {0, 4, 5}, {0, 1, 6}, {0, 1, 7}};
-    assert(findGensUpToIrrelevance(J,3,irr) == lst)
+    assert(findGensUpToIrrelevance(3,J,irr) == lst)
     ///

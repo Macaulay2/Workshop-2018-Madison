@@ -1,42 +1,42 @@
 doc ///
     Key
     	isVirtual
-	(isVirtual,ChainComplex,Ideal,Ideal)
+	(isVirtual,Ideal,Ideal,ChainComplex)
     Headline
     	checks if a chain complex is a virtual resolution of a given ideal
     Usage
-    	isVirtual(C,I,irr)
+    	isVirtual(I,irr,C)
     Inputs
-    	C:ChainComplex
-	    chain complex we want to check is a virtual resolution
-	I:Ideal
+    	I:Ideal
 	    ideal that the virtual resolution should resolve
 	irr:Ideal
 	    irrelevant ideal of the ring
+	C:ChainComplex
+	    chain complex we want to check is a virtual resolution
     Outputs
     	:Boolean
 	    true if C is a virtual resolution of I
 	    false if not
     Description
     	Text
-	    Given a chain complex C, ideal I, and irrelevant ideal irr, isVirtual returns true if
+	    Given an ideal I, irrelevant ideal irr, and chain c isVirtual returns true if
 	    C is a virtual resolution of I. If not, it returns false.
 
 	    This is done by checking that the saturation of I and the saturation of the annihilator of HH_0(C)
 	    agree. Then checking that the higher homology groups of C are supported on the irrelevant ideal
 	Example
 	    R = ZZ/101[x,y];
-       	    isVirtual(res ideal(x),ideal(x),ideal(x,y))
+       	    isVirtual(ideal(x),ideal(x,y),res ideal(x))
 ///
 
 doc ///
     Key
     	findGensUpToIrrelevance
-	(findGensUpToIrrelevance,Ideal,ZZ,Ideal)
+	(findGensUpToIrrelevance,ZZ,Ideal,Ideal)
     Headline
     	creates a list of n element subsets of the minimal generators that generate an ideal up to saturation
     Usage
-    	findGensUpToIrrelevance(I,n,irr)
+    	findGensUpToIrrelevance(n,I,irr)
     Inputs
     	I:Ideal
 	    ideal we are intereseted in
@@ -57,7 +57,7 @@ doc ///
 	    R = ZZ/101[x_0,x_1,x_2,x_3,x_4,Degrees=>{2:{1,0},3:{0,1}}];
 	    B = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
 	    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-	    findGensUpToIrrelevance(I,2,B)
+	    findGensUpToIrrelevance(2,I,B)
     Caveat
 	    If no subset of generators generates the ideal up to saturation, then the empty list is outputted
 ///
