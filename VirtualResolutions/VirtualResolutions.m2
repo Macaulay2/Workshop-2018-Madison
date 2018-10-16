@@ -35,7 +35,7 @@ newPackage ("VirtualResolutions",
 	"TateOnProducts",
 	"CompleteIntersectionResolutions",
 	"NormalToricVarieties",
-	"RandomSpaceCurves"
+	"SpaceCurves"
 	},
     DebuggingMode => true,
     AuxiliaryFiles => false
@@ -309,7 +309,8 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     M2 := matrix {apply(3,i->random({e,0,0},U)),{uVars#4,uVars#5,uVars#6}};
     J := minors(2,M1)+minors(2,M2);
     --- Computes saturation and then eliminates producing curve in P1xP2
-    J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
+    J' := ourSaturation(J,ideal(uVars#0,uVars#1));
+    --J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
     sub(eliminate({uVars#0,uVars#1},J'),S)
     )
 
@@ -417,7 +418,8 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     B3 := ideal(apply(3,i->uVars#(6+i)));
     B := intersect(B1,B2,B3,sub(BL,U));
     --- Computes saturation and then eliminates producing curve in P1xP2
-    K := saturate(C'+D,B,MinimalGenerators=>false);
+--    K := saturate(C'+D,B,MinimalGenerators=>false);
+    K := ourSaturation(C'+D,B);
     sub(eliminate({uVars#0,uVars#1,uVars#2,uVars#3},K),S)
 )
 
@@ -446,7 +448,8 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     --- base locus of projection or until Bound is reached.
     C := ideal(0);
     apply(opts.Bound,i->(
-	    C = (random spaceCurve)(d,g,R);
+	    C = curve(d,g,R);
+	    if class(C) === Curve then C = ideal(C);
 	    if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;
 	    ));
     --- Checks whether curve in P3 intersects base locus of projection;
