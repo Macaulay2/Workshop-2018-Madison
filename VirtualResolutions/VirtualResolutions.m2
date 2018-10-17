@@ -62,23 +62,14 @@ export{
 debug Core
 
 
---If list contains only one multidegree, then it will keep only summands with less than or equal to that degree
+--Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --See Theorem 4.1 of [BES]
 multiWinnow = method();
 --Input: F a free chain complex on Cox (X), alphas a list of degrees
---Output: A subcomples of summands generated only in degrees in the list alphas.
+--Output: A subcomplexs of summands generated only in degrees in the list alphas.
 --If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
-multiWinnow (NormalToricVariety, ChainComplex, List) := (X,F,alphas) ->(
-    if any(alphas, alpha -> #alpha =!= degreeLength ring X) then error "degree has wrong length";
-    L := apply(length F, i ->(
-	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m))
-    );
-
-
---Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
---If list contains only one multidegree, then it will keep only summands with less than or equal to that degree
---See Theorem 4.1 of [BES]
-multiWinnow (Ring, ChainComplex, List) := (S,F,alphas) ->(
+multiWinnow (NormalToricVariety, ChainComplex, List) := (X, F, alphas) -> multiWinnow(ring X, F, alphas)
+multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength S) then error "degree has wrong length";
     L := apply(length F, i ->(
 	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));

@@ -6,27 +6,42 @@ restart
 needsPackage "VirtualResolutions"
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
+
 X = projectiveSpace(1)**projectiveSpace(2)
 S = ring X
 irr = ideal X
-
 
 I = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
 J = saturate(I,irr)
 hilbertPolynomial(X,J)
 C = res J
 betti' C
-winnow(X, C, {2,1})
-winnow(X, C, {1,2})
-L = multiWinnow(X, C, {{1,2}, {2,1}})
+betti' winnow(X, C, {2,1})
+betti' winnow(X, C, {1,2})
+betti' multiWinnow(X, C, {{1,2}, {2,1}})
 
 
-I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
+restart
+needsPackage "SplendidComplexes"
+needsPackage "VirtualResolutions"
+debug needsPackage "TateOnProducts"
+
+(X, E) = productOfProjectiveSpaces {1, 2}
+irr = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)))
+I' = ideal(x_(0,0)^2*x_(1,0)^2+x_(0,1)^2*x_(1,1)^2+x_(0,0)*x_(0,1)*x_(1,2)^2, x_(0,0)^3*x_(1,2)+x_(0,1)^3*(x_(1,0)+x_(1,1)))
 J' = saturate(I',irr);
-hilbertPolynomial(X,J')
 r' = res J'
-betti' r'
-winnow(X, r', {2,3})
+m = cohomologyMatrix(X^1/J', {0,0},{6,6})
+
+
+I = intersect(ideal(x_(0,0), x_(1,0)), ideal(x_(0,1), x_(1,1)))
+J = saturate(I,irr)
+C = res J
+betti' C
+betti' multiWinnow(X, C, {{1,2}, {2,1}})
+betti' multiWinnow(X, C, multigradedRegularity module J)
+
+multigradedRegularity module J -- ??
 
 
 
