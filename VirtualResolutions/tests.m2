@@ -237,3 +237,40 @@ TEST ///
 	    output_2 == {0,1,3} and output_3 == {0,2,3} and
 	    output_4 = {0,1,4})
     ///
+
+TEST ///
+    debug needsPackage "TateOnProducts"
+    N = {1,1,2} -- Example 5.7 of [BES] uses 1x1x2 and 6 points
+    pts = 6
+    (S, E) = productOfProjectiveSpaces N
+    irr = intersect for n to #N-1 list (
+    	ideal select(gens S, i -> (degree i)#n == 1)
+    	)
+    -- Generate ideal of 6 random points in P1xP1xP2
+    I = saturate intersect for i to pts - 1 list (
+  	print i;
+  	P := sum for n to N#0 - 1 list ideal random({1,0,0}, S);
+  	Q := sum for n to N#1 - 1 list ideal random({0,1,0}, S);
+  	R := sum for n to N#2 - 1 list ideal random({0,0,1}, S);
+  	P + Q + R
+  	)
+    assert isVirtual(I, irr, intersectionRes (I, irr, {2,1,0}))
+    assert isVirtual(I, irr, intersectionRes (I, irr, {3,3,0}))
+    ///
+    
+    
+TEST ///
+    debug needsPackage "TateOnProducts"
+    needsPackage "VirtualResolutions"
+    N = {1,2}; -- Example 5.7 of [BES] uses 1x1x2 and 6 points
+    (S, E) = productOfProjectiveSpaces N;
+    irr = intersect for n to #N-1 list (
+    	ideal select(gens S, i -> (degree i)#n == 1)
+    	);
+    I = intersect(ideal(x_(0,0), x_(1,0)), ideal(x_(0,1), x_(1,1)));
+    J = saturate(I, irr);
+    C = res J;
+    D = multiWinnow(S, C, {{1,2}, {2,1}})
+    E = resolveTail D
+    -- TODO: check that this is correct
+    ///

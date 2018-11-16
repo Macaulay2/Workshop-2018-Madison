@@ -33,6 +33,7 @@ newPackage ("VirtualResolutions",
     PackageExports => {
 	"BGG",
 	"TateOnProducts",
+	"SpectralSequences",
 	"CompleteIntersectionResolutions",
 	"NormalToricVarieties",
 	"SpaceCurves"
@@ -49,6 +50,8 @@ export{
     "HideZeros",
     "isVirtual",
     "multiWinnow",
+    "resolveTail",
+    "intersectionRes",
     "randomRationalCurve",
     "randomMonomialCurve",
     "randomCurveP1P2",
@@ -73,7 +76,7 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength S) then error "degree has wrong length";
     L := apply(length F, i ->(
 	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
-    chainComplex(L)
+    chainComplex L
     );
 
 
@@ -81,32 +84,33 @@ resolveTail = method();
 --Input: A chain complex
 --Output: The resolution of the tail end of the complex appended to the chain complex
 --It is not known if applying multiWinnow and then resolveTail yields a Virtual Resolution or not
---TODO: Write tests
+--TODO: Finish test
 --      Add length limit
-resolveTail(ChainComplex) := (F) ->(
-   N := 0;
-   F / (m -> if m != 0 then N = N + 1);
-   T := res coker syz F_(N - 1);
-   F' := for i from min T to max T - 1 list T.dd_(i+1);
-   chainComplex (F_{0..N - 1} | F')
+resolveTail(ChainComplex) := C ->(
+    N := max support C;
+    T := res(coker syz C.dd_N);
+    L1 := for i from min C to max support C - 1 list matrix C.dd_(i+1);
+    L2 := for i from min T to max support T - 1 list matrix T.dd_(i+1);
+    chainComplex(L1 | L2)
 );
 
 
---Given ideal J, irrelevant ideal, and a vector A, computes free resolution of J intersected with Ath power of the irrelevant ideal
---Only a Virtual resolution for 'sufficiently positive' powers of B
---See Theorem 5.1 of [BES]
---TODO: Fix, write tests
-
+-- Given a saturated ideal J, irrelevant ideal irr, and a vector A,
+-- computes free resolution of J intersected with Ath power of the
+-- irrelevant ideal. The output is only a Virtual resolution for
+-- 'sufficiently positive' powers of B. See Theorem 5.1 of [BES]
 intersectionRes = method();
 intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
-    N := (length A)-1;
     L := decompose irr;
-    irrelevantIntersection := {};
-    for i from 0 to N do (
-	irrelevantIntersection = append(irrelevantIntersection, intersect J, L_i^(A_i));
-	);
-    res intersect(irrelevantIntersection)
-   )
+    if #A != #L then error "intersectionRes: expected exponent vector of the right length.";
+    -- note: decompose doesn't necessarily return in the right order
+    Q := intersect for X in L list (
+    	D := degree X_0;
+    	d := (select((0..#D-1), i -> D#i == 1))_0;
+    	X ^ (A#d)
+    	);
+    res intersect (Q, J)
+    )
 
 -----------------------------------------------------------
 -- This is a temporary fast saturation. Keep this up to date

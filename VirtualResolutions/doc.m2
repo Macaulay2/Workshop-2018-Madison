@@ -228,3 +228,49 @@ doc ///
 	    If M is an ideal saturationZero checks whether the saturation comodule of M by B is zero.
 
 ///
+
+doc ///
+    Key
+    	intersectionRes
+	(intersectionRes, Ideal, Ideal, List)
+    Headline
+    	Returns a virtual resolution of a zero-dimensional ideal
+    Usage
+    	intersectionRes(I, irr, A)
+    Inputs
+	J:Ideal
+        irr:Ideal
+    	A:List
+    Outputs
+    	:ChainComplex
+    Description
+    	Text
+            Given a saturated ideal J of a zero-dimensional scheme, irrelevant ideal irr, and a vector A, 
+	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
+	    See Theorem 5.1 of [BES].
+    	Example
+    	    debug needsPackage "TateOnProducts"
+     	    "Following Example 5.7 of [BES]: 6 points in P1xP1xP2"
+    	    N = {1,1,2}
+    	    pts = 6
+	    "Generate P1xP1xP2"
+    	    (S, E) = productOfProjectiveSpaces N
+	    "Find the irrelevant ideal"
+    	    irr = intersect for n to #N-1 list (
+    		ideal select(gens S, i -> (degree i)#n == 1)
+    		)
+    	    "Generate ideal of 6 general points in P1xP1xP2"
+    	    I = saturate intersect for i to pts - 1 list (
+  		print i;
+  		P := sum for n to N#0 - 1 list ideal random({1,0,0}, S);
+  		Q := sum for n to N#1 - 1 list ideal random({0,1,0}, S);
+  		R := sum for n to N#2 - 1 list ideal random({0,0,1}, S);
+  		P + Q + R
+  		)
+	    "Find the virtual resolution"
+	    C = intersectionRes (I, irr, {2,1,0})
+	    "Confirm that this is a virtual resolution"
+    	    isVirtual(I, irr, C)
+    Caveat
+        The output is only a virtual resolution for 'sufficiently positive' vector A.
+///
