@@ -36,6 +36,7 @@ newPackage ("VirtualResolutions",
 	"SpectralSequences",
 	"CompleteIntersectionResolutions",
 	"NormalToricVarieties",
+	"Elimination",
 	"SpaceCurves"
 	},
     DebuggingMode => true,
@@ -63,7 +64,6 @@ export{
     }
 
 debug Core
-
 
 --Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --See Theorem 4.1 of [BES]
@@ -536,7 +536,7 @@ restart
 needsPackage "VirtualResolutions"
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-X = projectiveSpace(1)**projectiveSpace(2)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
 S = ring X
 irr = ideal X
 
@@ -573,7 +573,7 @@ needsPackage "VirtualResolutions"
 --needsPackage "BGG"
 needsPackage "TateOnProducts"
 load "CapeCod.m2"
-X = projectiveSpace(1)**projectiveSpace(1)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(1)
 S = ring X
 irr = ideal X
 

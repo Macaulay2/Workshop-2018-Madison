@@ -399,7 +399,7 @@ document {
   "When the degree length is 1, then ", TT "betti'", " provides an 
   alternative display for the graded betti numbers.",
   EXAMPLE lines ///
-    S = ring projectiveSpace 3;
+    S = ring toricProjectiveSpace 3;
     C = res minors(2, matrix table(2,3, (i,j) -> S_(i+j)))
     betti C
     betti' C
@@ -537,7 +537,7 @@ document {
   "For projective space, we obtain the usual binomial coefficent.",
   EXAMPLE lines ///
     n = 3;
-    X = projectiveSpace n;
+    X = toricProjectiveSpace n;
     h = hilbertPolynomial X    
     R = ring h;    
     h == (1/n!) * product(n, i -> R_0+n-i)
@@ -573,7 +573,7 @@ document {
   PARA{},
   "For the twisted cubic curve, we obtain the usual polynomial.",
   EXAMPLE lines ///
-    X = projectiveSpace 3;
+    X = toricProjectiveSpace 3;
     S = ring X;
     I = minors(2, matrix table(2,3, (i,j) -> S_(i+j)))
     h = hilbertPolynomial(X,I)    
@@ -613,7 +613,7 @@ document {
   "On projective space, we obtain the following.",
   EXAMPLE lines ///
     n = 2;
-    X = projectiveSpace n;
+    X = toricProjectiveSpace n;
     I1 = pointsIdeal(X, 1)
     hilbertPolynomial(X,I1)
     I7 = pointsIdeal(X, 7);
@@ -680,7 +680,7 @@ assert(poincare C == poincare K)
 
 -- test 2: basic checks on Hilbert polynomials
 TEST ///
-X = projectiveSpace 3;
+X = toricProjectiveSpace 3;
 h = hilbertPolynomial X;
 T = ring h;
 assert(h == (1/6)*(T_0+3)*(T_0+2)*(T_0 +1))
@@ -703,7 +703,7 @@ check "SplendidComplexes"
 needsPackage "SplendidComplexes"
 
 
-X = projectiveSpace 3;
+X = toricProjectiveSpace 3;
 S = ring X;
 I = minors(2,matrix table(2,3, (i,j) -> S_(i+j)));
 h = hilbertPolynomial(X,I);
@@ -774,7 +774,7 @@ check "SplendidComplexes"
 needsPackage "SplendidComplexes"
 
 
-X = projectiveSpace(2)**projectiveSpace(2)
+X = toricProjectiveSpace(2)**toricProjectiveSpace(2)
 S = ring X
 degrees S
 I = intersect(apply(2,j-> ideal apply(3,i-> random({1,1},S))));
