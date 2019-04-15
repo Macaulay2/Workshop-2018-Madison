@@ -46,10 +46,7 @@ newPackage ("VirtualResolutions",
 
 export{
     "curveFromP3toP1P2",
-    "DegreeBounds",
-    "findCorners",
     "findGensUpToIrrelevance",
-    "HideZeros",
     "isVirtual",
     "multiWinnow",
     "resolveTail",
@@ -58,6 +55,7 @@ export{
     "randomMonomialCurve",
     "randomCurveP1P2",
     "saturationZero",
+    -- Options
     "Bound",
     "PreserveDegree",
     "ShowVirtualFailure",
@@ -68,7 +66,7 @@ debug Core
 
 --Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --See Theorem 4.1 of [BES]
-multiWinnow = method();
+multiWinnow = method()
 --Input: F a free chain complex on Cox (X), alphas a list of degrees
 --Output: A subcomplexs of summands generated only in degrees in the list alphas.
 --If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
@@ -81,7 +79,7 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     );
 
 
-resolveTail = method();
+resolveTail = method()
 --Input: A chain complex
 --Output: The resolution of the tail end of the complex appended to the chain complex
 --It is not known if applying multiWinnow and then resolveTail yields a Virtual Resolution or not
@@ -100,7 +98,7 @@ resolveTail(ChainComplex) := C ->(
 -- computes free resolution of J intersected with Ath power of the
 -- irrelevant ideal. The output is only a Virtual resolution for
 -- 'sufficiently positive' powers of B. See Theorem 5.1 of [BES]
-intersectionRes = method();
+intersectionRes = method()
 intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     L := decompose irr;
     if #A != #L then error "intersectionRes: expected exponent vector of the right length.";
@@ -175,68 +173,53 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
 
 -- This method checks if a given complex is a virtual resoltion by computing
 -- homology and checking whether its annihilator saturates to the whole ring.
---Input: Ideal I (or module) - what the virtual resolution resolves
+-- Input: Ideal I (or module) - what the virtual resolution resolves
 --       Ideal irr - the irrelevant ideal of the ring
 --       Chain Complex C - proposed virtual resolution
---Output: Boolean - true if complex is virtual resolution, false otherwise
---TODO: need to fix for modules; don't know how to saturate for modules
-isVirtual = method(Options => {ShowVirtualFailure => false})
-isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (
+-- Output: Boolean - true if complex is virtual resolution, false otherwise
+-- TODO: need to fix for modules; don't know how to saturate for modules
+isVirtual = method()
+isVirtual (Ideal, Ideal, ChainComplex) := Boolean -> (I, irr, C) -> (
     annHH0 := ideal(image(C.dd_1));
     Isat := ourSaturation(I,irr);
     annHH0sat := ourSaturation(annHH0,irr);
     if not(Isat == annHH0sat) then (
-	if opts.ShowVirtualFailure then (
-	    return (false,0);
-	    );
-	return false
+	if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
+	return false;
 	);
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring I)) then (
-		if annHHi == 0 then (
-		    if opts.ShowVirtualFailure then return (false,i);
-		    return false;
-		    );
-	    	if  ourSaturation(annHHi,irr) != ideal(sub(1,ring I)) then (
-		    if opts.ShowVirtualFailure then (
-			return (false,i);
-			);
-		    return false;
-		    )
-		)
+	    if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring I)) then (
+		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+		return false;
+		);
+	    );
 	);
     true
     )
 
-isVirtual (Module, Ideal, ChainComplex) := Boolean => opts -> (M, irr,C) ->(
+isVirtual (Module, Ideal, ChainComplex) := Boolean -> (M, irr,C) -> (
     annM := ann(M);
     annHH0 := ann(HH_0(C));
     annMsat := ourSaturation(annM,irr);
     annHH0sat := ourSaturation(annHH0,irr);
     if not(annMsat == annHH0sat) then (
-	if opts.ShowVirtualFailure  then return (false,0);
+	if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
 	return false;
 	);
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring M)) then (
-		if annHHi == 0 then (
-		    if opts.ShowVirtualFailure then return (false,i);
-		    return false;
-		    );
-	    	if  ourSaturation(annHHi,irr) != ideal(sub(1,ring irr)) then (
-		    if opts.ShowVirtualFailure then return (false,i);
-		    return false;
-		    )
-		)
+	    if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring irr)) then (
+		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+		return false;
+		);
+	    );
 	);
     true
     )
 
-
-findGensUpToIrrelevance = method(Options => {GeneralElements => false});
-findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
 -- Input: ZZ n - size of subset of generators to check
 --       Ideal J - ideal of ring
 --       Ideal irr - irrelevant ideal
@@ -245,6 +228,8 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
 --         If the option GeneralElements is set to true, then
 --         before outputting the subsets, the ideal generatered by the
 --         general elements is outputted
+findGensUpToIrrelevance = method(Options => {GeneralElements => false})
+findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
     R := ring(J);
     k := coefficientRing(R);
     Jsat := ourSaturation(J,irr);
@@ -271,7 +256,7 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
 	     )
 	 );
      output
-	    )
+     )
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -279,7 +264,7 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
 ----- Output: The ideal of a random rational curve in P1xP2 of
 ----- degree (d,e) defined over F.
 ----- Description: This randomly generates 2 forms of degree
------ d and 3 forms of degree 3 in the ring S (locally defined),
+----- d and 3 forms of degree e in the ring S (locally defined),
 ----- and computes the ideal defining the image of the map of the
 ----- associated map P^1---->P^1xP^2.
 --------------------------------------------------------------------
@@ -327,7 +312,7 @@ randomRationalCurve (ZZ,ZZ) := (d,e)->(
 ----- Input: (d,e,F)=(degree,degree,base ring)
 ----- Output: The ideal of a random rational curve in P1xP2 of degree (d,e).
 ----- Description: This randomly generates 2 monomials of degree
------ d and 3 monomials of degree 3 in the ring S (locally defined),
+----- d and 3 monomials of degree e in the ring S (locally defined),
 ----- and computes the ideal defining the image of the map of the
 ----- associated map P^1---->P^1xP^2.
 --------------------------------------------------------------------
@@ -501,7 +486,7 @@ saturationZero (Module,Ideal) := (M,B) ->(
 --------------------------------------------------------------------
 saturationZero (Ideal,Ideal) := (I,B) ->(
     saturationZero(comodule I,B)
-)
+    )
 
 ----------------------------------------------
 -- Begining of the tests and the documentation
@@ -600,7 +585,7 @@ J' = saturate(I',irr)
 
 
 -- This is a temporary function, inputs and outputs are changing
-multiGradedRegularity = method();
+multiGradedRegularity = method()
 multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
     S = ring M;
     P = presentation(truncate(T, M));

@@ -23,23 +23,12 @@ doc ///
 	    C is a virtual resolution of I. If not, it returns false.
 
 	    This is done by checking that the saturation of I and the saturation of the annihilator of HH_0(C)
-	    agree. Then checking that the higher homology groups of C are supported on the irrelevant ideal
+	    agree. Then checking that the higher homology groups of C are supported on the irrelevant ideal.
+
+	    If debugLevel is larger than zero, the homological degree where isVirtual fails is printed.
 	Example
 	    R = ZZ/101[x,y];
        	    isVirtual(ideal(x),ideal(x,y),res ideal(x))
-///
-
-
-doc ///
-    Key
-        [isVirtual, ShowVirtualFailure]
-    Headline
-        returns the first spot where isVirtual first
-    Description
-      Text
-            what do I do?
-    SeeAlso
-        isVirtual
 ///
 
 doc ///
@@ -47,7 +36,7 @@ doc ///
     	findGensUpToIrrelevance
 	(findGensUpToIrrelevance,ZZ,Ideal,Ideal)
     Headline
-    	creates a list of n element subsets of the minimal generators that generate an ideal up to saturation
+        creates a list of subsets of the minimal generators that generate a given ideal up to saturation
     Usage
     	findGensUpToIrrelevance(n,I,irr)
     Inputs
@@ -73,6 +62,18 @@ doc ///
 	    findGensUpToIrrelevance(2,I,B)
     Caveat
 	    If no subset of generators generates the ideal up to saturation, then the empty list is outputted
+///
+
+doc ///
+    Key
+        [findGensUpToIrrelevance, GeneralElements]
+    Headline
+        what does this do?
+    Description
+      Text
+            what do I do?
+    SeeAlso
+        findGensUpToIrrelevance
 ///
 
 doc ///
@@ -103,7 +104,7 @@ doc ///
 	    respectively. The graph of the product of these two maps in P^1x(P^1xP^2) is computed, from which a curve of bi-degree (d,e) in P^1xP^2 over F is obtained by
 	    saturating and then eliminating.
 
-	    If the no base ring is specified the computations is preformed over F=ZZ/101
+	    If no base ring is specified the computations are performed over F=ZZ/101
 	Example
 	    randomRationalCurve(2,3,QQ)
 	    randomRationalCurve(2,3)
@@ -139,7 +140,7 @@ doc ///
 	    given by {s^d,t^d} and {s^e,m,t^e} respectively. The graph of the product of these two maps in P^1x(P^1xP^2) is computed, from which a curve
 	    of bi-degree (d,e) in P^1xP^2 over F is obtained by saturating and then eliminating.
 
-	    If the no base ring is specified the computations is preformed over F=ZZ/101.
+	    If no base ring is specified the computations are performed over F=ZZ/101.
 	Example
 	    randomMonomialCurve(2,3,QQ)
     Caveat
@@ -149,6 +150,7 @@ doc ///
 doc ///
     Key
     	curveFromP3toP1P2
+        (curveFromP3toP1P2,Ideal)
     Headline
     	creates the Ideal of a curve in P^1xP^2 from the ideal of a curve in P^3
     Usage
@@ -169,13 +171,25 @@ doc ///
 
 	    Note the curve in P^1xP^2 will have degree and genus equal to the degree and genus of C as long as C does not intersect the base locus of the projection. If the option
 	    PreserveDegree => true curveFromP3toP1P2 will check whether C intersects the base locus, and if it does will return an error. If PreserveDegree => false this check is not
-	    preformed and the output curve in P^1xP^2 may have degree and genus different from C.
+	    performed and the output curve in P^1xP^2 may have degree and genus different from C.
 	Example
 	    R = ZZ/101[z_0,z_1,z_2,z_3];
             J = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
 	    curveFromP3toP1P2(J)
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
+///
+
+doc ///
+    Key
+        [curveFromP3toP1P2, PreserveDegree]
+    Headline
+        what does this do?
+    Description
+      Text
+            what do I do?
+    SeeAlso
+        curveFromP3toP1P2
 ///
 
 doc ///
@@ -212,7 +226,18 @@ doc ///
 	    randomCurveP1P2(3,0,QQ)
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
+///
 
+doc ///
+    Key
+        [randomCurveP1P2, Bound]
+    Headline
+        what does this do?
+    Description
+      Text
+            what do I do?
+    SeeAlso
+        randomCurveP1P2
 ///
 
 doc ///
@@ -234,7 +259,7 @@ doc ///
     Description
     	Text
             Given an module M and an ideal B saturationZero checks whether the saturation of M by B is zero. If it is
-	    saturationZero returns true otherwise it returns false. This is done without compute the saturation of M by B.
+	    saturationZero returns true otherwise it returns false. This is done without computing the saturation of M by B.
 	    Instead we check whether for each generator of B some power of it annihilates the module M. We do this
 	    generator by generator.
 
