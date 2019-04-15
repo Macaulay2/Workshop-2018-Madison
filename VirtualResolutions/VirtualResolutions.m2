@@ -16,7 +16,8 @@
 -- PROGRAMMERS :
 --
 --
--- UPDATE HISTORY : created 14 April 2018;
+-- UPDATE HISTORY #0 : created 14 April 2018;
+-- UPDATE HISTORY #1 : major changes 15 April 2019;
 ---------------------------------------------------------------------------
 newPackage ("VirtualResolutions",
     Version => "0.0",
