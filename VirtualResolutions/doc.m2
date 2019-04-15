@@ -29,6 +29,19 @@ doc ///
        	    isVirtual(ideal(x),ideal(x,y),res ideal(x))
 ///
 
+
+doc ///
+    Key
+        [isVirtual, ShowVirtualFailure]
+    Headline
+        returns the first spot where isVirtual first
+    Description
+      Text
+            what do I do?
+    SeeAlso
+        isVirtual
+///
+
 doc ///
     Key
     	findGensUpToIrrelevance
@@ -234,7 +247,7 @@ doc ///
     	intersectionRes
 	(intersectionRes, Ideal, Ideal, List)
     Headline
-    	Returns a virtual resolution of a zero-dimensional ideal
+        Returns a potential virtual resolution of a zero-dimensional subscheme
     Usage
     	intersectionRes(I, irr, A)
     Inputs
@@ -245,7 +258,7 @@ doc ///
     	:ChainComplex
     Description
     	Text
-            Given a saturated ideal J of a zero-dimensional scheme, irrelevant ideal irr, and a vector A, 
+            Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
 	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
 	    See Theorem 5.1 of [BES].
     	Example

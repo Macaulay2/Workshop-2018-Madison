@@ -173,12 +173,13 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
 --This is where the fast saturation functions end
 -----------------------------------------------------------------------
 
---This method checks if a given complex is a virtual resoltion.
+-- This method checks if a given complex is a virtual resoltion by computing
+-- homology and checking whether its annihilator saturates to the whole ring.
 --Input: Ideal I (or module) - what the virtual resolution resolves
 --       Ideal irr - the irrelevant ideal of the ring
 --       Chain Complex C - proposed virtual resolution
 --Output: Boolean - true if complex is virtual resolution, false otherwise
---TODO: need to fix for modules
+--TODO: need to fix for modules; don't know how to saturate for modules
 isVirtual = method(Options => {ShowVirtualFailure => false})
 isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (
     annHH0 := ideal(image(C.dd_1));
@@ -236,7 +237,7 @@ isVirtual (Module, Ideal, ChainComplex) := Boolean => opts -> (M, irr,C) ->(
 
 findGensUpToIrrelevance = method(Options => {GeneralElements => false});
 findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
---Input: ZZ n - size of subset of generators to check
+-- Input: ZZ n - size of subset of generators to check
 --       Ideal J - ideal of ring
 --       Ideal irr - irrelevant ideal
 -- Output: all subsets of size of the generators of J that give
