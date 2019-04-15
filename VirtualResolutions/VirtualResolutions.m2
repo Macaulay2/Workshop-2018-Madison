@@ -2,11 +2,7 @@
 --restart
 --loadPackage("VirtualResolutions", Reload =>true)
 --installPackage "VirtualResolutions"
---installPackage "CompleteIntersectionResolutions"
---installPackage "BGG"
 --viewHelp "VirtualResolutions"
---viewHelp "TateOnProducts"
---viewHelp CompleteIntersectionResolutions
 --check "VirtualResolutions"
 --*-
 ---------------------------------------------------------------------------
@@ -20,7 +16,7 @@
 -- UPDATE HISTORY #1 : major changes 15 April 2019;
 ---------------------------------------------------------------------------
 newPackage ("VirtualResolutions",
-    Version => "0.0",
+    Version => "1.0",
     Date => "April 14, 2018",
     Headline => "Methods for virtual resolutions on products of projective spaces",
     Authors =>{
@@ -32,10 +28,7 @@ newPackage ("VirtualResolutions",
         {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu"}
     	},
     PackageExports => {
-	"BGG",
 	"TateOnProducts",
-	"SpectralSequences",
-	"CompleteIntersectionResolutions",
 	"NormalToricVarieties",
 	"Elimination",
 	"SpaceCurves"
@@ -79,19 +72,19 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     );
 
 
-resolveTail = method()
 --Input: A chain complex
 --Output: The resolution of the tail end of the complex appended to the chain complex
 --It is not known if applying multiWinnow and then resolveTail yields a Virtual Resolution or not
 --TODO: Finish test
 --      Add length limit
+resolveTail = method()
 resolveTail(ChainComplex) := C ->(
     N := max support C;
     T := res(coker syz C.dd_N);
     L1 := for i from min C to max support C - 1 list matrix C.dd_(i+1);
     L2 := for i from min T to max support T - 1 list matrix T.dd_(i+1);
     chainComplex(L1 | L2)
-);
+    );
 
 
 -- Given a saturated ideal J, irrelevant ideal irr, and a vector A,
@@ -115,9 +108,8 @@ intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
 -- This is a temporary fast saturation. Keep this up to date
 -- with any changes in Colon.m2 (hopefully we can just change
 -- this to saturate(I,irr)
-ourSaturation = (I,irr) -> (
-    saturationByElimination(I,irr)
-    )
+-- TODO: ask Mike S. about this
+ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 
 -- This is the temporary fast saturation that Mike Stillman created
 eliminationInfo = method()
@@ -241,22 +233,21 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
 	--creates an ideal where if degrees of generators match
  	--  those generators are replaced by one generator that
 	--  is a random combination of all generators of that degree
-	K := ideal(apply(allmatches,i->sum(apply(i,
-			j-> random(k) * J_(j)))));
+	K := ideal(apply(allmatches,i->sum(apply(i, j-> random(k) * J_(j)))));
 	J = K;
 	);
     lists := subsets(numgens(J),n);
     output := {};
     if opts.GeneralElements == true then output = {J};
     apply(lists, l -> (
-	I := ideal(J_*_l);
-	if ourSaturation(ourSaturation(I,comps_0),comps_1) == Jsat then (
-	    output = append(output,l);
-	         );
-	     )
-	 );
-     output
-     )
+            I := ideal(J_*_l);
+            if ourSaturation(ourSaturation(I,comps_0),comps_1) == Jsat then (
+                output = append(output,l);
+                );
+            )
+        );
+    output
+    )
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -377,7 +368,7 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     --- If PreserveDegree => true checks whether curve intersects base locus;
     --- this ensures the curve has the correct degree and genus.
     if opts.PreserveDegree == true then (
-	    if (saturate((J+BL1))==ideal(rVars)) or (saturate((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
+	if (saturate((J+BL1))==ideal(rVars)) or (saturate((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
 	);
     --- Defines P1xP2
     x := getSymbol "x";
@@ -400,10 +391,10 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     B3 := ideal(apply(3,i->uVars#(6+i)));
     B := intersect(B1,B2,B3,sub(BL,U));
     --- Computes saturation and then eliminates producing curve in P1xP2
---    K := saturate(C'+D,B,MinimalGenerators=>false);
+--    K := saturate(C'+D,B,MinimalGenerators=>false); -- FIXME
     K := ourSaturation(C'+D,B);
     sub(eliminate({uVars#0,uVars#1,uVars#2,uVars#3},K),S)
-)
+    )
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -426,20 +417,21 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     BL1 := ideal(rVars#0,rVars#1);
     BL2 := ideal(rVars#1,rVars#2,rVars#3);
     BL := intersect(BL1,BL2);
-       --- Randomly generates curve in P3 until finds one not intersecting
+    --- Randomly generates curve in P3 until finds one not intersecting
     --- base locus of projection or until Bound is reached.
     C := ideal(0);
     apply(opts.Bound,i->(
 	    C = curve(d,g,R);
 	    if class(C) === Curve then C = ideal(C);
 	    if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;
-	    ));
+	    )
+	);
     --- Checks whether curve in P3 intersects base locus of projection;
     --- this ensures the curve has the correct degree and genus.
     if (saturate(C+BL1)==ideal(rVars)) or (saturate(C+BL2)==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
     --- Defines P1xP2
     curveFromP3toP1P2(C)
-)
+    )
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -496,7 +488,6 @@ load ("./tests.m2")
 beginDocumentation()
 load ("./doc.m2")
 
-
 end--
 
 --------------------------------------
@@ -508,21 +499,17 @@ uninstallPackage "VirtualResolutions"
 restart
 installPackage "VirtualResolutions"
 restart
-needsPackage "SplendidComplexes"
 needsPackage "VirtualResolutions"
-load "CapeCod.m2"
 R = ZZ/32003[a,b, Degrees => {{1,0}, {0,1}}]
 I = ideal"a2,b2,ab"
 C = res I
 --compactMatrixForm = false
-betti' C
+multigraded betti C
 
 ---------------------------------
 
 restart
 needsPackage "VirtualResolutions"
-needsPackage "SplendidComplexes"
-load "CapeCod.m2"
 X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
 S = ring X
 irr = ideal X
@@ -531,154 +518,14 @@ I = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
 J = saturate(I,irr)
 hilbertPolynomial(X,J)
 C = res J
-betti' C
-winnow(X, C, {2,1})
-winnow(X, C, {1,2})
+multigraded betti C
+multiWinnow(X, C, {{2,1}})
+multiWinnow(X, C, {{1,2}})
 L = multiWinnow(X, C, {{1,2}, {2,1}})
-
-
 
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
 J' = saturate(I',irr);
 hilbertPolynomial(X,J')
 r' = res J'
-betti' r'
-winnow(X, r', {2,3})
-
----------------------------------
-restart
-uninstallPackage "BGG"
-uninstallPackage "TateOnProducts"
-restart
-installPackage "BGG"
-installPackage "TateOnProducts"
-viewHelp BGG
-
-restart
-needsPackage "VirtualResolutions"
---needsPackage "SplendidComplexes"
---needsPackage "BGG"
-needsPackage "TateOnProducts"
-load "CapeCod.m2"
-X = toricProjectiveSpace(1)**toricProjectiveSpace(1)
-S = ring X
-irr = ideal X
-
--- Correct
-E = (coefficientRing S)[A_(0)..A_(3), SkewCommutative => true, Degrees=>degrees S]
-Q = presentation(S^1)
-D = res image symExt(Q, E)
-cohomologyMatrix(D, {-3,-3},{3,3})
-
--- Not complete
-I = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
-J = saturate(I,irr)
-
-Q = presentation(S^1/I)
-D = res image symExt(Q, E)
-cohomologyMatrix(D, {-3,-3},{3,3})
-
--- Better
-I' = ideal(x_0^2*x_2^3)
-J' = saturate(I',irr)
-
-
-
--- This is a temporary function, inputs and outputs are changing
-multiGradedRegularity = method()
-multiGradedRegularity (Module, List, List, ZZ) := (M, D, T, N) -> (
-    S = ring M;
-    P = presentation(truncate(T, M));
-    E = (coefficientRing S)[A_(0)..A_(numgens S - 1), SkewCommutative => true, Degrees=>degrees S];
-    se = symExt(P, E);
-    print se;
-    C = res (image se, LengthLimit => N);
-    print betti C;
-    C' = res(coker transpose C.dd_(length C + min C), LengthLimit => 2 * length C);
-    C' = C'[N];
---    C' := res(coker transpose C.dd_N, LengthLimit => 2 * N);
-    C'' = beilinsonWindow C';
---    C''' = (ring C'')^{D}**(sloppyTateExtension C'');
---    cohomologyTable(C''' ** E^{{-1,-1}}, {-N,-N},{N,N})
-    C''' = sloppyTateExtension C'';
-    cohomologyTable(C''', {-N,-N},{N,N})
-    )
-
-coarseMultigradedRegularity = M -> (
-    F := res M;
-    el := length F;
-    r := degreeLength ring M;
-    D := apply((min F..max F), i-> degrees F_i);
-    L := flatten apply(length D, i-> apply(D_i, s -> s-toList(r:i)));
-    apply(r, p-> max(apply(L, q-> q_p)))
-    )
-
-
-max{{1,2},{2,1}}
-cohomology(0,(sheaf S)^{{1,1}}**sheaf M)
-
-
-M= S^1;D = {1,0};T = {0,0};N = 4; -- works now with any N
-M = S^1/S_0^2
-M = truncate({1,0},M)
-M = S^{{1,0}}**M
-degrees presentation M
-multiGradedRegularity(M,D,T, N)
-
-C'
-C''
-C'''
-cohomologyTable (E^{{0,-1}}**C''',{-5,-5},{5,5})
-
-M = (S^1++S^{0,2})/ideal(S_0^2,S_2^4)
-r = coarseMultigradedRegularity M
-M' = truncate(r,M)
-D = {1,1};T = {0,0};N = 6; -- works now with any N
-multiGradedRegularity(M',D,T, N)
-
-
-multiGradedRegularity(S^1, {0,0}, {0,0}, 6)
-multiGradedRegularity(S^1, {0,0}, {0,0}, 2)
-
-x = symbol x; e = symbol e;
-(S,E) = setupRings(ZZ/101,{1,1},x,e)
-I = module ideal(x_(0,0)^2*x_(1,0)^3)
-
-T = dual exteriorTateResolution(I,E,{4,5},7)
-
-T = dual exteriorTateResolution(S^1,E,{1,2},5)
-C = beilinsonWindow T
-C' = sloppyTateExtension C
-cohomologyTable (C', {-5,-5},{5,5})
-
-multiGradedRegularity(S^1/I, {0,0}, {2,2}, 3)
-
-multiGradedRegularity(S^1/I, {0,0}, {2,2}, 3) -- FIXME
-
-
-
-multiGradedRegularity(S^1 ++ S^{{2,3}}, {0,0}, {0,0}, 4)
-
--- Finding Multi Graded Regularity
-M = S^1/I'
-H = multiGradedRegularity(M, {0,0}, {2,3}, 4)
-m = diff((ring H)_0, H)
-c = (pair -> {5 - first pair, last pair - 5}) \ findCorners m
-L = multiWinnow(X, res M, c) --- error
-
-
-m' = new MutableMatrix from m
-m'_(2,4) = 0
-m'_(3,5) = 0
-m'_(5,6) = 0
-m'_(6,7) = 0
-m'
-findCorners matrix m'
-
--- Complete
-M = S^1/I
-C = res M
-H = multiGradedRegularity(M, {0,0}, {2,3}, 4)
-m = diff((ring H)_0, H)
-c = findCorners m
-c = (pair -> {5 - first pair, last pair - 5}) \ findCorners m
+multigraded betti r'
+multiWinnow(X, r', {{2,3}})
