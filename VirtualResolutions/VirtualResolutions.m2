@@ -20,12 +20,12 @@ newPackage ("VirtualResolutions",
     Date => "April 14, 2018",
     Headline => "Methods for virtual resolutions on products of projective spaces",
     Authors =>{
-    	{Name => "Ayah Almousa",       Email => "aka66@cornell.edu",   HomePage => "http://www.math.cornell.edu/~aalmousa "},
-    	{Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://www-users.math.umn.edu/~cberkesc/"},
-	{Name => "Juliette Bruce",     Email => "jebruce2@wisc.edu",    HomePage => "https://juliettebruce.github.io"},
+        {Name => "Ayah Almousa",       Email => "aka66@cornell.edu",   HomePage => "http://www.math.cornell.edu/~aalmousa "},
+        {Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://www-users.math.umn.edu/~cberkesc/"},
+        {Name => "Juliette Bruce",     Email => "jebruce2@wisc.edu",   HomePage => "https://juliettebruce.github.io"},
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
-	{Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://www-users.math.umn.edu/~loper012/"},
-        {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu"}
+        {Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://www-users.math.umn.edu/~loper012/"},
+        {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu", Homepage => "http://math.umn.edu/~mahrud/"}
     	},
     PackageExports => {
 	"TateOnProducts",
