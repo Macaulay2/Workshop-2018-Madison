@@ -25,7 +25,7 @@ newPackage ("VirtualResolutions",
         {Name => "Juliette Bruce",     Email => "jebruce2@wisc.edu",   HomePage => "https://juliettebruce.github.io"},
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
         {Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://www-users.math.umn.edu/~loper012/"},
-        {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu", Homepage => "http://math.umn.edu/~mahrud/"}
+        {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu", HomePage => "http://math.umn.edu/~mahrud/"}
     	},
     PackageExports => {
 	"TateOnProducts",
@@ -48,6 +48,10 @@ export{
     "randomMonomialCurve",
     "randomCurveP1P2",
     "saturationZero",
+    "multigraded",
+--    "multigradedRegularity",
+    -- Types
+    "MultigradedBettiTally",
     -- Options
     "Bound",
     "PreserveDegree",
@@ -56,6 +60,7 @@ export{
     }
 
 debug Core
+debug TateOnProducts -- TODO: is this necessary?
 
 --Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --See Theorem 4.1 of [BES]
@@ -480,10 +485,29 @@ saturationZero (Ideal,Ideal) := (I,B) ->(
     saturationZero(comodule I,B)
     )
 
+
+-- Computes the multigraded regularity of a module
+-- See Definition BLAH from [BES].
+-- Input: module M, irrelevant ideal B with ZZ^r grading
+-- Output: a list of r-tuples
+-- Caveat: assumed M is B-saturated already
+-- TODO: NOT COMPLETE, intersect with hilbertFunction == hilbertPolynomial
+multigradedModuleRegularity = method()
+multigradedModuleRegularity(Module, Ideal) := List => (M, B) -> (
+    S := ring M;
+    n := #(degrees S)_0;
+    -- The regularity ought to be in the box from low^n to high^n
+    low := -toList(n:#(gens S) - n);
+    high := toList(n:regularity M);
+    ht := cohomologyHashTable(M, low, high);
+    findCorners ht
+    )
+
 ----------------------------------------------
 -- Begining of the tests and the documentation
 ----------------------------------------------
 
+load ("./multigradedBetti.m2") -- TODO: is this temporary?
 load ("./tests.m2")
 beginDocumentation()
 load ("./doc.m2")
@@ -529,3 +553,25 @@ hilbertPolynomial(X,J')
 r' = res J'
 multigraded betti r'
 multiWinnow(X, r', {{2,3}})
+
+
+restart
+debug needsPackage "VirtualResolutions"
+
+(X, E) = productOfProjectiveSpaces {1, 2}
+irr = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)))
+I' = ideal(x_(0,0)^2*x_(1,0)^2+x_(0,1)^2*x_(1,1)^2+x_(0,0)*x_(0,1)*x_(1,2)^2, x_(0,0)^3*x_(1,2)+x_(0,1)^3*(x_(1,0)+x_(1,1)))
+J' = saturate(I',irr);
+r' = res J'
+M = X^1/J'
+multigradedModuleRegularity(M, irr)
+C = res M
+
+I = intersect(ideal(x_(0,0), x_(1,0)), ideal(x_(0,1), x_(1,1)))
+J = saturate(I,irr)
+C = res J
+betti' C
+betti' multiWinnow(X, C, {{1,2}, {2,1}})
+betti' multiWinnow(X, C, multigradedRegularity module J)
+
+multigradedRegularity module J -- ??
