@@ -196,7 +196,7 @@ isVirtual (Ideal, Ideal, ChainComplex) := Boolean => (I, irr, C) -> (
     true
     )
 
-isVirtual (Module, Ideal, ChainComplex) := Boolean -> (M, irr,C) -> (
+isVirtual (Module, Ideal, ChainComplex) := Boolean => (M, irr,C) -> (
     annM := ann(M);
     annHH0 := ann(HH_0(C));
     annMsat := ourSaturation(annM,irr);
