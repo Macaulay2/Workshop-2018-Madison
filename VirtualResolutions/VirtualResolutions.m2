@@ -176,7 +176,7 @@ saturationByElimination(Ideal, Ideal) := (I, J) -> (
 -- Output: Boolean - true if complex is virtual resolution, false otherwise
 -- TODO: need to fix for modules; don't know how to saturate for modules
 isVirtual = method()
-isVirtual (Ideal, Ideal, ChainComplex) := Boolean -> (I, irr, C) -> (
+isVirtual (Ideal, Ideal, ChainComplex) := Boolean => (I, irr, C) -> (
     annHH0 := ideal(image(C.dd_1));
     Isat := ourSaturation(I,irr);
     annHH0sat := ourSaturation(annHH0,irr);
