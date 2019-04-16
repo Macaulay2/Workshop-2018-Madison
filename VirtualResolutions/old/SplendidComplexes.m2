@@ -32,8 +32,6 @@ newPackage(
   )
 
 export { 
-  "MultigradedBettiTally",
-  "betti'",
   "minimize",
   "pointsIdeal"
   }
@@ -67,101 +65,6 @@ NormalToricVariety ^** ZZ := NormalToricVariety => (X,n) -> (
 ------------------------------------------------------------------------------
 -- CODE
 ------------------------------------------------------------------------------
-MultigradedBettiTally = new Type of VirtualTally
-MultigradedBettiTally.synonym = "multigraded Betti tally" 
-MultigradedBettiTally == MultigradedBettiTally := (B,C) -> B === C
-MultigradedBettiTally ++ MultigradedBettiTally := (B,C) -> merge(B,C,plus)
-MultigradedBettiTally ** MultigradedBettiTally := (B,C) -> (
-  combine(B,C, (k,j) -> apply(j,k, plus), times, plus))
-ZZ * MultigradedBettiTally := (n,B) -> applyValues(B, v -> n*v)
-QQ * MultigradedBettiTally := (n,B) -> applyValues(B, v -> n*v)
-pdim MultigradedBettiTally := B -> max apply(keys B, i -> i#0)
-MultigradedBettiTally List := (B,l) -> applyKeys(B, (i,h,d) -> (i,h,d-l))
-MultigradedBettiTally Array := (B,A) -> (
-  if #A =!= 1 then error "expected array of length 1";
-  n := A#0;
-  applyKeys(B, (i,h,d) -> (i-n,h,d)))
-
-net MultigradedBettiTally := B -> ( 
-    if keys B == {} then return 0;
-    N := max apply(pairs B, (key, n) -> ((i,h,d) := key; length d));
-    R := ZZ[vars(0..N-1)];
-    H := new MutableHashTable;
-    (rows, cols) := ({}, {});
-    scan(pairs B,
-        (key, n) -> (
-	    (i,h,d) := key;
-	    key = (h, i);
-	    (rows, cols) = (append(rows, h), append(cols, i));
-	    if compactMatrixForm then (
-		m := monomial(R, d, n);
-	        if H#?key then H#key = H#key + m else H#key = m;
-		) else (
-		s := toString n | ":" | toString d;
-                if H#?i then H#i = H#i | {s} else H#i = {s};
-		);
-	    ));
-    (rows, cols) = (sort unique rows, sort unique cols);
-    if compactMatrixForm then (
-        T := table(toList (0 .. length rows - 1), toList (0 .. length cols - 1),
-            (i,j) -> if H#?(rows#i,cols#j) then H#(rows#i,cols#j) else 0);
-        -- Making the table
-        xAxis := toString \ cols;
-        yAxis := (i -> toString i | ":") \ rows;
-        T = applyTable(T, n -> if n === 0 then "." else toString raw n);
-        T = prepend(xAxis, T);
-        T = apply(prepend("", yAxis), T, prepend);
-        ) else (
-        T = table(toList (0 .. length rows - 1), sort keys H,
-            (i,k) -> if i < #H#k then H#k#i else null);
-        T = prepend(sort keys H,T);
-        );
-    netList(T, Alignment => Right, HorizontalSpace => 1, BaseRow => 1, Boxes => false)
-    )
-
-poincare (NormalToricVariety, MultigradedBettiTally) := (X,B) -> (
-  R := degreesRing ring X;
-  if #B === 0 then return 0_R;
-  sum(keys B, k -> (-1)^(k#0) * B#k * R_(k#2)))
-
-
--- local function for selecting and computing the appropriate heft
-heftFunction0 := wt -> d -> sum(min(#wt,#d), i -> wt#i * d#i)
-heftFunction := (wt1,wt2) -> (
-  if wt1 =!= null then heftFunction0 wt1
-  else if wt2 =!= null then heftFunction0 wt2
-  else d -> 0)
-
-monomial = (R, d, n) -> (
-    m := 1_R * n;
-    apply(pairs d, (i, e) -> m = m * R_i ^ e);
-    m
-    )
-
--- our new method for displaying degrees
--- TODO: incorporate Minimize and Weights options
-betti' = method(
-    TypicalValue => MultigradedBettiTally,
-    Options => options betti
-    )
-betti' MultigradedBettiTally := opts -> B -> (
-  if opts.Weights === null then B 
-  else ( 
-    heftFn := heftFunction0 opts.Weights;
-    applyKeys(B, (i,h,d) -> (i, heftFn d, d))))
-betti' Matrix := opts -> f -> betti'(chainComplex f, opts)
-betti' GroebnerBasis := opts -> G -> betti'(generators G, opts)
-betti' Ideal := opts -> I -> betti'(generators I, opts)
-betti' MonomialIdeal := opts -> I ->  betti'(ideal I, opts)
-betti' Module := opts -> M -> betti'(presentation M, opts)
-betti' GradedModule := opts -> C -> (
-  complete C;
-  heftFn := heftFunction(opts.Weights, heft C);
-  new MultigradedBettiTally from flatten apply(
-    select(pairs C, (i,F) -> class i === ZZ),
-    (i,F) -> apply(pairs tally degrees F, (d,n) -> (i, heftFn d, d) => n)))
-
-
 
 -- local functions for finding the extremal homological degrees of the
 -- nonzero modules in a graded module
@@ -264,18 +167,6 @@ hilbertPolynomial (NormalToricVariety, Ideal) := RingElement => opts ->
 hilbertPolynomial (NormalToricVariety, CoherentSheaf) := RingElement => 
 opts -> (X,F) -> hilbertPolynomial(X, F.module, opts)
 
-hilbertPolynomial (NormalToricVariety,MultigradedBettiTally) := RingElement =>
-opts -> (X,B) -> (
-  h := hilbertPolynomial X;
-  R := ring h;
-  r := numgens R;
-  f := poincare(X,B);
-  p := pairs standardForm f;
-  if #p === 0 then 0_R
-  else sum(p, (d,c) -> (
-      shift := apply(r, j -> if d#?j then R_j - d#j else R_j);
-      c * substitute(h,matrix{shift}))))
-
 
 
 pointsIdeal = method()
@@ -309,195 +200,6 @@ document {
 }
 
 document {
-  Key => {MultigradedBettiTally,
-    (symbol **, MultigradedBettiTally,MultigradedBettiTally),
-    (symbol ++, MultigradedBettiTally,MultigradedBettiTally),    
-    (symbol ==, MultigradedBettiTally,MultigradedBettiTally),
-    (symbol SPACE, MultigradedBettiTally, Array),
-    (symbol SPACE, MultigradedBettiTally, List),
-    (net, MultigradedBettiTally),
-    (pdim, MultigradedBettiTally),
-    (symbol *, QQ, MultigradedBettiTally),
-    (symbol *, ZZ, MultigradedBettiTally),
-    (hilbertPolynomial, NormalToricVariety, MultigradedBettiTally),
-    (poincare, NormalToricVariety, MultigradedBettiTally)},
-  Headline => "the class of all multigraded Betti tallies",
-  "A multigraded Betti tally is a special type of ", TO "Tally", " that is 
-  printed as a display of the multigraded Betti numbers.  The class was
-  created so that the function ", TO "betti'", " could return something that
-  both prints nicely and from which information could be extracted.  The keys
-  are triples ", TT "(i,h,d)", " where ", TT "i", " is the homological 
-  degree, ", TT "d", " is a list of integers giving a multidegree, and ", 
-  TT "h", " is the result of applying a weight covector to ", TT "d", ".",
-  PARA{},
-  "The data is display as a table.  Each column corresponds a given 
-  homological degree appearing as the top entry.  The other entries in a 
-  column correspond to a fixed multidegree, ordered by the ", TT "h", 
-  ".  The number of summand correspond to a given multidegree appears to 
-  the left of the multidegree.",
-  EXAMPLE lines ///
-    B = new MultigradedBettiTally from {(0,0,{0,0}) => 1, (1,2,{-2,1}) => 2, (1,5,{1,1}) => 2, (2,3,{-1,1}) => 1, (2,6,{-2,2}) => 2, (2,6,{2,1}) => 1, (3,7,{ -1,2}) => 1}
-    peek B
-    X = hirzebruchSurface 3;
-    S = ring X;
-    C = res ideal X
-    B == betti' C
-    peek betti' C
-    ///,
-  "For convenience, the operations of direct sum (", TO "++", "), tensor 
-  product (", TO "**", "), ", TO "pdim", " and degree shifting (numbers in
-  brackets or lists in parentheses) have been implemented for multigraded
-  Betti tables.  These operations mimic the corresponding operations on
-  chain complexes.",
-  EXAMPLE lines ///
-    B({1,1})
-    B[1]
-    B[1] ++ B
-    B ** B      
-    pdim B
-    hilbertPolynomial(X,B)
-    poincare(X,B)
-    ///,
-  "A multigraded Betti tally also can multiplied by an integer or by a
-  rational number.",
-  EXAMPLE lines ///
-    3 * B	 
-    (1/2) * B
-    ///,
-  SeeAlso => {
-    (hilbertPolynomial,NormalToricVariety),    
-    BettiTally,
-    poincare}
-  }
-
-document {
-  Key => {betti',
-    (betti',GradedModule)},
-  Headline => "display of multigraded degrees in a graded module",
-  Usage => "betti' C",
-  Inputs => {"C" => GradedModule,
-    Weights => {"a ", TO2(List,"list"), " of integers whose dot product with
-      the multidegree of a basis element is used to order the elements in each
-      column of the display.  The default value uses the ", 
-      TO2("heft vectors", "heft vector"), " of the ring." }},
-  Outputs => {MultigradedBettiTally => {" a diagram showing the degrees of the
-      generators of the modules in ", TT "C"}},
-   "The diagram can be used to determine the degrees of the entries in the
-   matrices of the differentials in a chain complex (which is a type of 
-   graded module) provided they are homogenous maps of degree 0.",
-  PARA{},
-  "Here is a simple example in which the multidegrees have length 2.",
-  EXAMPLE lines ///
-    X = hirzebruchSurface 3;
-    S = ring X;
-    C = res ideal X
-    B = betti' C
-    heft S
-    betti'(C, Weights => {1,0})
-    betti'(C, Weights => {0,1})    
-    ///,     
-  "When the degree length is 1, then ", TT "betti'", " provides an 
-  alternative display for the graded betti numbers.",
-  EXAMPLE lines ///
-    S = ring toricProjectiveSpace 3;
-    C = res minors(2, matrix table(2,3, (i,j) -> S_(i+j)))
-    betti C
-    betti' C
-    ///,
-  SeeAlso => {
-    MultigradedBettiTally, 
-    (betti, GradedModule), 
-    heft}
-  }
-
-document {
-  Key => {(betti',MultigradedBettiTally)},
-  Headline => "view and set the weights of a multigraded Betti tally",
-  Usage => "betti' B",
-  Inputs => {"B" => MultigradedBettiTally,
-    Weights => {"a ", TO2(List,"list"), " of integers whose dot product with
-      the multidegree of a basis element is used to order the elements in each
-      column of the display.  The default value uses the ", 
-      TO2("heft vectors", "heft vector"), " of the ring." }},
-  Outputs => {MultigradedBettiTally => {" different from the input only in 
-      its ordering of the columns"}},
-  "By changing the weights, we can reorder the columns of the diagram.",
-  EXAMPLE lines ///
-    X = hirzebruchSurface 3;
-    S = ring X;
-    C = res ideal X
-    B = betti' C
-    toString C.dd_2
-    heft S
-    betti'(B, Weights => {1,0})
-    betti'(B, Weights => {0,1})    
-    ///,     
-  SeeAlso => {
-    MultigradedBettiTally, 
-    (betti,BettiTally),
-    heft}
-  }
-
-document {
-  Key => {(betti',Matrix),
-    (betti', GroebnerBasis)},
-  Headline => "display the multidegrees of a map or Groebner basis",
-  Usage => "betti' f",
-  Inputs => {"f" => Matrix,
-    Weights => {"a ", TO2(List,"list"), " of integers whose dot product with
-      the multidegree of a basis element is used to order the elements in each
-      column of the display.  The default value uses the ", 
-      TO2("heft vectors", "heft vector"), " of the ring." }},
-  Outputs => {MultigradedBettiTally => {" a diagram showing the multidegrees 
-      of the generators of the source and target modules of ", TT "f"}},
-  "Here is a sample diagram.",
-  EXAMPLE lines ///
-    X = hirzebruchSurface 3;
-    S = ring X;
-    f =  matrix {{x_0*x_1, x_1*x_2, x_0*x_3, x_2*x_3}}
-    betti' f
-    ///,     
-  Caveat => "The diagram ignores the degree of the map itself'.",
-  SeeAlso => {
-    MultigradedBettiTally, 
-    (betti,Matrix),
-    (betti,GroebnerBasis)}    
-  }
-
-document {
-  Key => {(betti', Module),
-    (betti', Ideal),
-    (betti', MonomialIdeal)},
-  Headline => "display the multidegrees of the generators and relations",
-  Usage => "betti' M",
-  Inputs => {"M" => Module,
-    Weights => {"a ", TO2(List,"list"), " of integers whose dot product with
-      the multidegree of a basis element is used to order the elements in each
-      column of the display.  The default value uses the ", 
-      TO2("heft vectors", "heft vector"), " of the ring." }},
-  Outputs => {MultigradedBettiTally => {" a diagram showing the multidegrees 
-      of the generators and the relations"}},
-  "Here is a sample diagram.",      
-  EXAMPLE lines ///
-    X = hirzebruchSurface 3;
-    S = ring X;
-    M = cokernel matrix {{-x_0*x_3+x_2^2, x_2*x_3, 0, x_3^2}, {-x_0*x_2, -x_0*x_3, -x_0*x_3, -x_1*x_3}, {x_0*x_1,-x_1*x_2, x_2^2, -x_1*x_3}, {0, x_0*x_1, x_0*x_1-x_0*x_2, x_1^2}}
-    betti' M
-    ///,
-  "For an ideal, the output is the multidegrees of the generators and 
-  relations fo the quotient of the ambient ring by the ideal.",
-  EXAMPLE lines ///    
-    I = ideal(x_0*x_1, x_1*x_2, x_0*x_3, x_2*x_3)
-    betti' I
-    ///,     
-  Caveat => "The diagram ignores the degree of the map itself.",
-  SeeAlso => {
-    MultigradedBettiTally, 
-    (betti,Module),
-    (betti,Ideal)}
-  }
-
-document {
   Key => {minimize,
     (minimize, ChainComplex)},
   Headline => "computes a quasi-isomorphic free complex having minimal ranks",
@@ -521,79 +223,7 @@ document {
   SeeAlso => {chainComplex}
   }
 
-document {
-  Key => {(hilbertPolynomial,NormalToricVariety)},
-  Headline => "compute the multivariate Hilbert polynomial",
-  Usage => "hilbertPolynomial X",
-  Inputs => {"X" => NormalToricVariety => " which is nonsingular"},
-  Outputs => {RingElement => {" a multivariate polynomial"}},
-  "The torus-equivariant Euler characteristic of a smooth normal toric 
-  variety is a multivariate polynomial called the Hilbert polynomial. 
-  The number of variables equals the rank of the Picard group.  Since a nef 
-  line bundle has no higher cohomology on a normal toric variety, the 
-  Hilbert polynomial agrees with the dimension of a graded component of 
-  the Cox ring at any lattice point in the nef cone. ",
-  PARA{},
-  "For projective space, we obtain the usual binomial coefficent.",
-  EXAMPLE lines ///
-    n = 3;
-    X = toricProjectiveSpace n;
-    h = hilbertPolynomial X    
-    R = ring h;    
-    h == (1/n!) * product(n, i -> R_0+n-i)
-    ///,
-  "Here are a couple examples in which the Picard rank is greater than one.",
-  EXAMPLE lines ///
-    X = hirzebruchSurface 3;
-    hilbertPolynomial X
-    Y = smoothFanoToricVariety(3,11);
-    hilbertPolynomial Y
-    ///,     
-  SeeAlso => {
-    (hilbertPolynomial, NormalToricVariety,Module),
-    hilbertPolynomial}
-  }
 
-document {
-  Key => {(hilbertPolynomial,NormalToricVariety,Module),
-    (hilbertPolynomial,NormalToricVariety,Ideal),
-    (hilbertPolynomial,NormalToricVariety,Ring),
-    (hilbertPolynomial,NormalToricVariety,CoherentSheaf)},
-  Headline => "compute the multivariate Hilbert polynomial",
-  Usage => "hilbertPolynomial(X,M)",
-  Inputs => {"X" => NormalToricVariety => " which is nonsingular",
-    "M" => Module => {" over the Cox ring of ", TT "X"} },
-  Outputs => {RingElement => {" a multivariate polynomial"}},
-  "The torus-equivariant Euler characteristic of a smooth normal toric 
-  variety is a multivariate polynomial called the Hilbert polynomial. 
-  The number of variables equals the rank of the Picard group.  Since a nef 
-  line bundle has no higher cohomology on a normal toric variety, the 
-  Hilbert polynomial agrees with the dimension of a graded component of 
-  the Cox ring at any lattice point in the nef cone. ",
-  PARA{},
-  "For the twisted cubic curve, we obtain the usual polynomial.",
-  EXAMPLE lines ///
-    X = toricProjectiveSpace 3;
-    S = ring X;
-    I = minors(2, matrix table(2,3, (i,j) -> S_(i+j)))
-    h = hilbertPolynomial(X,I)    
-    ///,
-  "Here are a few examples over a toric variety with the Picard rank is 
-  greater than one.",
-  EXAMPLE lines ///
-    X = smoothFanoToricVariety(2,3);
-    S = ring X;
-    F = OO sum(#rays X, i -> X_i)
-    hilbertPolynomial(X,F)
-    curve = ideal random(S^1, S^{{ -1,-1,-1}})
-    hilbertPolynomial(X,curve)
-    points = ideal random(S^1, S^{{ -1,-1,-1},{ -1,0,0}})
-    hilbertPolynomial(X,points)
-    hilbertPolynomial(X,betti' res points)
-    ///,     
-  SeeAlso => {hilbertPolynomial,
-    (hilbertPolynomial,NormalToricVariety)}
-  }
 
 document {
   Key => {pointsIdeal,
@@ -710,7 +340,7 @@ h = hilbertPolynomial(X,I);
 R = ring h;
 assert(h == 3*R_0+1)
 C = res I;
-B = betti' C;
+B = multigraded betti C;
 assert(poincare(X,B) == poincare C)
 assert(hilbertPolynomial(X,B) == 3*R_0+1)
 
@@ -781,7 +411,7 @@ I = intersect(apply(2,j-> ideal apply(3,i-> random({1,1},S))));
 I = saturate(I,ideal X);
 degree I
 dim I
-betti' res I
+multigraded betti res I
 F = res I
 
 matrix table(10,10,(i,j) -> hilbertFunction({9-i,j},I))
@@ -824,8 +454,8 @@ winnowHat (NormalToricVariety, ChainComplex, List) := (X,F,alpha) ->(
      H**S^{-alpha}
      );
 F' = winnowHat(X,F,{2,1})   
-betti' F'
-betti' (F**S^{{2,1}})
+multigraded betti F'
+multigraded betti (F**S^{{2,1}})
 HS = apply(5,i-> HH_i F');
 J = saturate(ann HS_0,ideal X);
 J == I
@@ -833,8 +463,8 @@ apply({1,2,3,4},i-> saturate(ann HS_i, ideal X))
 
 load "CapeCod.m2"
 wF = winnow(X,F,{4,3})
-betti' wF
-betti' F'
+multigraded betti wF
+multigraded betti F'
 -- winnowHat doesn't work.
 F'
 wHS = apply(4,i-> HH^i wF);

@@ -6,7 +6,7 @@
 restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-X = projectiveSpace(1)**projectiveSpace(2)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
 S = ring X
 irr = ideal X
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
@@ -17,7 +17,7 @@ betti' r'
 --  This is the resolution in line (1.4.1)
 hilbertPolynomial(X,J')
 --curve of bidegree (2,8)
-matrix table(7,7,(i,j) -> hilbertFunction({j,6-i},J'))
+matrix table(10,10, (i,j) -> hilbertFunction({j - 3, 10 - i - 3 - 1},J'))
 --(2,1) and (1,5) are both in regularity.
 
 q1 = winnowProducts(X,r',{2,1})
@@ -34,6 +34,14 @@ betti' q2
 phi' = q2.dd_2
 
 
+o15 = | 45   47   49   51  53 55 57 |
+      | 37   39   41   43  45 47 49 |
+      | 29   31   33   35  37 39 41 |
+      | 21   23   25   27  29 31 33 |
+      | 13   15   17   19  21 23 25 |
+      | 5    7    9    11  13 15 17 |
+      | 4h+1 3h+2 2h+3 h+4 5  7  9  |
+
 
 
 --
@@ -45,7 +53,7 @@ phi' = q2.dd_2
 restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-X = projectiveSpace(1)**projectiveSpace(2)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
 S = ring X
 irr = ideal X
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
@@ -69,7 +77,7 @@ apply(T,t->HH^0(X,OC(2,2)**t))
 restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-X = projectiveSpace(2)**projectiveSpace(2)
+X = toricProjectiveSpace(2)**toricProjectiveSpace(2)
 S = ring X;
 irr = ideal X;
 I = intersect(ideal(x_0,x_1),ideal(x_3,x_4))
@@ -83,7 +91,7 @@ betti' res I
 restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-X = projectiveSpace(1)**projectiveSpace(1)**projectiveSpace(2);
+X = toricProjectiveSpace(1)**toricProjectiveSpace(1)**toricProjectiveSpace(2);
 S = ring X;
 irr = ideal X;
 I1 = intersect apply(6,i-> ideal(random({1,0,0},S),random({0,1,0},S), random({0,0,1},S),random({0,0,1},S)));
@@ -217,7 +225,7 @@ res intersect(I,B0^11)
 restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-X = projectiveSpace(1)**projectiveSpace(2)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
 S = ring X
 irr = ideal X
 I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
@@ -234,7 +242,7 @@ assert(saturate(K,irr) == J')
 restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-X = projectiveSpace(1)**projectiveSpace(3)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(3)
 S = ring X
 irr = ideal X;
 I = ideal((x_0^2)*(x_3^2)+x_1^2*x_2*x_5+x_0*x_1*x_4^2, x_0*(x_2*x_4)+x_1*(x_3*x_5)+x_1*x_3^2)
@@ -303,7 +311,7 @@ matrix table(7,7,(i,j) -> hilbertFunction({j,6-i},J))
 restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
-X = projectiveSpace(2)**projectiveSpace(2);
+X = toricProjectiveSpace(2)**toricProjectiveSpace(2);
 S = ring X;
 irr = ideal X;
 IE = ideal(random({1,1},S),random({1,1},S),random({1,1},S));
@@ -320,7 +328,7 @@ betti' q
 
 
 ----
-X = projectiveSpace(2)**projectiveSpace(2)
+X = toricProjectiveSpace(2)**toricProjectiveSpace(2)
 S = ring X
 irr = ideal X
 phi1 = random(S^{2:{-1,0}},S^{2:{-1,-1}})
@@ -357,7 +365,7 @@ restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
 
-X = projectiveSpace(1)**projectiveSpace(1)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(1)
 S = ring X
 irr = ideal X
 I = intersect(ideal(x_0,x_2),ideal(x_1,x_3))
@@ -379,7 +387,7 @@ restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
 
-X = projectiveSpace(1)**projectiveSpace(1)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(1)
 S = ring X
 irr = ideal X
 
@@ -510,7 +518,7 @@ betti' w
 
 ---------------
 --  (PP1)^6:
-X' = projectiveSpace(1)**projectiveSpace(1)**projectiveSpace(1)**projectiveSpace(1)**projectiveSpace(1)**projectiveSpace(1)
+X' = toricProjectiveSpace(1)**toricProjectiveSpace(1)**toricProjectiveSpace(1)**toricProjectiveSpace(1)**toricProjectiveSpace(1)**toricProjectiveSpace(1)
 S' = ring X'
 irr' = ideal X';
 -- 4 points on X':
@@ -540,7 +548,7 @@ restart
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
 
-X = projectiveSpace(1)**projectiveSpace(3)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(3)
 S = ring X
 irr = ideal X;
 -- Surface
@@ -594,7 +602,7 @@ regRegion J
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
 
-X = projectiveSpace(2)**projectiveSpace(2)
+X = toricProjectiveSpace(2)**toricProjectiveSpace(2)
 S = ring X
 irr = ideal X;
 -- Surface
@@ -644,7 +652,7 @@ regRegion(J)
 needsPackage "SplendidComplexes"
 load "CapeCod.m2"
 
-X = projectiveSpace(1)**projectiveSpace(2)
+X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
 S = ring X
 irr = ideal X;
 -- Surface
