@@ -2,7 +2,7 @@ doc ///
   Key
     VirtualResolutions
   Headline
-    Compute virtual resolutions
+    A package for compute virtual resolutions
   Description
     Text
      While graded minimal free resolutions work well for studying quasicoherent 
@@ -13,7 +13,7 @@ doc ///
      studying toric subvarieties when compared to minimal graded free resolutions.
      
      Introduced by Berkesch, Erman, and Smith in {\em Virtual resolutions for a product of projective spaces} 
-     (see arXiv:1703.07631) if $X$ is a smooth toric variety, $S$ the Cox ring of $X$
+     (see @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@) if $X$ is a smooth toric variety, $S$ the Cox ring of $X$
      graded by the Picard group of $X$, and $B\subset S$ the irrelevant ideal of $X$ then
      a virtual resolution of a graded $S$-module $M$ is a complex of graded free $S$-modules, which
      sheafifies to a resolution of the associated sheaf.
@@ -61,6 +61,16 @@ doc ///
      a number of other tools for constructing and studying virutal resolutions. In particular,
      there are functions to construct virtual resolutions for zero dimensionsal subschemes, to
      check whether a complex is a virtual resolution, and to consturct curves in $\mathbb{P}^1\times\mathbb{P}^2$.
+    Text
+       @SUBSECTION "Contributors"@
+    Text
+       The following people have generously contributed code or worked on
+       our code.
+    Text
+       @UL {
+	   {HREF("http://www.math.wisc.edu/~derman/","Daniel Erman")},
+	   {HREF("https://mast.queensu.ca/~ggsmith/","Gregory G. Smith")},
+	   }@
 ///
 
 doc ///
@@ -280,7 +290,7 @@ doc ///
 	g:ZZ
 	    genus of the curve.
 	F:Ring
-	    base ring
+	    base ring.
     Outputs
     	:Ideal
 	    defining random curve of degree (d,d) and genus g in P1xP2 over F.
@@ -295,10 +305,11 @@ doc ///
 	    The number of attempts used to try to find such curves is controled by the Bound option, which by default is 1000.
 	Example
 	    randomCurveP1P2(3,0)
-	    randomCurveP1P2(3,0,QQ)
+	    randomCurveP1P2(3,0,QQ);
     Caveat
         This globaly defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
 ///
+
 
 doc ///
     Key
@@ -310,10 +321,11 @@ doc ///
            When randomCurveP1P2 generates a random curve in P^3 using the SpaceCurves package it is possible the resulting
 	   curve will intersect the base locuses of the projections used to construct the curve in P^1 x P^2. If the curve
 	   does intersect the base locuses it will generate a new random curve in P^3. The option Bound limits the number
-	   of attempts to find a curve disjoing from the base locuses before quiting. By defualt Bound is set to 1000.
+	   of attempts to find a curve disjoing from the base locuses before quiting. By defualt Bound is set to 1000. 
     SeeAlso
         randomCurveP1P2
 ///
+
 
 doc ///
     Key

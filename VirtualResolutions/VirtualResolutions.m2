@@ -516,3 +516,4 @@ installPackage "VirtualResolutions"
 restart
 needsPackage "VirtualResolutions"
 elapsedTime check "VirtualResolutions" -- FIXME 13/38 tests fail
+viewHelp "VirtualResolutions"
