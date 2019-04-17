@@ -63,3 +63,36 @@ multigraded betti vres
 isVirtual(J,B,vres)
 vres2 = multiWinnow(S,minres,{{2,0}})
 isVirtual(J,B,vres2)
+
+
+
+-------------
+----- I keep getting an error when trying to compute the compute
+----- the multigraded regularity of this example... something of the form
+
+-- VirtualResolutions.m2:458:14:(3):[2]: error: encountered values for 4 variables, but expected 5
+-- VirtualResolutions.m2:458:14:(3):[2]: --entering debugger (type help to see debugger commands)
+-- VirtualResolutions.m2:458:14-459:39: --source code:
+--        M = (map(ring X, S, gens ring X))(M');
+--       );
+
+-- Build P1xP2 and the irrelvant ideal
+(S, E) = productOfProjectiveSpaces({1, 2});
+B =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
+
+--- construct a curve in P1xP2 from the twisted cubic
+R = QQ[z_0,z_1,z_2,z_3];
+I = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
+J = curveFromP3toP1P2(I);
+
+--- putting the curve J into our product of projective spaces and saturating ...
+T = ring J;
+F = map(S,T,(flatten entries vars S));
+K = F(J);
+K' = saturate(K,B);
+
+--- sanity check on the dimension
+dim K' == 3
+
+multigradedRegularity(S, module K')
+
