@@ -87,23 +87,22 @@ J = curveFromP3toP1P2(I)
 
 dim J
 
-
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 ------------- Example 3.2
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
-I = randomCurveP1P2(5,2);
+I = randomCurveP1P2(7,3);
 S = ring I;
 dim I
 
 B = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
-J = saturate(I,B)
+J = saturate(I,B);
 
 multigradedRegularity(S, S^1/J)
 
 minres = res J;
-vres = multiwinnow(S,minres,{{2,2}});
+vres = multiWinnow(S,minres,{{3,5}});
 
 multigraded betti minres
 multigraded betti vres
