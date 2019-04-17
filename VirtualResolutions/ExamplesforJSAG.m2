@@ -11,7 +11,7 @@ J = saturate(intersect(
      B)
 
 multigradedRegularity(X, module J)
-
+multigradedRegularity(X, S/J)
 minres = res J;
 multigraded betti minres
 vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
@@ -67,30 +67,69 @@ isVirtual(J,B,vres2)
 
 
 -------------
------ I keep getting an error when trying to compute the compute
------ the multigraded regularity of this example... something of the form
-
--- VirtualResolutions.m2:463:47:(3):[3]: error: cannot map rational to this ring
--- VirtualResolutions.m2:463:47:(3):[3]: --entering debugger (type help to see debugger commands)
--- VirtualResolutions.m2:463:47-463:74: --source code:
---            if hilbertFunction(ell_0_0, M) != (map(ZZ, ring H, ell_0_0))(H) then (
-
+-------------
 -- Build P1xP2 and the irrelvant ideal
 (S, E) = productOfProjectiveSpaces({1, 2});
 B =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
-
 --- construct a curve in P1xP2 from the twisted cubic
 R = QQ[z_0,z_1,z_2,z_3];
 I = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
 J = curveFromP3toP1P2(I);
-
 --- putting the curve J into our product of projective spaces and saturating ...
 T = ring J;
 F = map(S,T,(flatten entries vars S));
 K = F(J);
 K' = saturate(K,B);
+minres = res K';
+--- sanity check on the dimension
+dim K' == 3
+multigradedRegularity(S, module K')
+vres = multiWinnow(S,minres,{{0,0}})
+
+-------------
+-------------
+K = randomCurveP1P2(5,2);
+dim K == 3
+T = ring K;
+B1 =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
+K'  = saturate(K,B1);
+multigradedRegularity(T, module K')
+
+-- Build P1xP2 and the irrelvant ideal
+(S, E) = productOfProjectiveSpaces({1, 2});
+B2 =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
+--- putting the curve J into our product of projective spaces and saturating ...
+F = map(S,T,(flatten entries vars S));
+I = F(K);
+J = saturate(I,B2);
+
+multigradedRegularity(S, module J)
+
+minres = res J;
+vres = multiWinnow(S,minres,{{2,2}})
+
+multigraded betti minres
+multigraded betti vres
 
 --- sanity check on the dimension
 dim K' == 3
-
 multigradedRegularity(S, module K')
+vres = multiWinnow(S,minres,{{2,2}})
+
+-------------
+-------------
+I = randomRationalCurve(5,11);
+dim I == 3
+T = ring I;
+-- Build P1xP2 and the irrelvant ideal
+(S, E) = productOfProjectiveSpaces({1, 2});
+B =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
+--- putting the curve J into our product of projective spaces and saturating ...
+F = map(S,T,(flatten entries vars S));
+K = F(I);
+K' = saturate(K,B);
+minres = res K';
+--- sanity check on the dimension
+dim K' == 3
+multigradedRegularity(S, module K')
+vres = multiWinnow(S,minres,{{0,0}})
