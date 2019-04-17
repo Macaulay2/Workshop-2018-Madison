@@ -1,5 +1,6 @@
 ------------------------------------------------
 -- Code for Multigraded Betty Tally Presentation
+-- this will be removed once multigraded is done
 ------------------------------------------------
 
 MultigradedBettiTally = new Type of BettiTally

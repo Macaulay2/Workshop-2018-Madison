@@ -31,7 +31,8 @@ newPackage ("VirtualResolutions",
 	"TateOnProducts",
 	"NormalToricVarieties",
 	"Elimination",
-	"SpaceCurves"
+	"SpaceCurves",
+	"Colon"
 	},
     DebuggingMode => true,
     AuxiliaryFiles => false
@@ -48,19 +49,22 @@ export{
     "randomMonomialCurve",
     "randomCurveP1P2",
     "saturationZero",
-    "multigraded",
---    "multigradedRegularity",
-    -- Types
-    "MultigradedBettiTally",
+    "multigradedRegularity",
+    "multigraded", -- FIXME
+    "MultigradedBettiTally", -- FIXME
     -- Options
     "Bound",
     "PreserveDegree",
-    "ShowVirtualFailure",
     "GeneralElements"
     }
 
 debug Core
-debug TateOnProducts -- TODO: is this necessary?
+
+------------------------------------------------------------------
+-- This is the fast saturation algorithm that we use from Colon.m2
+-- Hopefully can be replaced by saturate(I, irr) eventually
+ourSaturation = (I,irr) -> saturationByElimination(I,irr)
+------------------------------------------------------------------
 
 --Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --See Theorem 4.1 of [BES]
@@ -74,21 +78,6 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     L := apply(length F, i ->(
 	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
     chainComplex L
-    );
-
-
---Input: A chain complex
---Output: The resolution of the tail end of the complex appended to the chain complex
---It is not known if applying multiWinnow and then resolveTail yields a Virtual Resolution or not
---TODO: Finish test
---      Add length limit
-resolveTail = method()
-resolveTail(ChainComplex) := C ->(
-    N := max support C;
-    T := res(coker syz C.dd_N);
-    L1 := for i from min C to max support C - 1 list matrix C.dd_(i+1);
-    L2 := for i from min T to max support T - 1 list matrix T.dd_(i+1);
-    chainComplex(L1 | L2)
     );
 
 
@@ -109,64 +98,6 @@ intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     res intersect (Q, J)
     )
 
------------------------------------------------------------
--- This is a temporary fast saturation. Keep this up to date
--- with any changes in Colon.m2 (hopefully we can just change
--- this to saturate(I,irr)
--- TODO: ask Mike S. about this
-ourSaturation = (I,irr) -> saturationByElimination(I,irr)
-
--- This is the temporary fast saturation that Mike Stillman created
-eliminationInfo = method()
-eliminationInfo Ring := (cacheValue symbol eliminationInfo)(R -> (
-     n := numgens R;
-     k := coefficientRing R;
-     X := local X;
-     M := monoid [X_0 .. X_n,MonomialOrder=>Eliminate 1,MonomialSize=>16];
-     R1 := k M;
-     fto := map(R1,R,drop(generators R1, 1));
-     fback := map(R,R1,matrix{{0_R}}|vars R);
-     (R1, fto, fback)
-    ))
-
--- Computing (I : f^\infty) = saturate(I,f)
--- version #1: elimination
-saturationByElimination = method()
-saturationByElimination(Ideal, RingElement) := (I, f) -> (
-     R := ring I;
-     (R1,fto,fback) := eliminationInfo R;
-     f1 := fto f;
-     I1 := fto I;
-     J := ideal(f1*R1_0-1) + I1;
-     --g := groebnerBasis(J, Strategy=>"MGB");
-     --g := gens gb J;
-     g := groebnerBasis(J, Strategy=>"F4");
-     p1 := selectInSubring(1, g);
-     ideal fback p1
-     )
-
-intersectionByElimination = method()
-intersectionByElimination(Ideal, Ideal) := (I,J) -> (
-     R := ring I;
-     (R1,fto,fback) := eliminationInfo R;
-     I1 := R1_0 * fto I;
-     J1 := (1-R1_0) * fto J;
-     L := I1 + J1;
-     --g := groebnerBasis(J, Strategy=>"MGB");
-     --g := gens gb J;
-     g := groebnerBasis(L, Strategy=>"F4");
-     p1 := selectInSubring(1, g);
-     ideal fback p1
-    )
-
-intersectionByElimination List := (L) -> fold(intersectionByElimination, L)
-
-saturationByElimination(Ideal, Ideal) := (I, J) -> (
-    L := for g in J_* list saturationByElimination(I, g);
-    intersectionByElimination L
-    )
---This is where the fast saturation functions end
------------------------------------------------------------------------
 
 -- This method checks if a given complex is a virtual resoltion by computing
 -- homology and checking whether its annihilator saturates to the whole ring.
@@ -217,6 +148,7 @@ isVirtual (Module, Ideal, ChainComplex) := Boolean => (M, irr,C) -> (
     true
     )
 
+
 -- Input: ZZ n - size of subset of generators to check
 --       Ideal J - ideal of ring
 --       Ideal irr - irrelevant ideal
@@ -253,6 +185,7 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
         );
     output
     )
+
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -486,28 +419,88 @@ saturationZero (Ideal,Ideal) := (I,B) ->(
     )
 
 
+-- Helper function for multigradedRegularity
+-- borrowed from LinearTruncations:
+multigradedPolynomialRing = n -> (
+    x := local x;
+    xx := flatten apply(#n, i -> apply(n_i+1, j -> x_(i,j)));
+    degs := flatten apply(#n, i -> apply(n_i+1, k ->
+	    apply(#n, j -> if i == j then 1 else 0)));
+    ZZ/32003[xx, Degrees=>degs]
+    )
+
 -- Computes the multigraded regularity of a module
 -- See Definition BLAH from [BES].
--- Input: module M, irrelevant ideal B with ZZ^r grading
+-- Input: Ring S, Module M; or
+-- Input: NormalToricVariety X, Module M
 -- Output: a list of r-tuples
--- Caveat: assumed M is B-saturated already
--- TODO: NOT COMPLETE, intersect with hilbertFunction == hilbertPolynomial
-multigradedModuleRegularity = method()
-multigradedModuleRegularity(Module, Ideal) := List => (M, B) -> (
-    S := ring M;
+-- Caveat: assumed M is B-saturated already (i.e., H^1_I(M) = 0) -- FIXME
+multigradedRegularity = method()
+multigradedRegularity(Ring, Module) := List => (S, M') -> multigradedRegularity(null, S, M')
+multigradedRegularity(NormalToricVariety, Module) := List => (X, M) -> multigradedRegularity(X, null, M)
+-- Note: some hacking is involved to deal with the differences between productOfProjectiveSpaces and toricProjectiveSpaces
+multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
+    if class X === Nothing then (
+        -- go from module over productOfProjectiveSpaces to module over tensor product of toricProjectiveSpaces
+        X = fold((A,B) -> A**B, {1,1}/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S))); -- FIXME how to get {1,1} from S
+        M' := M;
+        M = (map(ring X, S, gens ring X))(M');
+        );
+    if class S === Nothing then (
+        -- go from module over NormalToricVariety to module over productOfProjectiveSpaces
+        -- assuming that the NormalToricVariety is a tensor product of toricProjectiveSpaces
+        S = ring X;
+        (S', E') := productOfProjectiveSpaces({1,1}, CoefficientField => coefficientRing S); -- FIXME how to get {1,1} from X
+        M' = (map(S', S, gens S'))(M);
+        );
     n := #(degrees S)_0;
-    -- The regularity ought to be in the box from low^n to high^n
-    low := -toList(n:#(gens S) - n);
-    high := toList(n:regularity M);
-    ht := cohomologyHashTable(M, low, high);
-    findCorners ht
+    r := regularity M;
+    H := hilbertPolynomial(X, M);
+    -- We only search in the positive cone and up to the regularity of M
+    L := pairs cohomologyHashTable(M', toList(n:0), toList(n:r));
+    -- Based on findHashTableCorner from TateOnProducts
+    P := multigradedPolynomialRing toList(n:0);
+    gt := new MutableHashTable;
+    apply(L, ell -> (
+	    -- Check that Hilbert function and Hilbert polynomial match (i.e., H^0_I(M) = 0) -- FIXME
+	    if hilbertFunction(ell_0_0, M) != (map(ZZ, ring H, ell_0_0))(H) then (
+	        gt#(ell_0_0) = true;
+	        );
+	    -- Check that higher local cohomology vanishes (i.e., H^i_I(M) = 0 for i > 1) -- FIXME
+	    if ell_1 != 0 and ell_0_1 > 0 then (
+	        gt#(ell_0_0) = true;
+	        apply(n, j -> gt#(ell_0_0 + degree P_j) = true);
+	        );
+	    )
+	);
+    low := apply(n, i -> min (L / (ell -> ell_0_0_i - 1)));
+    I := ideal apply(L, ell -> if not gt#?(ell_0_0) then product(n, j -> P_j^(ell_0_0_j - low_j)) else 0);
+    apply(flatten entries mingens I, g -> (flatten exponents g) + low)
     )
+
+
+--Input: A chain complex
+--Output: The resolution of the tail end of the complex appended to the chain complex
+--Note: this is not currently exported, but can be used to generate new virtual resolutions.
+--It is not known if applying multiWinnow and then resolveTail yields a virtual resolution or not.
+--TODO: Finish test
+--      Add length limit
+resolveTail = method()
+resolveTail(ChainComplex) := C ->(
+    N := max support C;
+    M := coker syz C.dd_N;
+    -- TODO: add some component of the irrelevant ideal to M here.
+    T := res M;
+    L1 := for i from min C to max support C - 1 list matrix C.dd_(i+1);
+    L2 := for i from min T to max support T - 1 list matrix T.dd_(i+1);
+    chainComplex(L1 | L2)
+    );
 
 ----------------------------------------------
 -- Begining of the tests and the documentation
 ----------------------------------------------
 
-load ("./multigradedBetti.m2") -- TODO: is this temporary?
+load ("./multigradedBetti.m2") -- FIXME
 load ("./tests.m2")
 beginDocumentation()
 load ("./doc.m2")
@@ -519,59 +512,11 @@ end--
 --------------------------------------
 
 restart
+uninstallPackage "Colon"
 uninstallPackage "VirtualResolutions"
 restart
+installPackage "Colon"
 installPackage "VirtualResolutions"
 restart
 needsPackage "VirtualResolutions"
-R = ZZ/32003[a,b, Degrees => {{1,0}, {0,1}}]
-I = ideal"a2,b2,ab"
-C = res I
---compactMatrixForm = false
-multigraded betti C
-
----------------------------------
-
-restart
-needsPackage "VirtualResolutions"
-X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
-S = ring X
-irr = ideal X
-
-I = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
-J = saturate(I,irr)
-hilbertPolynomial(X,J)
-C = res J
-multigraded betti C
-multiWinnow(X, C, {{2,1}})
-multiWinnow(X, C, {{1,2}})
-L = multiWinnow(X, C, {{1,2}, {2,1}})
-
-I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-J' = saturate(I',irr);
-hilbertPolynomial(X,J')
-r' = res J'
-multigraded betti r'
-multiWinnow(X, r', {{2,3}})
-
-
-restart
-debug needsPackage "VirtualResolutions"
-
-(X, E) = productOfProjectiveSpaces {1, 2}
-irr = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)))
-I' = ideal(x_(0,0)^2*x_(1,0)^2+x_(0,1)^2*x_(1,1)^2+x_(0,0)*x_(0,1)*x_(1,2)^2, x_(0,0)^3*x_(1,2)+x_(0,1)^3*(x_(1,0)+x_(1,1)))
-J' = saturate(I',irr);
-r' = res J'
-M = X^1/J'
-multigradedModuleRegularity(M, irr)
-C = res M
-
-I = intersect(ideal(x_(0,0), x_(1,0)), ideal(x_(0,1), x_(1,1)))
-J = saturate(I,irr)
-C = res J
-betti' C
-betti' multiWinnow(X, C, {{1,2}, {2,1}})
-betti' multiWinnow(X, C, multigradedRegularity module J)
-
-multigradedRegularity module J -- ??
+elapsedTime check "VirtualResolutions" -- FIXME 13/38 tests fail

@@ -62,6 +62,7 @@ grevLexRing(ZZ, Ring) := (i,R) -> (
      (R1, fto, fback)
     )
 
+-- This is the temporary fast saturation that Mike Stillman created
 eliminationInfo = method()
 eliminationInfo Ring := (cacheValue symbol eliminationInfo)(R -> (
      n := numgens R;

@@ -312,3 +312,27 @@ doc ///
     Caveat
         The output is only a virtual resolution for 'sufficiently positive' vector A.
 ///
+
+-*
+doc ///
+    Key
+        multiWinnow
+        (multiWinnow, Ring,               ChainComplex, List)
+        (multiWinnow, NormalToricVariety, ChainComplex, List)
+    Headline
+        Create a virtual complex given ...
+    Usage
+    Inputs
+--Input: F a free chain complex on Cox (X), alphas a list of degrees
+    Outputs
+--Output: A subcomplexs of summands generated only in degrees in the list alphas.
+        :ChainComplex
+    Description
+        Text
+          regularity + degrees
+--Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
+--See Theorem 4.1 of [BES]
+--If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
+        Example
+///
+*-
