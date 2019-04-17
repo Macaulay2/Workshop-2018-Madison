@@ -15,11 +15,11 @@ doc ///
      Introduced by Berkesch, Erman, and Smith in {\em Virtual resolutions for a product of projective spaces} 
      (see arXiv:1703.07631) if $X$ is a smooth toric variety, $S$ the Cox ring of $X$
      graded by the Picard group of $X$, and $B\subset S$ the irrelevant ideal of $X$ then
-     a virtural resolution of a graded $S$-module $M$ is a complex of graded free $S$-modules, which
+     a virtual resolution of a graded $S$-module $M$ is a complex of graded free $S$-modules, which
      sheafifies to a resolution of $\tilde{M}$.
  
      The goal of this package is provide tools for constructing and working with 
-     virutal resolutions for products of projective spaces. In particular, it implements
+     virtual resolutions for products of projective spaces. In particular, it implements
      a number of the methods for constructing virtual resolutions for products of projective
      spaces introduced by Berkesch, Erman, and Smith. The package also contains a number of
      methods for constucting curves in $\mathbb{P}^1\times\mathbb{P}^2$ as these are
