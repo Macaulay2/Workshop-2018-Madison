@@ -68,15 +68,16 @@ debug Core
 -- This is the fast saturation algorithm that we use from Colon.m2
 -- Hopefully can be replaced by saturate(I, irr) eventually
 ourSaturation = (I,irr) -> saturationByElimination(I,irr)
-------------------------------------------------------------------
 
---Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
---See Theorem 4.1 of [BES]
-multiWinnow = method()
+
+------------------------------------------------------------------
 --Input: F a free chain complex on Cox (X), alphas a list of degrees
---Output: A subcomplexs of summands generated only in degrees in the list alphas.
+--Output: A subcomplex of summands generated only in degrees in the list alphas.
+--Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
---See Theorem 4.2 of [BES]
+--See Algorithm 3.4 of [BES]
+
+multiWinnow = method()
 multiWinnow (NormalToricVariety, ChainComplex, List) := (X, F, alphas) -> multiWinnow(ring X, F, alphas)
 multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength S) then error "degree has wrong length";
@@ -85,14 +86,11 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     chainComplex L
     );
 
-
-
-
 -------------------------------------------------------------------------
 -- Given a saturated ideal J corresponding to a zero-dimensional scheme, irrelevant ideal irr, and a vector A,
 -- computes free resolution of J intersected with Ath power of the
 -- irrelevant ideal.
---See Theorem 5.1 of [BES]
+--See Theorem 4.1 of [BES]
 
 intersectionRes = method()
 intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
