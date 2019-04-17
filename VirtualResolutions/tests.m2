@@ -8,11 +8,11 @@ TEST ///
     ///
 
 TEST ///
-    assert (dim randomRationalCurve(2,3,ZZ/11) == 3)
+    assert (dim randomRationalCurve(2,3,ZZ/101) == 3)
     ///
 
 TEST ///
-    assert (degree randomRationalCurve(2,3,ZZ/11) == 2+3)
+    assert (degree randomRationalCurve(2,3,ZZ/101) == 2+3)
     ///
 
 TEST ///
@@ -33,11 +33,11 @@ TEST ///
     ///
 
 TEST ///
-    assert (dim randomMonomialCurve(2,3,ZZ/11) == 3)
+    assert (dim randomMonomialCurve(2,3,ZZ/101) == 3)
     ///
 
 TEST ///
-    assert (degree randomMonomialCurve(2,3,ZZ/11) == 2+3)
+    assert (degree randomMonomialCurve(2,3,ZZ/101) == 2+3)
     ///
 
 TEST ///
@@ -269,3 +269,4 @@ TEST ///
     minres = res J;
     vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
     assert isVirtual(J,B,vres)
+    ///
