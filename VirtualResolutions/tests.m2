@@ -207,14 +207,14 @@ TEST ///
     output = findGensUpToIrrelevance(2,I,irr,GeneralElements=>true);
     assert(length(output) == 3 and output_1 == {0,1} and output_2 == {1,2})
     ///
- 
---- problem with ourSaturation    
-TEST ///
+
+TEST /// --FIXXXME
+    debug needsPackage "VirtualResolutions"
     S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
     I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
     J = ourSaturation(I,irr);
-    output = findGensUpToIrrelevance(3,I,GeneralElements=>true);
+    output = findGensUpToIrrelevance(3,I,irr,GeneralElements=>true);
     assert(length(output) == 5 and output_1 == {0,1,2} and
 	    output_2 == {0,1,3} and output_3 == {0,2,3} and
 	    output_4 = {0,1,4})
