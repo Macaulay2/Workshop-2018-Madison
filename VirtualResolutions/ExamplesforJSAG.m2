@@ -95,12 +95,12 @@ dim J
 ----------------------------------------------------------------------------------
 I = randomCurveP1P2(5,2);
 S = ring I;
-dim I == 3
-
+dim I
+apply(15,i->dim randomCurveP1P2(5,2))
 B = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
 J = saturate(I,B)
 
-multigradedRegularity(S, module J)
+multigradedRegularity(S, S^1/J)
 
 minres = res J;
 vres = multiwinnow(S,minres,{{2,2}});
