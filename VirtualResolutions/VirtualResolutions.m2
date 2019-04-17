@@ -43,7 +43,6 @@ export{
     "findGensUpToIrrelevance",
     "isVirtual",
     "multiWinnow",
-    "resolveTail",
     "intersectionRes",
     "randomRationalCurve",
     "randomMonomialCurve",
