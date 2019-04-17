@@ -79,13 +79,16 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
 
 --Input: A chain complex
 --Output: The resolution of the tail end of the complex appended to the chain complex
---It is not known if applying multiWinnow and then resolveTail yields a Virtual Resolution or not
+--Note: this is not currently exported, but can be used to generate new virtual resolutions.
+--It is not known if applying multiWinnow and then resolveTail yields a virtual resolution or not.
 --TODO: Finish test
 --      Add length limit
 resolveTail = method()
 resolveTail(ChainComplex) := C ->(
     N := max support C;
-    T := res(coker syz C.dd_N);
+    M := coker syz C.dd_N;
+    -- TODO: add some component of the irrelevant ideal to M here.
+    T := res M;
     L1 := for i from min C to max support C - 1 list matrix C.dd_(i+1);
     L2 := for i from min T to max support T - 1 list matrix T.dd_(i+1);
     chainComplex(L1 | L2)
@@ -488,16 +491,15 @@ saturationZero (Ideal,Ideal) := (I,B) ->(
 
 -- Computes the multigraded regularity of a module
 -- See Definition BLAH from [BES].
--- Input: module M, irrelevant ideal B with ZZ^r grading
+-- Input: module M
 -- Output: a list of r-tuples
 -- Caveat: assumed M is B-saturated already
 -- TODO: NOT COMPLETE, intersect with hilbertFunction == hilbertPolynomial
 multigradedModuleRegularity = method()
-multigradedModuleRegularity(Module, Ideal) := List => (M, B) -> (
+multigradedModuleRegularity Module := List => M -> (
     S := ring M;
     n := #(degrees S)_0;
-    -- The regularity ought to be in the box from low^n to high^n
-    low := -toList(n:#(gens S) - n);
+    low := -toList(n:0);
     high := toList(n:regularity M);
     ht := cohomologyHashTable(M, low, high);
     findCorners ht
@@ -524,54 +526,4 @@ restart
 installPackage "VirtualResolutions"
 restart
 needsPackage "VirtualResolutions"
-R = ZZ/32003[a,b, Degrees => {{1,0}, {0,1}}]
-I = ideal"a2,b2,ab"
-C = res I
---compactMatrixForm = false
-multigraded betti C
-
----------------------------------
-
-restart
-needsPackage "VirtualResolutions"
-X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
-S = ring X
-irr = ideal X
-
-I = intersect(ideal(x_0, x_2), ideal(x_1, x_3))
-J = saturate(I,irr)
-hilbertPolynomial(X,J)
-C = res J
-multigraded betti C
-multiWinnow(X, C, {{2,1}})
-multiWinnow(X, C, {{1,2}})
-L = multiWinnow(X, C, {{1,2}, {2,1}})
-
-I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-J' = saturate(I',irr);
-hilbertPolynomial(X,J')
-r' = res J'
-multigraded betti r'
-multiWinnow(X, r', {{2,3}})
-
-
-restart
-debug needsPackage "VirtualResolutions"
-
-(X, E) = productOfProjectiveSpaces {1, 2}
-irr = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)))
-I' = ideal(x_(0,0)^2*x_(1,0)^2+x_(0,1)^2*x_(1,1)^2+x_(0,0)*x_(0,1)*x_(1,2)^2, x_(0,0)^3*x_(1,2)+x_(0,1)^3*(x_(1,0)+x_(1,1)))
-J' = saturate(I',irr);
-r' = res J'
-M = X^1/J'
-multigradedModuleRegularity(M, irr)
-C = res M
-
-I = intersect(ideal(x_(0,0), x_(1,0)), ideal(x_(0,1), x_(1,1)))
-J = saturate(I,irr)
-C = res J
-betti' C
-betti' multiWinnow(X, C, {{1,2}, {2,1}})
-betti' multiWinnow(X, C, multigradedRegularity module J)
-
-multigradedRegularity module J -- ??
+elapsedTime check "VirtualResolutions"
