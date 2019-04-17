@@ -58,6 +58,12 @@ export{
 
 debug Core
 
+--------------------------------------------------------
+-- CODE
+--------------------------------------------------------
+--------------------------------------------------------
+
+
 ------------------------------------------------------------------
 -- This is the fast saturation algorithm that we use from Colon.m2
 -- Hopefully can be replaced by saturate(I, irr) eventually
@@ -70,6 +76,7 @@ multiWinnow = method()
 --Input: F a free chain complex on Cox (X), alphas a list of degrees
 --Output: A subcomplexs of summands generated only in degrees in the list alphas.
 --If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
+--See Theorem 4.2 of [BES]
 multiWinnow (NormalToricVariety, ChainComplex, List) := (X, F, alphas) -> multiWinnow(ring X, F, alphas)
 multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     if any(alphas, alpha -> #alpha =!= degreeLength S) then error "degree has wrong length";
@@ -79,10 +86,14 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     );
 
 
--- Given a saturated ideal J, irrelevant ideal irr, and a vector A,
+
+
+-------------------------------------------------------------------------
+-- Given a saturated ideal J corresponding to a zero-dimensional scheme, irrelevant ideal irr, and a vector A,
 -- computes free resolution of J intersected with Ath power of the
--- irrelevant ideal. The output is only a Virtual resolution for
--- 'sufficiently positive' powers of B. See Theorem 5.1 of [BES]
+-- irrelevant ideal.
+--See Theorem 5.1 of [BES]
+
 intersectionRes = method()
 intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     L := decompose irr;
@@ -96,14 +107,15 @@ intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     res intersect (Q, J)
     )
 
-
--- This method checks if a given complex is a virtual resoltion by computing
+---------------------------------------------------------------------------
+-- This method checks if a given complex is a virtual resolution by computing
 -- homology and checking whether its annihilator saturates to the whole ring.
 -- Input: Ideal I (or module) - what the virtual resolution resolves
 --       Ideal irr - the irrelevant ideal of the ring
 --       Chain Complex C - proposed virtual resolution
 -- Output: Boolean - true if complex is virtual resolution, false otherwise
 -- TODO: need to fix for modules; don't know how to saturate for modules
+
 isVirtual = method()
 isVirtual (Ideal, Ideal, ChainComplex) := Boolean => (I, irr, C) -> (
     annHH0 := ideal(image(C.dd_1));
@@ -297,9 +309,9 @@ randomMonomialCurve (ZZ,ZZ) := (d,e)->(
 --------------------------------------------------------------------
 ----- Input: (J)=(ideal of curve in P3)
 ----- Output: The ideal of a corresponding curve in P1xP2.
------ Description: Given a curve defined by the ideal J in P3
+----- Description: Given a curve defined by the ideal J in P3,
 ----- this outputs the ideal I of the curve in P1xP2 given by
------ considering the projection P3---->P1 on the first two variables.
+----- considering the projection P3---->P1 on the first two variables,
 ----- and the projection P3----->P2 on the last three variables.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -348,7 +360,7 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
 ----- Input: (d,e,F)=(degree,genus,base ring)
 ----- Output: The ideal of a random curve in P1xP2 defined over F.
 ----- Description: This randomly generates a curve of degree d
------ and genus g in P3, and then computes the ideal of the correspnding
+----- and genus g in P3, and then computes the ideal of the corresponding
 ----- curve in P1xP2 given by considering the projection
 ----- P3---->P1 on the first two variables.
 ----- and the projection P3----->P2 on the last three variables.
@@ -393,7 +405,7 @@ randomCurveP1P2 (ZZ,ZZ) := randomCurveP1P2 => opts -> (d,g)->(
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
------ Input: S = cox ring of a product of projective spaces.
+----- Input: S = Cox ring of a product of projective spaces.
 -- OR
 ----- Input: X = normalToricVariety of a product of projective spaces.
 ----- Output: The dimension vector for the product of projective spaces.
@@ -426,7 +438,7 @@ multigradedPolynomialRing = n -> (
     )
 
 -- Computes the multigraded regularity of a module
--- See Definition BLAH from [BES].
+-- See Definition 1.1 of [Maclagan, Smith 2004]
 -- Input: Ring S, Module M; or
 -- Input: NormalToricVariety X, Module M
 -- Output: a list of r-tuples
@@ -474,7 +486,7 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
     apply(flatten entries mingens I, g -> (flatten exponents g) + low)
     )
 
-
+------------------------------------------------------------------------------------------
 --Input: A chain complex
 --Output: The resolution of the tail end of the complex appended to the chain complex
 --Note: this is not currently exported, but can be used to generate new virtual resolutions.
@@ -491,6 +503,7 @@ resolveTail(ChainComplex) := C ->(
     L2 := for i from min T to max support T - 1 list matrix T.dd_(i+1);
     chainComplex(L1 | L2)
     );
+
 
 ----------------------------------------------
 -- Begining of the tests and the documentation
