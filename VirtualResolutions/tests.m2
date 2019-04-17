@@ -147,7 +147,7 @@ TEST ///
     d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
 	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
 	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
-    C = chainComplex({d1})
+    C = chainComplex({d1});
     assert(isVirtual(I,irr,C) == false)
     ///
 
@@ -158,8 +158,8 @@ TEST ///
     d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2,
 	x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
 	x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
-    C = chainComplex({d1})
-    assert(isVirtual(I,irr,C,ShowVirtualFailure => true) == (false,1))
+    C = chainComplex({d1});
+    assert(isVirtual(I,irr,C) == false)
     ///
 
 TEST ///
@@ -177,7 +177,7 @@ TEST ///
     I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
     d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
     C = chainComplex({d1});
-    assert(isVirtual(I,irr,C,ShowVirtualFailure => true) == (false,0))
+    assert(isVirtual(I,irr,C) == false)
     ///
 
 TEST ///

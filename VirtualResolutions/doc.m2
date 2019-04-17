@@ -68,10 +68,14 @@ doc ///
     Key
         [findGensUpToIrrelevance, GeneralElements]
     Headline
-        what does this do?
+        combines generators of same degree into a general linear combination
     Description
-      Text
-            what do I do?
+        Text
+            If GeneralElements is set to true, findGensUpToIrrelevance will replace the given ideal with
+	    an ideal where all generators of the same degree are combined into a general linear combination 
+	    of those generators, then run findGensUpToIrrelevance on the new ideal. The first element in the
+	    output will be the new ideal, followed by the subsets of generators that will generate the original
+	    ideal up to saturation.
     SeeAlso
         findGensUpToIrrelevance
 ///
