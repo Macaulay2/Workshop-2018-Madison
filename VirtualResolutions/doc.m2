@@ -253,10 +253,13 @@ doc ///
     Key
         [curveFromP3toP1P2, PreserveDegree]
     Headline
-        what does this do?
+        Determines if curve is disjoint from base locuses
     Description
       Text
-            what do I do?
+            When set to true curveFromP3toP1P2 will check whether or not the given curve
+	    in P^3 intersects the base locus of the projections maps used in this function.
+	    If this option is set to true and the given curve does intersect the base locus
+	    an error is returned. 
     SeeAlso
         curveFromP3toP1P2
 ///
@@ -301,10 +304,13 @@ doc ///
     Key
         [randomCurveP1P2, Bound]
     Headline
-        what does this do?
+        Limit number of attempts for randomCurveP1P2
     Description
       Text
-            what do I do?
+           When randomCurveP1P2 generates a random curve in P^3 using the SpaceCurves package it is possible the resulting
+	   curve will intersect the base locuses of the projections used to construct the curve in P^1 x P^2. If the curve
+	   does intersect the base locuses it will generate a new random curve in P^3. The option Bound limits the number
+	   of attempts to find a curve disjoing from the base locuses before quiting. By defualt Bound is set to 1000.
     SeeAlso
         randomCurveP1P2
 ///
