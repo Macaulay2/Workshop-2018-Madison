@@ -242,7 +242,7 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     J' := ourSaturation(J,ideal(uVars#0,uVars#1));
     --J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
     I := sub(eliminate({uVars#0,uVars#1},J'),S);
-    (T, E) := productOfProjectiveSpaces({1, 2});
+    (T, E) := productOfProjectiveSpaces({1, 2},CoefficientField=>F);
     G := map(T,S,(flatten entries vars T));
     G(I)
     )
@@ -293,7 +293,7 @@ randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     --- Computes saturation and then eliminates producing curve in P1xP2
     J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
     I := sub(eliminate({uVars#0,uVars#1},J'),S);
-    (T, E) := productOfProjectiveSpaces({1, 2});
+    (T, E) := productOfProjectiveSpaces({1, 2},CoefficientField=>F);
     G := map(T,S,(flatten entries vars T));
     G(I)
     )
@@ -357,7 +357,7 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
 --    K := saturate(C'+D,B,MinimalGenerators=>false); -- FIXME
     K := ourSaturation(C'+D,B);
     I := sub(eliminate({uVars#0,uVars#1,uVars#2,uVars#3},K),S);
-    (T, E) := productOfProjectiveSpaces({1, 2});
+    (T, E) := productOfProjectiveSpaces({1, 2},CoefficientField=>(coefficientRing ring J));
     G := map(T,S,(flatten entries vars T));
     G(I)
     )

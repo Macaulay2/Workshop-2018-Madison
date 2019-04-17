@@ -96,7 +96,7 @@ dim J
 I = randomCurveP1P2(5,2);
 S = ring I;
 dim I
-apply(15,i->dim randomCurveP1P2(5,2))
+
 B = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
 J = saturate(I,B)
 
@@ -114,6 +114,5 @@ multigraded betti vres
 ------------- Example 3.3
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
-I = randomRationalCurve(5,7)
+I = randomRationalCurve(5,7);
 dim I 
-
