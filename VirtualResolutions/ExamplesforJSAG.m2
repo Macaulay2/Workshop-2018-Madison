@@ -1,5 +1,9 @@
---Example 2.2
 
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+------------- Example 2.2
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 restart
 needsPackage "VirtualResolutions"
 X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
@@ -66,70 +70,46 @@ isVirtual(J,B,vres2)
 
 
 
--------------
--------------
--- Build P1xP2 and the irrelvant ideal
-(S, E) = productOfProjectiveSpaces({1, 2});
-B =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
---- construct a curve in P1xP2 from the twisted cubic
+
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+------------- Example 3.1
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 R = QQ[z_0,z_1,z_2,z_3];
 I = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-J = curveFromP3toP1P2(I);
---- putting the curve J into our product of projective spaces and saturating ...
-T = ring J;
-F = map(S,T,(flatten entries vars S));
-K = F(J);
-K' = saturate(K,B);
-minres = res K';
---- sanity check on the dimension
-dim K' == 3
-multigradedRegularity(S, module K')
-vres = multiWinnow(S,minres,{{0,0}})
+J = curveFromP3toP1P2(I)
 
--------------
--------------
-K = randomCurveP1P2(5,2)
-dim K == 3
-T = ring K;
-B1 =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
-K'  = saturate(K,B1);
-multigradedRegularity(T, module K')
+dim J
 
--- Build P1xP2 and the irrelvant ideal
-(S, E) = productOfProjectiveSpaces({1, 2});
-B2 =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
---- putting the curve J into our product of projective spaces and saturating ...
-F = map(S,T,(flatten entries vars S));
-I = F(K);
-J = saturate(I,B2);
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+------------- Example 3.2
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+I = randomCurveP1P2(5,2);
+S = ring I;
+dim I == 3
+
+B = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
+J = saturate(I,B)
 
 multigradedRegularity(S, module J)
 
 minres = res J;
-vres = multiWinnow(S,minres,{{2,2}})
+vres = multiwinnow(S,minres,{{2,2}});
 
 multigraded betti minres
 multigraded betti vres
 
---- sanity check on the dimension
-dim K' == 3
-multigradedRegularity(S, module K')
-vres = multiWinnow(S,minres,{{2,2}})
 
--------------
--------------
-I = randomRationalCurve(5,11);
-dim I == 3
-T = ring I;
--- Build P1xP2 and the irrelvant ideal
-(S, E) = productOfProjectiveSpaces({1, 2});
-B =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
---- putting the curve J into our product of projective spaces and saturating ...
-F = map(S,T,(flatten entries vars S));
-K = F(I);
-K' = saturate(K,B);
-minres = res K';
---- sanity check on the dimension
-dim K' == 3
-multigradedRegularity(S, module K')
-vres = multiWinnow(S,minres,{{0,0}})
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+------------- Example 3.3
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+I = randomRationalCurve(5,7)
+dim I 
+
