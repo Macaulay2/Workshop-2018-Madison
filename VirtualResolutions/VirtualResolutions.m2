@@ -31,7 +31,8 @@ newPackage ("VirtualResolutions",
 	"TateOnProducts",
 	"NormalToricVarieties",
 	"Elimination",
-	"SpaceCurves"
+	"SpaceCurves",
+	"Colon"
 	},
     DebuggingMode => true,
     AuxiliaryFiles => false
@@ -48,19 +49,23 @@ export{
     "randomMonomialCurve",
     "randomCurveP1P2",
     "saturationZero",
-    "multigraded",
---    "multigradedRegularity",
-    -- Types
-    "MultigradedBettiTally",
+    "multigradedModuleRegularity",
+    "multigraded", -- FIXME
+    "MultigradedBettiTally", -- FIXME
     -- Options
     "Bound",
     "PreserveDegree",
-    "ShowVirtualFailure",
     "GeneralElements"
     }
 
 debug Core
 debug TateOnProducts -- TODO: is this necessary?
+
+------------------------------------------------------------------
+-- This is the fast saturation algorithm that we use from Colon.m2
+-- Hopefully can be replaced by saturate(I, irr) eventually
+ourSaturation = (I,irr) -> saturationByElimination(I,irr)
+------------------------------------------------------------------
 
 --Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --See Theorem 4.1 of [BES]
@@ -74,24 +79,6 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
     L := apply(length F, i ->(
 	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
     chainComplex L
-    );
-
-
---Input: A chain complex
---Output: The resolution of the tail end of the complex appended to the chain complex
---Note: this is not currently exported, but can be used to generate new virtual resolutions.
---It is not known if applying multiWinnow and then resolveTail yields a virtual resolution or not.
---TODO: Finish test
---      Add length limit
-resolveTail = method()
-resolveTail(ChainComplex) := C ->(
-    N := max support C;
-    M := coker syz C.dd_N;
-    -- TODO: add some component of the irrelevant ideal to M here.
-    T := res M;
-    L1 := for i from min C to max support C - 1 list matrix C.dd_(i+1);
-    L2 := for i from min T to max support T - 1 list matrix T.dd_(i+1);
-    chainComplex(L1 | L2)
     );
 
 
@@ -112,64 +99,6 @@ intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     res intersect (Q, J)
     )
 
------------------------------------------------------------
--- This is a temporary fast saturation. Keep this up to date
--- with any changes in Colon.m2 (hopefully we can just change
--- this to saturate(I,irr)
--- TODO: ask Mike S. about this
-ourSaturation = (I,irr) -> saturationByElimination(I,irr)
-
--- This is the temporary fast saturation that Mike Stillman created
-eliminationInfo = method()
-eliminationInfo Ring := (cacheValue symbol eliminationInfo)(R -> (
-     n := numgens R;
-     k := coefficientRing R;
-     X := local X;
-     M := monoid [X_0 .. X_n,MonomialOrder=>Eliminate 1,MonomialSize=>16];
-     R1 := k M;
-     fto := map(R1,R,drop(generators R1, 1));
-     fback := map(R,R1,matrix{{0_R}}|vars R);
-     (R1, fto, fback)
-    ))
-
--- Computing (I : f^\infty) = saturate(I,f)
--- version #1: elimination
-saturationByElimination = method()
-saturationByElimination(Ideal, RingElement) := (I, f) -> (
-     R := ring I;
-     (R1,fto,fback) := eliminationInfo R;
-     f1 := fto f;
-     I1 := fto I;
-     J := ideal(f1*R1_0-1) + I1;
-     --g := groebnerBasis(J, Strategy=>"MGB");
-     --g := gens gb J;
-     g := groebnerBasis(J, Strategy=>"F4");
-     p1 := selectInSubring(1, g);
-     ideal fback p1
-     )
-
-intersectionByElimination = method()
-intersectionByElimination(Ideal, Ideal) := (I,J) -> (
-     R := ring I;
-     (R1,fto,fback) := eliminationInfo R;
-     I1 := R1_0 * fto I;
-     J1 := (1-R1_0) * fto J;
-     L := I1 + J1;
-     --g := groebnerBasis(J, Strategy=>"MGB");
-     --g := gens gb J;
-     g := groebnerBasis(L, Strategy=>"F4");
-     p1 := selectInSubring(1, g);
-     ideal fback p1
-    )
-
-intersectionByElimination List := (L) -> fold(intersectionByElimination, L)
-
-saturationByElimination(Ideal, Ideal) := (I, J) -> (
-    L := for g in J_* list saturationByElimination(I, g);
-    intersectionByElimination L
-    )
---This is where the fast saturation functions end
------------------------------------------------------------------------
 
 -- This method checks if a given complex is a virtual resoltion by computing
 -- homology and checking whether its annihilator saturates to the whole ring.
@@ -220,6 +149,7 @@ isVirtual (Module, Ideal, ChainComplex) := Boolean => (M, irr,C) -> (
     true
     )
 
+
 -- Input: ZZ n - size of subset of generators to check
 --       Ideal J - ideal of ring
 --       Ideal irr - irrelevant ideal
@@ -256,6 +186,7 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
         );
     output
     )
+
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -505,11 +436,29 @@ multigradedModuleRegularity Module := List => M -> (
     findCorners ht
     )
 
+
+--Input: A chain complex
+--Output: The resolution of the tail end of the complex appended to the chain complex
+--Note: this is not currently exported, but can be used to generate new virtual resolutions.
+--It is not known if applying multiWinnow and then resolveTail yields a virtual resolution or not.
+--TODO: Finish test
+--      Add length limit
+resolveTail = method()
+resolveTail(ChainComplex) := C ->(
+    N := max support C;
+    M := coker syz C.dd_N;
+    -- TODO: add some component of the irrelevant ideal to M here.
+    T := res M;
+    L1 := for i from min C to max support C - 1 list matrix C.dd_(i+1);
+    L2 := for i from min T to max support T - 1 list matrix T.dd_(i+1);
+    chainComplex(L1 | L2)
+    );
+
 ----------------------------------------------
 -- Begining of the tests and the documentation
 ----------------------------------------------
 
-load ("./multigradedBetti.m2") -- TODO: is this temporary?
+load ("./multigradedBetti.m2") -- FIXME
 load ("./tests.m2")
 beginDocumentation()
 load ("./doc.m2")
@@ -521,9 +470,11 @@ end--
 --------------------------------------
 
 restart
+uninstallPackage "Colon"
 uninstallPackage "VirtualResolutions"
 restart
+installPackage "Colon"
 installPackage "VirtualResolutions"
 restart
 needsPackage "VirtualResolutions"
-elapsedTime check "VirtualResolutions"
+elapsedTime check "VirtualResolutions" -- FIXME 13/38 tests fail
