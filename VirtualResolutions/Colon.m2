@@ -134,7 +134,71 @@ saturationByGrevLex(Ideal, Ideal) := (I, J) -> (
       intersectionByElimination ids
     )
 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (M,B)=(Module,Ideal)
+----- Output: Returns true if saturate(M,B)==0 and false otherwise
+----- Description: This checks whether the saturation of a module M
+----- with respects to an ideal B is zero. This is done by checking
+----- whether for each generator of B some power of it annihilates
+----- the module M. We do this generator by generator.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+saturationZero = method()
+saturationZero (Module,Ideal) := (M,B) ->(
+    Vars := flatten entries vars ring B;
+    bGens := flatten entries mingens B;
+    for i from 0 to #bGens-1 do (
+    	  b := bGens#i;
+	  bVars := support b;
+	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
+	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
+	      P := sub(presentation M,R);
+	      G := gb P;
+	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
+    );
+    true
+)
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (I,B)=(Ideal,Ideal)
+----- Output: Returns true if saturate(comodule I,B)==0 and false otherwise.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+saturationZero (Ideal,Ideal) := (I,B) ->(
+    saturationZero(comodule I,B)
+    )
+
 beginDocumentation()
+
+doc ///
+    Key
+    	saturationZero
+	(saturationZero,Module,Ideal)
+	(saturationZero,Ideal,Ideal)
+    Headline
+    	checks whether the saturation of a module with respects to a given ideal is zero
+    Usage
+    	saturationZero(M,B)
+	saturationZero(I,B)
+    Inputs
+    	M:Module
+	B:Ideal
+        I:Ideal
+    Outputs
+    	:Boolean
+    Description
+    	Text
+            Given an module M and an ideal B saturationZero checks whether the saturation of M by B is zero. If it is
+	    saturationZero returns true otherwise it returns false. This is done without computing the saturation of M by B.
+	    Instead we check whether for each generator of B some power of it annihilates the module M. We do this
+	    generator by generator.
+
+	    If M is an ideal saturationZero checks whether the saturation comodule of M by B is zero.
+
+///
+
 
 end--
 doc ///
@@ -172,6 +236,27 @@ TEST ///
 -- may have as many TEST sections as needed
 ///
 
+------ Tests for saturationZero
+TEST ///
+    S = ZZ/11[x_0,x_1,x_2,x_3,x_4];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    I' = saturate(I,irr);
+    R = S^1/I';
+    t = (saturate(R,irr)==0);
+    assert (saturationZero(R,irr)==t)
+    ///
+
+TEST ///
+    S = ZZ/11[x_0,x_1,x_2,x_3,x_4];
+    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
+    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
+    I' = saturate(I,irr);
+    R = S^1/I';
+    t = (saturate(R,irr)==0);
+    assert (saturationZero(I',irr)==t)
+    ///
+    
 end--
 
 restart
