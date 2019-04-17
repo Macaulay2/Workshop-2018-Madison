@@ -392,6 +392,29 @@ randomCurveP1P2 (ZZ,ZZ) := randomCurveP1P2 => opts -> (d,g)->(
     )
 
 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: S = cox ring of a product of projective spaces.
+-- OR
+----- Input: X = normalToricVariety of a product of projective spaces.
+----- Output: The dimension vector for the product of projective spaces.
+----- Note the dimension is ordered assuming the degree {1,0,...} is first.
+--------------------------------------------------------------------
+-------------------------------------------------------------------- 
+dimVector = method()
+dimVector(Ring) := (S) -> (
+    deg := degrees S;
+    degTally := tally deg;
+    apply(rsort unique deg, i->(degTally_i - 1))
+    )
+
+dimVector(Thing) := (X) -> (
+    S := ring X;
+    deg := degrees S;
+    degTally := tally deg;
+    apply(rsort unique deg, i->(degTally_i - 1))
+    )
+
 
 -- Helper function for multigradedRegularity
 -- borrowed from LinearTruncations:
@@ -416,7 +439,7 @@ multigradedRegularity(NormalToricVariety, Module) := List => (X, M) -> multigrad
 multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
     if class X === Nothing then (
         -- go from module over productOfProjectiveSpaces to module over tensor product of toricProjectiveSpaces
-        X = fold((A,B) -> A**B, {1,1}/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S))); -- FIXME how to get {1,1} from S
+        X = fold((A,B) -> A**B, dimVector(S)/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S))); -- FIXME how to get {1,1} from S -- Juliette: Added dimVector hopefully fixed.
         M' := M;
         M = (map(ring X, S, gens ring X))(M');
         );
@@ -424,7 +447,7 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
         -- go from module over NormalToricVariety to module over productOfProjectiveSpaces
         -- assuming that the NormalToricVariety is a tensor product of toricProjectiveSpaces
         S = ring X;
-        (S', E') := productOfProjectiveSpaces({1,1}, CoefficientField => coefficientRing S); -- FIXME how to get {1,1} from X
+        (S', E') := productOfProjectiveSpaces(dimVector(X), CoefficientField => coefficientRing S); -- FIXME how to get {1,1} from X -- Juliette: Added dimVector hopefully fixed.
         M' = (map(S', S, gens S'))(M);
         );
     n := #(degrees S)_0;

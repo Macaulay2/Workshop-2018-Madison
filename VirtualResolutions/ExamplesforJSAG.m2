@@ -70,11 +70,10 @@ isVirtual(J,B,vres2)
 ----- I keep getting an error when trying to compute the compute
 ----- the multigraded regularity of this example... something of the form
 
--- VirtualResolutions.m2:458:14:(3):[2]: error: encountered values for 4 variables, but expected 5
--- VirtualResolutions.m2:458:14:(3):[2]: --entering debugger (type help to see debugger commands)
--- VirtualResolutions.m2:458:14-459:39: --source code:
---        M = (map(ring X, S, gens ring X))(M');
---       );
+-- VirtualResolutions.m2:463:47:(3):[3]: error: cannot map rational to this ring
+-- VirtualResolutions.m2:463:47:(3):[3]: --entering debugger (type help to see debugger commands)
+-- VirtualResolutions.m2:463:47-463:74: --source code:
+--            if hilbertFunction(ell_0_0, M) != (map(ZZ, ring H, ell_0_0))(H) then (
 
 -- Build P1xP2 and the irrelvant ideal
 (S, E) = productOfProjectiveSpaces({1, 2});
@@ -96,3 +95,11 @@ dim K' == 3
 
 multigradedRegularity(S, module K')
 
+(S, E) = productOfProjectiveSpaces({1, 2});
+(S, E) = productOfProjectiveSpaces({1, 2, 3, 4});
+
+dimVector = (S) -> (
+    deg := degrees S;
+    degTally := tally deg;
+    apply(rsort unique deg, i->(degTally_i - 1))
+    )
