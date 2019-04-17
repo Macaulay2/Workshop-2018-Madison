@@ -205,7 +205,6 @@ findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
     output
     )
 
-findGensUpToIrrelevance = method(Options => {GeneralElements => false})
 findGensUpToIrrelevance(ZZ,Ideal,NormalToricVariety):= List => opts -> (n,J,X) -> (
     findGensUpToIrrelevance(n,J,ideal(X))
     )
