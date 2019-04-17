@@ -261,7 +261,6 @@ TEST ///
     assert isVirtual(I, irr, intersectionRes (I, irr, {3,3,0}))
     ///
     
---- problem with resolveTail    
 TEST ///
     debug needsPackage "TateOnProducts"
     needsPackage "VirtualResolutions"
@@ -274,6 +273,4 @@ TEST ///
     J = saturate(I, irr);
     C = res J;
     D = multiWinnow(S, C, {{1,2}, {2,1}})
-    E = resolveTail D
-    -- TODO: check that this is correct
     ///
