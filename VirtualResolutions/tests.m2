@@ -241,23 +241,7 @@ TEST ///
     assert isVirtual(I, irr, intersectionRes (I, irr, {3,3,0}))
     ///
     
--- Tests for multiWinnow
-    
-TEST ///
-    debug needsPackage "TateOnProducts"
-    needsPackage "VirtualResolutions"
-    N = {1,2}; -- Example 5.7 of [BES] uses 1x1x2 and 6 points
-    (S, E) = productOfProjectiveSpaces N;
-    irr = intersect for n to #N-1 list (
-    	ideal select(gens S, i -> (degree i)#n == 1)
-    	);
-    I = intersect(ideal(x_(0,0), x_(1,0)), ideal(x_(0,1), x_(1,1)));
-    J = saturate(I, irr);
-    C = res J;
-    D = multiWinnow(S, C, {{1,2}, {2,1}})
-    assert isVirtual(J,irr,D)
-    ///
-    
+-- Test for multiWinnow  
 TEST ///
     X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
     S = ring X; B = ideal X;
