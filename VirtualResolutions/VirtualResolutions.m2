@@ -49,7 +49,7 @@ export{
     "randomMonomialCurve",
     "randomCurveP1P2",
     "saturationZero",
-    "multigradedModuleRegularity",
+    "multigradedRegularity",
     "multigraded", -- FIXME
     "MultigradedBettiTally", -- FIXME
     -- Options
@@ -59,7 +59,6 @@ export{
     }
 
 debug Core
-debug TateOnProducts -- TODO: is this necessary?
 
 ------------------------------------------------------------------
 -- This is the fast saturation algorithm that we use from Colon.m2
@@ -420,20 +419,63 @@ saturationZero (Ideal,Ideal) := (I,B) ->(
     )
 
 
+-- Helper function for multigradedRegularity
+-- borrowed from LinearTruncations:
+multigradedPolynomialRing = n -> (
+    x := local x;
+    xx := flatten apply(#n, i -> apply(n_i+1, j -> x_(i,j)));
+    degs := flatten apply(#n, i -> apply(n_i+1, k ->
+	    apply(#n, j -> if i == j then 1 else 0)));
+    ZZ/32003[xx, Degrees=>degs]
+    )
+
 -- Computes the multigraded regularity of a module
 -- See Definition BLAH from [BES].
--- Input: module M
+-- Input: Ring S, Module M; or
+-- Input: NormalToricVariety X, Module M
 -- Output: a list of r-tuples
--- Caveat: assumed M is B-saturated already
--- TODO: NOT COMPLETE, intersect with hilbertFunction == hilbertPolynomial
-multigradedModuleRegularity = method()
-multigradedModuleRegularity Module := List => M -> (
-    S := ring M;
+-- Caveat: assumed M is B-saturated already (i.e., H^1_I(M) = 0) -- FIXME
+multigradedRegularity = method()
+multigradedRegularity(Ring, Module) := List => (S, M') -> multigradedRegularity(null, S, M')
+multigradedRegularity(NormalToricVariety, Module) := List => (X, M) -> multigradedRegularity(X, null, M)
+-- Note: some hacking is involved to deal with the differences between productOfProjectiveSpaces and toricProjectiveSpaces
+multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
+    if class X === Nothing then (
+        -- go from module over productOfProjectiveSpaces to module over tensor product of toricProjectiveSpaces
+        X = fold((A,B) -> A**B, {1,1}/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S))); -- FIXME how to get {1,1} from S
+        M' := M;
+        M = (map(ring X, S, gens ring X))(M');
+        );
+    if class S === Nothing then (
+        -- go from module over NormalToricVariety to module over productOfProjectiveSpaces
+        -- assuming that the NormalToricVariety is a tensor product of toricProjectiveSpaces
+        S = ring X;
+        (S', E') := productOfProjectiveSpaces({1,1}, CoefficientField => coefficientRing S); -- FIXME how to get {1,1} from X
+        M' = (map(S', S, gens S'))(M);
+        );
     n := #(degrees S)_0;
-    low := -toList(n:0);
-    high := toList(n:regularity M);
-    ht := cohomologyHashTable(M, low, high);
-    findCorners ht
+    r := regularity M;
+    H := hilbertPolynomial(X, M);
+    -- We only search in the positive cone and up to the regularity of M
+    L := pairs cohomologyHashTable(M', toList(n:0), toList(n:r));
+    -- Based on findHashTableCorner from TateOnProducts
+    P := multigradedPolynomialRing toList(n:0);
+    gt := new MutableHashTable;
+    apply(L, ell -> (
+	    -- Check that Hilbert function and Hilbert polynomial match (i.e., H^0_I(M) = 0) -- FIXME
+	    if hilbertFunction(ell_0_0, M) != (map(ZZ, ring H, ell_0_0))(H) then (
+	        gt#(ell_0_0) = true;
+	        );
+	    -- Check that higher local cohomology vanishes (i.e., H^i_I(M) = 0 for i > 1) -- FIXME
+	    if ell_1 != 0 and ell_0_1 > 0 then (
+	        gt#(ell_0_0) = true;
+	        apply(n, j -> gt#(ell_0_0 + degree P_j) = true);
+	        );
+	    )
+	);
+    low := apply(n, i -> min (L / (ell -> ell_0_0_i - 1)));
+    I := ideal apply(L, ell -> if not gt#?(ell_0_0) then product(n, j -> P_j^(ell_0_0_j - low_j)) else 0);
+    apply(flatten entries mingens I, g -> (flatten exponents g) + low)
     )
 
 
