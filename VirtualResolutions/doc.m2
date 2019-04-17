@@ -386,18 +386,18 @@ doc ///
 	  See Theorem 4.1 of [BES] for further details.
 	  If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
         Example
-	"Generate P1xP1"
-	X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
-	S = ring X; B = ideal X;
-	"Generate the ideal of 3 general points in P1xP1"
-	J = saturate(intersect(
+	  "Generate P1xP1"
+	  X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
+	  S = ring X; B = ideal X;
+	  "Generate the ideal of 3 general points in P1xP1"
+	  J = saturate(intersect(
     		ideal(x_1 - 1*x_0, x_3 - 4*x_2),
     		ideal(x_1 - 2*x_0, x_3 - 5*x_2),
     		ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
-     	    B) 
-	"Compute its minimal free resolution and a virtual resolution"
-  	minres = res J;
-  	vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
-	"Check that vres is indeed virtual"
-	isVirtual(J,B,vres)
+     	   B) 
+         "Compute its minimal free resolution and a virtual resolution"
+  	  minres = res J;
+  	  vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
+	  "Check that vres is indeed virtual"
+	  isVirtual(J,B,vres)
 ///
