@@ -460,7 +460,7 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
     gt := new MutableHashTable;
     apply(L, ell -> (
 	    -- Check that Hilbert function and Hilbert polynomial match (i.e., H^0_I(M) = 0) -- FIXME
-	    if hilbertFunction(ell_0_0, M) != (map(ZZ, ring H, ell_0_0))(H) then (
+	    if hilbertFunction(ell_0_0, M) != (map(QQ, ring H, ell_0_0))(H) then (
 	        gt#(ell_0_0) = true;
 	        );
 	    -- Check that higher local cohomology vanishes (i.e., H^i_I(M) = 0 for i > 1) -- FIXME

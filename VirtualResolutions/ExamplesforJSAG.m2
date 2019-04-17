@@ -94,12 +94,3 @@ K' = saturate(K,B);
 dim K' == 3
 
 multigradedRegularity(S, module K')
-
-(S, E) = productOfProjectiveSpaces({1, 2});
-(S, E) = productOfProjectiveSpaces({1, 2, 3, 4});
-
-dimVector = (S) -> (
-    deg := degrees S;
-    degTally := tally deg;
-    apply(rsort unique deg, i->(degTally_i - 1))
-    )
