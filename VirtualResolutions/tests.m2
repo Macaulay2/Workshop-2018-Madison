@@ -52,30 +52,30 @@ TEST ///
 TEST ///
     R = ZZ/101[z_0,z_1,z_2,z_3];
     C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-    assert dim curveFromP3toP1P2(C) == 3
+    assert (dim curveFromP3toP1P2(C) == 3)
     ///
 
 TEST ///
     R = ZZ/101[z_0,z_1,z_2,z_3];
     C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
-    assert dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3
+    assert (dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3)
     ///
 
 ------ Tests for randomCurveP1P2
 TEST ///
-    assert (dim randomCurveP1P2(3,0,ZZ/2) == 3)
+    assert (dim randomCurveP1P2(3,0,ZZ/101) == 3)
     ///
 
 TEST ///
-    assert (degree randomCurveP1P2(3,0,ZZ/2) == 3+3)
+    assert (degree randomCurveP1P2(3,0,ZZ/101) == 3+3)
     ///
 
 TEST ///
-    assert (dim randomCurveP1P2(5,2,ZZ/11,Bound=>10) == 3)
+    assert (dim randomCurveP1P2(5,2,ZZ/101,Bound=>10) == 3)
     ///
 
 TEST ///
-    assert (degree randomCurveP1P2(5,2,ZZ/11,Bound=>10) == 5+5)
+    assert (degree randomCurveP1P2(5,2,ZZ/101,Bound=>10) == 5+5)
     ///
 
 TEST ///
@@ -188,6 +188,7 @@ TEST ///
     assert(isVirtual(I,irr,r) == true)
     ///
 
+-- problem with ourSaturation    
 TEST ///
 -- This one might take too long...
     S = ZZ/101[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
@@ -197,7 +198,8 @@ TEST ///
     r = res J;
     assert(isVirtual(I,irr,r) == true)
     ///
-
+    
+-- problem with ourSaturation    
 ----- Tests for findGensUpToIrrelevance
 TEST ///
     S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
@@ -208,7 +210,7 @@ TEST ///
     assert(findGensUpToIrrelevance(2,J,irr) == lst)
     ///
 
-
+-- problem with ourSaturation    
 TEST ///
     S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
@@ -226,7 +228,8 @@ TEST ///
     output = findGensUpToIrrelevance(2,I,irr,GeneralElements=>true);
     assert(length(output) == 3 and output_1 == {0,1} and output_2 == {1,2})
     ///
-    
+ 
+--- problem with ourSaturation    
 TEST ///
     S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
@@ -258,7 +261,7 @@ TEST ///
     assert isVirtual(I, irr, intersectionRes (I, irr, {3,3,0}))
     ///
     
-    
+--- problem with resolveTail    
 TEST ///
     debug needsPackage "TateOnProducts"
     needsPackage "VirtualResolutions"
