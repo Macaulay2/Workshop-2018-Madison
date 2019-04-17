@@ -39,10 +39,10 @@ doc ///
      minres = res J;
      multigraded betti minres 
     Text
-     As dscribed in Theorem 4.1 of Berkesch, Erman, and Smith's 
+     As described in Algorith 3.4 of Berkesch, Erman, and Smith's 
      paper, one may construct a virtual resolution of a module from its graded minimal free resolution and
      an element of the multigraded Castelnuovo-Mumford regularity of the module. (See Maclagan and Smith's paper 
-     {\em Multigraded Castelnuovo-Mumford regularity} for the definition of multigraded regularity.) 
+     {\em Multigraded Castelnuovo-Mumford Regularity} for the definition of multigraded regularity.) 
      Building on the TateOnProducts package, this package contains a function allowing one
      to compute the minimal elements of the multigraded Castelnuovo-Mumford regularity of a $B$-saturated module.
      
@@ -358,7 +358,7 @@ doc ///
     	Text
             Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
 	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
-	    See Theorem 5.1 of [BES].
+	    See Theorem 4.1 of [BES].
     	Example
     	    debug needsPackage "TateOnProducts"
      	    "Following Example 5.7 of [BES]: 6 points in P1xP1xP2"
@@ -408,7 +408,7 @@ doc ///
         Text
           Given a ring and its free resolution, keeps only the summands in resolution of specified degrees L.
 	  If the specified degrees are in the multigraded regularity, then the output is a virtual resolution. 
-	  See Theorem 4.1 of [BES] for further details.
+	  See Algorithm 3.4 of [BES] for further details.
 	  If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
         Example
 	  "Generate P1xP1"
