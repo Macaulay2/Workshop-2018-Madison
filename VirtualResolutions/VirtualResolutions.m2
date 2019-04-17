@@ -466,7 +466,12 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
         -- assuming that the NormalToricVariety is a tensor product of toricProjectiveSpaces
         S = ring X;
         (S', E') := productOfProjectiveSpaces(dimVector(X), CoefficientField => coefficientRing S); -- FIXME how to get {1,1} from X -- Juliette: Added dimVector hopefully fixed.
-        M' = (map(S', S, gens S'))(M);
+        -- Juliette: You cannot compute the image of (most) modules under a ring map
+	-- as a (somewhat hacky) fix I introdued the following three lines of code
+	Pres1 := presentation M;
+	Pres2 := (map(S', S, gens S'))(Pres1);
+	M' = coker Pres2;
+	--M' = (map(S', S, gens S'))(M);
         );
     n := #(degrees S)_0;
     r := regularity M;
