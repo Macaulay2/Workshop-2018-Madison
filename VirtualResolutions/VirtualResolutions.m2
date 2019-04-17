@@ -243,8 +243,8 @@ randomRationalCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     --J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
     I := sub(eliminate({uVars#0,uVars#1},J'),S);
     (T, E) := productOfProjectiveSpaces({1, 2});
-    F := map(T,S,(flatten entries vars T));
-    F(I)
+    G := map(T,S,(flatten entries vars T));
+    G(I)
     )
 
 --------------------------------------------------------------------
@@ -294,8 +294,8 @@ randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
     I := sub(eliminate({uVars#0,uVars#1},J'),S);
     (T, E) := productOfProjectiveSpaces({1, 2});
-    F := map(T,S,(flatten entries vars T));
-    F(I)
+    G := map(T,S,(flatten entries vars T));
+    G(I)
     )
 
 --------------------------------------------------------------------
@@ -358,8 +358,8 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     K := ourSaturation(C'+D,B);
     I := sub(eliminate({uVars#0,uVars#1,uVars#2,uVars#3},K),S);
     (T, E) := productOfProjectiveSpaces({1, 2});
-    F := map(T,S,(flatten entries vars T));
-    F(I)
+    G := map(T,S,(flatten entries vars T));
+    G(I)
     )
 
 --------------------------------------------------------------------

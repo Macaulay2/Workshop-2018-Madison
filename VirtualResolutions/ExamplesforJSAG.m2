@@ -15,7 +15,7 @@ J = saturate(intersect(
      B)
 
 multigradedRegularity(X, module J)
-multigradedRegularity(X, S/J)
+multigradedRegularity(X, S^1/J)
 minres = res J;
 multigraded betti minres
 vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
