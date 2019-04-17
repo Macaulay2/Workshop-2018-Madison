@@ -361,7 +361,7 @@ doc ///
         The output is only a virtual resolution for inputs that are zero-dimensional subschemes.
 ///
 
--*
+
 doc ///
     Key
         multiWinnow
@@ -401,4 +401,3 @@ doc ///
 	"Check that vres is indeed virtual"
 	isVirtual(J,B,vres)
 ///
-*-
