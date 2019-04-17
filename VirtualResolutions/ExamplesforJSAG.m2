@@ -88,7 +88,7 @@ vres = multiWinnow(S,minres,{{0,0}})
 
 -------------
 -------------
-K = randomCurveP1P2(5,2);
+K = randomCurveP1P2(5,2)
 dim K == 3
 T = ring K;
 B1 =  intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));

@@ -192,7 +192,7 @@ doc ///
 	    randomRationalCurve(2,3,QQ)
 	    randomRationalCurve(2,3)
     Caveat
-        This globally defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
+        This defines a ring F[x_(0,0),x_(0,1),x_(1,0),x_(1,1),y_(1,2)] in which the resulting ideal is defined.
 ///
 
 doc ///
@@ -230,7 +230,7 @@ doc ///
 	Example
 	    randomMonomialCurve(2,3,QQ)
     Caveat
-        This globally defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
+        This defines a ring F[x_(0,0),x_(0,1),x_(1,0),x_(1,1),y_(1,2)] in which the resulting ideal is defined.
 ///
 
 doc ///
@@ -267,7 +267,7 @@ doc ///
             J = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
 	    curveFromP3toP1P2(J)
     Caveat
-        This globally defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
+        This defines a ring F[x_(0,0),x_(0,1),x_(1,0),x_(1,1),y_(1,2)] in which the resulting ideal is defined.
 ///
 
 doc ///
@@ -320,7 +320,7 @@ doc ///
 	    randomCurveP1P2(3,0)
 	    randomCurveP1P2(3,0,QQ);
     Caveat
-        This globally defines a ring S=F[x_0,x_1,y_0,y_1,y_2] in which the resulting ideal is defined.
+        This defines a ring S=F[x_(0,0),x_(0,1),x_(1,0),x_(1,1),y_(1,2)] in which the resulting ideal is defined.
 ///
 
 
