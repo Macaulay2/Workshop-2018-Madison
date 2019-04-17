@@ -220,6 +220,7 @@ TEST ///
 	    output_4 = {0,1,4})
     ///
 
+-- Test for intersectionRes
 TEST ///
     debug needsPackage "TateOnProducts"
     N = {1,1,2} -- Example 5.7 of [BES] uses 1x1x2 and 6 points
@@ -240,6 +241,8 @@ TEST ///
     assert isVirtual(I, irr, intersectionRes (I, irr, {3,3,0}))
     ///
     
+-- Tests for multiWinnow
+    
 TEST ///
     debug needsPackage "TateOnProducts"
     needsPackage "VirtualResolutions"
@@ -252,4 +255,17 @@ TEST ///
     J = saturate(I, irr);
     C = res J;
     D = multiWinnow(S, C, {{1,2}, {2,1}})
+    assert isVirtual(J,irr,D)
     ///
+    
+TEST ///
+    X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
+    S = ring X; B = ideal X;
+    J = saturate(intersect(
+    	    ideal(x_1 - 1*x_0, x_3 - 4*x_2),
+    	    ideal(x_1 - 2*x_0, x_3 - 5*x_2),
+    	    ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
+     	    B) 
+    minres = res J;
+    vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
+    assert isVirtual(J,B,vres)
