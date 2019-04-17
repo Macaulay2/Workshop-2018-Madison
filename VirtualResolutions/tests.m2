@@ -1,10 +1,10 @@
 ------ Tests for randomRationalCurve
 TEST ///
-    assert (dim randomRationalCurve(2,3,QQ) == 3)
+    assert (dim randomRationalCurve(2,3,ZZ/101) == 3)
     ///
 
 TEST ///
-    assert (degree randomRationalCurve(2,3,QQ) == 2+3)
+    assert (degree randomRationalCurve(2,3,ZZ/101) == 2+3)
     ///
 
 TEST ///
@@ -25,11 +25,11 @@ TEST ///
 
 ------ Tests for randomMonomialCurve
 TEST ///
-    assert (dim randomMonomialCurve(2,3,QQ) == 3)
+    assert (dim randomMonomialCurve(2,3,ZZ/101) == 3)
     ///
 
 TEST ///
-    assert (degree randomMonomialCurve(2,3,QQ) == 2+3)
+    assert (degree randomMonomialCurve(2,3,ZZ/101) == 2+3)
     ///
 
 TEST ///

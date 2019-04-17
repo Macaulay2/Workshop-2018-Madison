@@ -1,4 +1,69 @@
 doc ///
+  Key
+    VirtualResolutions
+  Headline
+    Compute virtual resolutions
+  Description
+    Text
+     While graded minimal free resolutions work well for studying quasicoherent 
+     sheaves over projective space, over a product of projective spaces or, more generally, 
+     over smooth projective toric varieties, graded minimal free resolutions over the Cox ring 
+     seem too restricted by algebraic structure that is unimportant geometrically. By allowing 
+     a limited amount of homology, virtual resolutions offer a more flexible alternative for 
+     studying toric subvarieties when compared to minimal graded free resolutions.
+     
+     Introduced by Berkesch, Erman, and Smith in {\em Virtual resolutions for a product of projective spaces} 
+     (see arXiv:1703.07631) if $X$ is a smooth toric variety, $S$ the Cox ring of $X$
+     graded by the Picard group of $X$, and $B\subset S$ the irrelevant ideal of $X$ then
+     a virtural resolution of a graded $S$-module $M$ is a complex of graded free $S$-modules, which
+     sheafifies to a resolution of $\tilde{M}$.
+ 
+     The goal of this package is provide tools for constructing and working with 
+     virutal resolutions for products of projective spaces. In particular, it implements
+     a number of the methods for constructing virtual resolutions for products of projective
+     spaces introduced by Berkesch, Erman, and Smith. The package also contains a number of
+     methods for constucting curves in $\mathbb{P}^1\times\mathbb{P}^2$ as these are
+     a natural source for interesting virtual resolutions. 
+       
+     As a running example consider the three points $([1:1],[1:4])$, $([1:2],[1:5])$, and $([1:3],[1:6])$
+     in $\mathbb{P}^1 \times \mathbb{P}^1$. 
+	     
+    Example
+     X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
+     S = ring X; 
+     B = ideal X;
+     J = saturate(intersect(
+         ideal(x_1 - x_0, x_3 - 4*x_2),
+         ideal(x_1 - 2*x_0, x_3 - 5*x_2),
+         ideal(x_1 - 3*x_0, x_3 - 6*x_2)), B);
+     minres = res J;
+     multigraded betti minres 
+    Text
+     As dscribed in Theorem 4.1 of Berkesch, Erman, and Smith's 
+     paper one may construct a virutal resolution of a module from its graded minimal free resolution and
+     an element of the multigraded Castelnuovo-Mumford regularity of the module. (See Maclagan and Smith's paper 
+     {\em Multigraded Castelnuovo-Mumford regularity} for the definition of multigraded regularity.) 
+     Building on the TateOnProducts package this package contains a function allowing one
+     too compute the minimal elements of the multigraded Castelnuovo-Mumford regularity of a $B$-saturated module.
+     
+     Continuing the example from above, we see that $(3,1)$ is an element of the multigraded
+     regularity of $J$. From this we can compute a virtual resolution of $S/I$.
+    Example
+     multigradedRegularity(X, module J)
+     vres = multiWinnow(X,minres,{{3,1}}) 
+     multigraded betti vres
+    Text
+     Notice that this virtual resolution of $S/J$ is much shorter and thinner than the graded minimal
+     free resolution of $S/J$. This is a common theme, i.e. virtual resolutions tend to be much
+     shorter and less wide than graded minimal free resolutions over the Cox ring.
+     
+     In addition to the functions highlighted above the VirtualResolutions package contains
+     a number of other tools for constructing and studying virutal resolutions. In particular,
+     there are functions to construct virtual resolutions for zero dimensionsal subschemes, to
+     check whether a complex is a virtual resolution, and to consturct curves in $\mathbb{P}^1\times\mathbb{P}^2$.
+///
+
+doc ///
     Key
     	isVirtual
 	(isVirtual,Ideal,Ideal,ChainComplex)
