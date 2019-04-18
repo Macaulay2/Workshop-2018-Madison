@@ -574,5 +574,5 @@ installPackage "Colon"
 installPackage "VirtualResolutions"
 restart
 needsPackage "VirtualResolutions"
-elapsedTime check "VirtualResolutions" -- FIXME 13/38 tests fail
+elapsedTime check "VirtualResolutions"
 viewHelp "VirtualResolutions"

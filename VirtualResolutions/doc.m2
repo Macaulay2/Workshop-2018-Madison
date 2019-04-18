@@ -495,12 +495,6 @@ doc ///
           J' = saturate(I',B);
           "Compute the multigraded regularity"
           L = multigradedRegularity(X, J')
-          "Check that winnowing at each minimal element + (1,2) gives a virtual resolution"
-          minres = res J';
-          for l in L do (
-            vres = multiWinnow(J',{l + {1,2}});
-            print isVirtual(J',B,vres)
-          )
     Caveat
       The input is assumed to be saturated.
 ///
