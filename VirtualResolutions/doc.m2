@@ -394,18 +394,20 @@ doc ///
 doc ///
     Key
         multiWinnow
-        (multiWinnow, Ring,               ChainComplex, List)
-        (multiWinnow, NormalToricVariety, ChainComplex, List)
+        (multiWinnow, Ideal,        List)
+        (multiWinnow, Module,       List)
+        (multiWinnow, ChainComplex, List)
     Headline
         Creates a virtual resolution from a free resolution by keeping only summands of specified degrees.
     Usage
-    	multiWinnow(R,C,L)
-	multiWinnow(X,C,L)
+	multiWinnow(I, L)
+	multiWinnow(M, L)
+	multiWinnow(C, L)
     Inputs
-    	R:Ring
-	    ring to be resolved
-	X:NormalToricVariety
-	    toric variety to be resolved
+	I:Ideal
+	    ideal over multigraded ring
+	M:Module
+	    module over multigraded ring
 	C:ChainComplex
 	    free resolution of our variety
 	L:List
