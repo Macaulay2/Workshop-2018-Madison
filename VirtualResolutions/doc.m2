@@ -342,18 +342,22 @@ doc ///
 
 doc ///
     Key
-    	intersectionRes
-	(intersectionRes, Ideal, Ideal, List)
+    	resolveViaFatPoint
+	(resolveViaFatPoint, Ideal, Ideal, List)
     Headline
         Returns a virtual resolution of a zero-dimensional scheme
     Usage
-    	intersectionRes(I, irr, A)
+    	resolveViaFatPoint(I, irr, A)
     Inputs
 	J:Ideal
+	    saturated ideal corresponding to a zero-dimensional scheme
         irr:Ideal
+	    the irrelevant ideal
     	A:List
+	    power you want to take the irrelevant ideal to
     Outputs
     	:ChainComplex
+	    virtual resolution of our ideal
     Description
     	Text
             Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
@@ -379,7 +383,7 @@ doc ///
   		P + Q + R
   		)
 	    "Find the virtual resolution"
-	    C = intersectionRes (I, irr, {2,1,0})
+	    C = resolveViaFatPoint (I, irr, {2,1,0})
 	    "Confirm that this is a virtual resolution"
     	    isVirtual(I, irr, C)
     Caveat
@@ -390,18 +394,24 @@ doc ///
 doc ///
     Key
         multiWinnow
-        (multiWinnow, Ring,               ChainComplex, List)
-        (multiWinnow, NormalToricVariety, ChainComplex, List)
+        (multiWinnow, Ideal,        List)
+        (multiWinnow, Module,       List)
+        (multiWinnow, ChainComplex, List)
     Headline
         Creates a virtual resolution from a free resolution by keeping only summands of specified degrees.
     Usage
-    	multiWinnow(R,C,L)
-	multiWinnow(X,C,L)
+	multiWinnow(I, L)
+	multiWinnow(M, L)
+	multiWinnow(C, L)
     Inputs
-    	R:Ring
-	X:NormalToricVariety
+	I:Ideal
+	    ideal over multigraded ring
+	M:Module
+	    module over multigraded ring
 	C:ChainComplex
-	L:List  	
+	    free resolution of our variety
+	L:List
+	    multidegrees of summands to keep  	
     Outputs
     	:ChainComplex
     Description

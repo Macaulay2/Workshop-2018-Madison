@@ -43,7 +43,7 @@ export{
     "findGensUpToIrrelevance",
     "isVirtual",
     "multiWinnow",
-    "intersectionRes",
+    "resolveViaFatPoint",
     "randomRationalCurve",
     "randomMonomialCurve",
     "randomCurveP1P2",
@@ -78,9 +78,10 @@ ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 --See Algorithm 3.4 of [BES]
 
 multiWinnow = method()
-multiWinnow (NormalToricVariety, ChainComplex, List) := (X, F, alphas) -> multiWinnow(ring X, F, alphas)
-multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
-    if any(alphas, alpha -> #alpha =!= degreeLength S) then error "degree has wrong length";
+multiWinnow (Ideal,        List) := (I, alphas) -> multiWinnow(res I, alphas)
+multiWinnow (Module,       List) := (M, alphas) -> multiWinnow(res M, alphas)
+multiWinnow (ChainComplex, List) := (F, alphas) ->(
+    if any(alphas, alpha -> #alpha =!= degreeLength ring F) then error "degree has wrong length";
     L := apply(length F, i ->(
 	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
     chainComplex L
@@ -92,8 +93,8 @@ multiWinnow (Ring,               ChainComplex, List) := (S, F, alphas) ->(
 -- irrelevant ideal.
 --See Theorem 4.1 of [BES]
 
-intersectionRes = method()
-intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
+resolveViaFatPoint = method()
+resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     L := decompose irr;
     if #A != #L then error "intersectionRes: expected exponent vector of the right length.";
     -- note: decompose doesn't necessarily return in the right order
@@ -446,7 +447,7 @@ multigradedPolynomialRing = n -> (
 -- Input: Ring S, Module M; or
 -- Input: NormalToricVariety X, Module M
 -- Output: a list of r-tuples
--- Caveat: assumed M is B-saturated already (i.e., H^1_I(M) = 0) -- FIXME
+-- Caveat: assumed M is B-saturated already (i.e., H^1_I(M) = 0)
 multigradedRegularity = method()
 multigradedRegularity(Ring, Module) := List => (S, M') -> multigradedRegularity(null, S, M')
 multigradedRegularity(NormalToricVariety, Module) := List => (X, M) -> multigradedRegularity(X, null, M)
@@ -459,7 +460,6 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
         Pres1 := presentation M';
 	Pres2 := (map(ring X, S, gens ring X))(Pres1);
 	M = coker Pres2
-	--M = (map(ring X, S, gens ring X))(M');
         );
     if class S === Nothing then (
         -- go from module over NormalToricVariety to module over productOfProjectiveSpaces
@@ -471,7 +471,6 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
 	Pres3 := presentation M;
 	Pres4 := (map(S', S, gens S'))(Pres3);
 	M' = coker Pres4;
-	--M' = (map(S', S, gens S'))(M);
         );
     n := #(degrees S)_0;
     r := regularity M;
@@ -482,11 +481,12 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
     P := multigradedPolynomialRing toList(n:0);
     gt := new MutableHashTable;
     apply(L, ell -> (
-	    -- Check that Hilbert function and Hilbert polynomial match (i.e., H^0_I(M) = 0) -- FIXME
+	    -- Check that Hilbert function and Hilbert polynomial match
+	    -- (this imposes a condition on the alternating sum of local cohomology dimensions)
 	    if hilbertFunction(ell_0_0, M) != (map(QQ, ring H, ell_0_0))(H) then (
 	        gt#(ell_0_0) = true;
 	        );
-	    -- Check that higher local cohomology vanishes (i.e., H^i_I(M) = 0 for i > 1) -- FIXME
+	    -- Check that higher local cohomology vanishes (i.e., H^i_I(M) = 0 for i > 1)
 	    if ell_1 != 0 and ell_0_1 > 0 then (
 	        gt#(ell_0_0) = true;
 	        apply(n, j -> gt#(ell_0_0 + degree P_j) = true);

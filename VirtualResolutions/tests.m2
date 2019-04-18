@@ -1,51 +1,27 @@
 ------ Tests for randomRationalCurve
 TEST ///
-    assert (dim randomRationalCurve(2,3,ZZ/101) == 3)
+    assert (dim randomRationalCurve(2,3,ZZ/32003) == 3)
     ///
 
 TEST ///
-    assert (degree randomRationalCurve(2,3,ZZ/101) == 2+3)
-    ///
-
-TEST ///
-    assert (dim randomRationalCurve(2,3,ZZ/101) == 3)
-    ///
-
-TEST ///
-    assert (degree randomRationalCurve(2,3,ZZ/101) == 2+3)
+    assert (dim randomRationalCurve(2,3,ZZ/32003) == 3)
     ///
 
 TEST ///
     assert (dim randomRationalCurve(2,3) == 3)
     ///
 
-TEST ///
-    assert (degree randomRationalCurve(2,3) == 2+3)
-    ///
-
 ------ Tests for randomMonomialCurve
 TEST ///
-    assert (dim randomMonomialCurve(2,3,ZZ/101) == 3)
+    assert (dim randomMonomialCurve(2,3,ZZ/32003) == 3)
     ///
 
 TEST ///
-    assert (degree randomMonomialCurve(2,3,ZZ/101) == 2+3)
-    ///
-
-TEST ///
-    assert (dim randomMonomialCurve(2,3,ZZ/101) == 3)
-    ///
-
-TEST ///
-    assert (degree randomMonomialCurve(2,3,ZZ/101) == 2+3)
+    assert (dim randomMonomialCurve(2,3,ZZ/32003) == 3)
     ///
 
 TEST ///
     assert (dim randomMonomialCurve(2,3) == 3)
-    ///
-
-TEST ///
-    assert (degree randomMonomialCurve(2,3) == 2+3)
     ///
 
 ------ Tests for curveFromP3toP1P2
@@ -63,19 +39,11 @@ TEST ///
 
 ------ Tests for randomCurveP1P2
 TEST ///
-    assert (dim randomCurveP1P2(3,0,ZZ/101) == 3)
+    assert (dim randomCurveP1P2(3,0,ZZ/32003) == 3)
     ///
-
+    
 TEST ///
-    assert (degree randomCurveP1P2(3,0,ZZ/101) == 3+3)
-    ///
-
-TEST ///
-    assert (dim randomCurveP1P2(5,2,ZZ/101,Bound=>10) == 3)
-    ///
-
-TEST ///
-    assert (degree randomCurveP1P2(5,2,ZZ/101,Bound=>10) == 5+5)
+    assert (dim randomCurveP1P2(5,2,ZZ/32003,Bound=>50) == 3)
     ///
 
 TEST ///
@@ -83,24 +51,21 @@ TEST ///
     ///
 
 TEST ///
-    assert (degree randomCurveP1P2(3,0) == 3+3)
+    assert (degree randomCurveP1P2(3,0) == 6)
     ///
 
 TEST ///
-    assert (dim randomCurveP1P2(3,0,Bound=>10) == 3)
+    assert (dim randomCurveP1P2(3,0,Bound=>50) == 3)
     ///
 
 TEST ///
-    assert (degree randomCurveP1P2(3,0,Bound=>10) == 3+3)
+    assert (degree randomCurveP1P2(3,0,Bound=>50) == 6)
     ///
 
 TEST ///
-    assert (dim randomCurveP1P2(5,2,Bound=>10) == 3)
+    assert (dim randomCurveP1P2(5,2,Bound=>50) == 3)
     ///
-
-TEST ///
-    assert (degree randomCurveP1P2(5,2,Bound=>10) == 5+5)
-    ///
+    
 
 ------ Tests for isVirtual
 TEST ///
@@ -196,7 +161,7 @@ TEST /// --FIXXXME
     assert(length(output) == 2 and output_1 == {0,1})
     ///
 
--- Test for intersectionRes
+-- Test for resolveViaFatPoint
 TEST ///
     debug needsPackage "TateOnProducts"
     N = {1,1,2} -- Example 5.7 of [BES] uses 1x1x2 and 6 points
@@ -213,8 +178,8 @@ TEST ///
   	R := sum for n to N#2 - 1 list ideal random({0,0,1}, S);
   	P + Q + R
   	)
-    assert isVirtual(I, irr, intersectionRes (I, irr, {2,1,0}))
-    assert isVirtual(I, irr, intersectionRes (I, irr, {3,3,0}))
+    assert isVirtual(I, irr, resolveViaFatPoint (I, irr, {2,1,0}))
+    assert isVirtual(I, irr, resolveViaFatPoint (I, irr, {3,3,0}))
     ///
     
 -- Test for multiWinnow  
@@ -225,8 +190,8 @@ TEST ///
     	    ideal(x_1 - 1*x_0, x_3 - 4*x_2),
     	    ideal(x_1 - 2*x_0, x_3 - 5*x_2),
     	    ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
-     	    B) 
+     	    B);
     minres = res J;
-    vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
+    vres = multiWinnow(J,{{3,1}});
     assert isVirtual(J,B,vres)
     ///
