@@ -39,7 +39,7 @@ doc ///
      minres = res J;
      multigraded betti minres 
     Text
-     As described in Algorith 3.4 of Berkesch, Erman, and Smith's 
+     As described in Algorithm 3.4 of Berkesch, Erman, and Smith's 
      paper, one may construct a virtual resolution of a module from its graded minimal free resolution and
      an element of the multigraded Castelnuovo-Mumford regularity of the module. (See Maclagan and Smith's paper 
      {\em Multigraded Castelnuovo-Mumford Regularity} for the definition of multigraded regularity.) 
@@ -50,7 +50,7 @@ doc ///
      regularity of $J$. From this we can compute a virtual resolution of $S/I$.
     Example
      multigradedRegularity(X, module J)
-     vres = multiWinnow(X,minres,{{3,1}}) 
+     vres = multiWinnow(J,{{3,1}}) 
      multigraded betti vres
     Text
      Notice that this virtual resolution of $S/J$ is much shorter and thinner than the graded minimal
@@ -417,22 +417,79 @@ doc ///
     Description
         Text
           Given a ring and its free resolution, keeps only the summands in resolution of specified degrees L.
-	  If the specified degrees are in the multigraded regularity, then the output is a virtual resolution. 
-	  See Algorithm 3.4 of [BES] for further details.
-	  If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
+          If the specified degrees are in the multigraded regularity, then the output is a virtual resolution. 
+          See Algorithm 3.4 of [BES] for further details.
+          If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
         Example
-	  "Generate P1xP1"
-	  X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
-	  S = ring X; B = ideal X;
-	  "Generate the ideal of 3 general points in P1xP1"
-	  J = saturate(intersect(
-    		ideal(x_1 - 1*x_0, x_3 - 4*x_2),
-    		ideal(x_1 - 2*x_0, x_3 - 5*x_2),
-    		ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
-     	   B) 
+          "Generate P1xP1"
+          X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
+          S = ring X; B = ideal X;
+          "Generate the ideal of 3 general points in P1xP1"
+          J = saturate(intersect(
+                ideal(x_1 - 1*x_0, x_3 - 4*x_2),
+                ideal(x_1 - 2*x_0, x_3 - 5*x_2),
+                ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
+                B) 
          "Compute its minimal free resolution and a virtual resolution"
-  	  minres = res J;
-  	  vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
-	  "Check that vres is indeed virtual"
-	  isVirtual(J,B,vres)
+          minres = res J;
+          vres = multiWinnow(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
+          "Check that vres is indeed virtual"
+          isVirtual(J,B,vres)
+///
+
+
+doc ///
+    Key
+        multigradedRegularity
+        (multigradedRegularity, Ring, Module)
+        (multigradedRegularity, NormalToricVariety, Module)
+    Headline
+        Computes the minimal elements of the multigraded regularity of a module over a multigraded ring
+    Usage
+        multigradedRegularity(S,I)
+        multigradedRegularity(S,M)
+        multigradedRegularity(X,I)
+        multigradedRegularity(X,M)
+    Inputs
+        S:Ring
+	  a multigraded Cox ring
+        X:NormalToricVariety
+	  a product of normal toric varieties
+        I:Ideal
+	  an ideal over a multigraded ring
+        M:Module
+	  a module over a multigraded ring
+    Outputs
+        :List
+	  a list of multidegrees
+    Description
+        Text
+          Given a module M over a multigraded ring S or a product of toric varieties X, this method finds the
+          minimal elements of the multigraded Castelnuovo-Mumford regularity of M as defined in Definition 1.1
+	  of [MS04]. If the input is an ideal, multigraded regularity of S^1/I is computed.
+
+          This is done by calling the cohomologyHashTable method from TateOnProducts and checking for the 
+          multidegrees where Hilbert polynomial and Hilbert function match and where the higher sheaf cohomology
+          vanishes.
+
+          Note that the module or ideal is assumed to be saturated by the irrelevant ideal of the Cox ring.
+	  
+	  As an example, here we compute the minimal elements of the multigraded regularity for Example 1.4
+	  of [BES]:
+        Example
+	  "Generate P1xP2"
+	  X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
+	  S = ring X; B = ideal X;
+	  "Generate the ideal of a hyperelliptic curve of genus 4 in P1xP2"
+          I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
+	  "Saturate by the irrelevant ideal"
+          J' = saturate(I',B);
+	  "Compute the multigraded regularity"
+          L = multigradedRegularity(X, J')
+	  "Check that winnowing at each minimal element gives a virtual resolution"
+          minres = res J';
+	  for l in L do (
+            vres = multiWinnow(J',{l + {1,2}}); --(3,1) = (2,0) + (1,1)
+            print isVirtual(J',B,vres)
+	  )
 ///

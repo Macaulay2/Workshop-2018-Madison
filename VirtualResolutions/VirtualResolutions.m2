@@ -456,8 +456,9 @@ multigradedPolynomialRing = n -> (
 -- Output: a list of r-tuples
 -- Caveat: assumed M is B-saturated already (i.e., H^1_I(M) = 0)
 multigradedRegularity = method()
-multigradedRegularity(Ring, Module) := List => (S, M') -> multigradedRegularity(null, S, M')
-multigradedRegularity(NormalToricVariety, Module) := List => (X, M) -> multigradedRegularity(X, null, M)
+multigradedRegularity(Thing,              Ideal)  := List => (T, I)  -> multigradedRegularity(T, comodule I)
+multigradedRegularity(Ring,               Module) := List => (S, M') -> multigradedRegularity(null, S, M')
+multigradedRegularity(NormalToricVariety, Module) := List => (X, M)  -> multigradedRegularity(X, null, M)
 -- Note: some hacking is involved to deal with the differences between productOfProjectiveSpaces and toricProjectiveSpaces
 multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
     if class X === Nothing then (
