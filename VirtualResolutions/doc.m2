@@ -49,7 +49,7 @@ doc ///
      Continuing the example from above, we see that $(3,1)$ is an element of the multigraded
      regularity of $J$. From this we can compute a virtual resolution of $S/I$.
     Example
-     multigradedRegularity(X, module J)
+     multigradedRegularity(X, comodule J)
      vres = virtualOfPair(J,{{3,1}}) 
      multigraded betti vres
     Text
@@ -161,6 +161,7 @@ doc ///
 
 doc ///
     Key
+        GeneralElements
         [findGensUpToIrrelevance, GeneralElements]
     Headline
         combines generators of same degree into a general linear combination
@@ -291,6 +292,7 @@ doc ///
 
 doc ///
     Key
+        PreserveDegree
         [curveFromP3toP1P2, PreserveDegree]
     Headline
         Determines if curve is disjoint from base locuses
@@ -345,6 +347,7 @@ doc ///
 
 doc ///
     Key
+        Bound
         [randomCurveP1P2, Bound]
     Headline
         Limit number of attempts for randomCurveP1P2
@@ -383,7 +386,6 @@ doc ///
 	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
 	    See Theorem 4.1 of [BES].
     	Example
-    	    debug needsPackage "TateOnProducts"
      	    "Following Example 5.7 of [BES]: 6 points in P1xP1xP2"
     	    N = {1,1,2}
     	    pts = 6
