@@ -44,7 +44,7 @@ export{
     "curveFromP3toP1P2",
     "findGensUpToIrrelevance",
     "isVirtual",
-    "virtualFromPair",
+    "virtualOfPair",
     "resolveViaFatPoint",
     "randomRationalCurve",
     "randomMonomialCurve",
@@ -88,8 +88,8 @@ ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 --See Algorithm 3.4 of [BES]
 
 virtualOfPair = method()
-virtualOfPair (Ideal,        List) := (I, alphas) -> multiWinnow(res I, alphas)
-virtualOfPair (Module,       List) := (M, alphas) -> multiWinnow(res M, alphas)
+virtualOfPair (Ideal,        List) := (I, alphas) -> virtualOfPair(res I, alphas)
+virtualOfPair (Module,       List) := (M, alphas) -> virtualOfPair(res M, alphas)
 virtualOfPair (ChainComplex, List) := (F, alphas) -> (
     if any(alphas, alpha -> #alpha =!= degreeLength ring F) then error "degree has wrong length";
     L := apply(length F, i ->(
