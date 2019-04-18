@@ -156,15 +156,8 @@ isVirtual (Module, Ideal, ChainComplex) := Boolean => (M, irr,C) -> (
     true
     )
 
--- Input: Ideal I - what the virtual resolution resolves
---       NormalToricVariety X - I should correspond to a subvariety of X
---       Chain Complex C - proposed virtual resolution
--- Output: Boolean - true if complex is virtual resolution, false otherwise
 isVirtual (Ideal, NormalToricVariety, ChainComplex) := Boolean => (I, X, C) -> (
-    if ring(I) != ring(X) then (
-	print "ideal is not in Cox ring of normal toric variety";
-	return false;
-	);
+    if ring(I) != ring(X) then error "ideal is not in Cox ring of normal toric variety";
     isVirtual(I, ideal(X), C)
     )
 
