@@ -118,7 +118,7 @@ doc ///
 	Text
 	  Continuing our running example of three points $([1:1],[1:4])$, $([1:2],[1:5])$, and $([1:3],[1:6])$
           in $\mathbb{P}^1 \times \mathbb{P}^1$. We can check that the virtual complex we compute below and
-	  in other places is in fact virtual
+	  in other places is in fact virtual.
         Example
 	  Y = toricProjectiveSpace(1)**toricProjectiveSpace(1);
           S = ring Y; 
@@ -130,6 +130,10 @@ doc ///
           minres = res J;
           vres = virtualOfPair(J,{{3,1}});
 	  isVirtual(J,B,vres)
+	Text
+	  Finally, we can also use the Determinantal strategy, which implements Theorem 1.3 of [Loper19].
+        Example
+	  isVirtual(J,B,vres,Strategy=>Determinantal)
     Caveat
     	    For a module, isVirtual may return true for a proposed virtual resolution despite the chain complex
 	    not being a virtual resolution; this occurs when the annihilator of the module and the annihilator of
@@ -328,7 +332,7 @@ doc ///
     Description
       Text
             When set to true, curveFromP3toP1P2 will check whether or not the given curve
-	    in P^3 intersects the base locus of the projections maps used in this function.
+	    in $\mathbb{P}^3$ intersects the base locus of the projections maps used in this function.
 	    If this option is set to true and the given curve does intersect the base locus,
 	    an error is returned. 
     SeeAlso
@@ -381,9 +385,9 @@ doc ///
         Limit number of attempts for randomCurveP1P2
     Description
       Text
-           When randomCurveP1P2 generates a random curve in P^3 using the SpaceCurves package, it is possible the resulting
-	   curve will intersect the base locuses of the projections used to construct the curve in P^1 x P^2. If the curve
-	   does intersect the base locuses it will generate a new random curve in P^3. The option Bound limits the number
+           When randomCurveP1P2 generates a random curve in $\mathbb{P}^3$ using the SpaceCurves package, it is possible the resulting
+	   curve will intersect the base locuses of the projections used to construct the curve in $\mathbb{P}^1\times\mathbb{P}^2$. If the curve
+	   does intersect the base locuses it will generate a new random curve in $\mathbb{P}^3$. The option Bound limits the number
 	   of attempts to find a curve disjoint from the base locuses before quitting. By default, Bound is set to 1000. 
     SeeAlso
         randomCurveP1P2
@@ -484,7 +488,7 @@ doc ///
           minres = res J;
           vres = virtualOfPair(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
         Text  
-	  Finally, we check that the result is indeed virtual
+	  Finally, we check that the result is indeed virtual.
 	Example
           isVirtual(J,B,vres)
     Caveat
