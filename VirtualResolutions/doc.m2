@@ -439,20 +439,24 @@ doc ///
           If the specified degrees are in the multigraded regularity, then the output is a virtual resolution. 
           See Algorithm 3.4 of [BES] for further details.
           If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
-        Example
-          "Generate P1xP1"
+          
+	  For example we consider the ideal of three points in $\mathbb{P}^1\times\mathbb{P}^1$.
+	Example 
           X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
           S = ring X; B = ideal X;
-          "Generate the ideal of 3 general points in P1xP1"
           J = saturate(intersect(
                 ideal(x_1 - 1*x_0, x_3 - 4*x_2),
                 ideal(x_1 - 2*x_0, x_3 - 5*x_2),
                 ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
                 B) 
-         "Compute its minimal free resolution and a virtual resolution"
+	Text
+          We can now compute its minimal free resolution and a virtual resolution given the element (3,1) of the multigraded regularity
+	Example
           minres = res J;
           vres = virtualOfPair(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
-          "Check that vres is indeed virtual"
+        Text  
+	  Finally, we check that the result is indeed virtual
+	Example
           isVirtual(J,B,vres)
 ///
 
