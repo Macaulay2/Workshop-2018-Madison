@@ -16,7 +16,7 @@ doc ///
      (see @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@) if $X$ is a smooth toric variety, $S$ the Cox ring of $X$
      graded by the Picard group of $X$, and $B\subset S$ the irrelevant ideal of $X$, then
      a virtual resolution of a graded $S$-module $M$ is a complex of graded free $S$-modules, which
-     sheafifies to a resolution of the associated sheaf.
+     sheafifies to a resolution of the associated sheaf of $M$.
  
      The goal of this package is provide tools for constructing and studying 
      virtual resolutions for products of projective spaces. In particular, it implements
