@@ -5,7 +5,6 @@
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 restart
-needsPackage "Colon";
 needsPackage "VirtualResolutions";
 X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
 S = ring X; B = ideal X;
