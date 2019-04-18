@@ -6,10 +6,12 @@
 --check "VirtualResolutions"
 --*-
 ---------------------------------------------------------------------------
--- PURPOSE :
+-- PURPOSE : To create a virtual resolutions
 --
 --
--- PROGRAMMERS :
+-- PROGRAMMERS : Ayah Almousa, Christine Berkesch, Juliette Bruce,
+-- David Eisenbud, Daniel Erman, Michael Loper, Mahrud Sayrafi, 
+-- Greg Smith.
 --
 --
 -- UPDATE HISTORY #0 : created 14 April 2018; - M2@UW
