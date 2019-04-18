@@ -402,16 +402,16 @@ doc ///
 
 doc ///
     Key
-        multiWinnow
-        (multiWinnow, Ideal,        List)
-        (multiWinnow, Module,       List)
+        virtualFromPair
+        (virtualFromPair, Ideal,        List)
+        (virtualFromPair, Module,       List)
         (multiWinnow, ChainComplex, List)
     Headline
         Creates a virtual resolution from a free resolution by keeping only summands of specified degrees.
     Usage
-	multiWinnow(I, L)
-	multiWinnow(M, L)
-	multiWinnow(C, L)
+	virtualFromPair(I, L)
+	virtualFromPair(M, L)
+	virtualFromPair(C, L)
     Inputs
 	I:Ideal
 	    ideal over multigraded ring
@@ -441,7 +441,7 @@ doc ///
                 B) 
          "Compute its minimal free resolution and a virtual resolution"
           minres = res J;
-          vres = multiWinnow(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
+          vres = virtualFromPair(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
           "Check that vres is indeed virtual"
           isVirtual(J,B,vres)
 ///

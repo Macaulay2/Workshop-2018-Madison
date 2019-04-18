@@ -192,6 +192,6 @@ TEST ///
     	    ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
      	    B);
     minres = res J;
-    vres = multiWinnow(J,{{3,1}});
+    vres = virtualFromPair(J,{{3,1}});
     assert isVirtual(J,B,vres)
     ///
