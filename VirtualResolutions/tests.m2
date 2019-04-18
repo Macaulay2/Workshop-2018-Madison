@@ -190,8 +190,8 @@ TEST ///
     	    ideal(x_1 - 1*x_0, x_3 - 4*x_2),
     	    ideal(x_1 - 2*x_0, x_3 - 5*x_2),
     	    ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
-     	    B) 
+     	    B);
     minres = res J;
-    vres = multiWinnow(X,{{3,1}}) --(3,1) = (2,0) + (1,1)
+    vres = multiWinnow(J,{{3,1}});
     assert isVirtual(J,B,vres)
     ///
