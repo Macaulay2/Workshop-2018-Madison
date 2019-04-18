@@ -366,7 +366,6 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     B3 := ideal(apply(3,i->uVars#(6+i)));
     B := intersect(B1,B2,B3,sub(BL,U));
     --- Computes saturation and then eliminates producing curve in P1xP2
---    K := saturate(C'+D,B,MinimalGenerators=>false); -- FIXME
     K := ourSaturation(C'+D,B);
     I := sub(eliminate({uVars#0,uVars#1,uVars#2,uVars#3},K),S);
     (T, E) := productOfProjectiveSpaces({1, 2},CoefficientField=>(coefficientRing ring J));
@@ -476,7 +475,7 @@ multigradedRegularity(NormalToricVariety, Module) := List => (X, M)  -> multigra
 multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
     if class X === Nothing then (
         -- go from module over productOfProjectiveSpaces to module over tensor product of toricProjectiveSpaces
-        X = fold((A,B) -> A**B, dimVector(S)/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S))); -- FIXME how to get {1,1} from S -- Juliette: Added dimVector hopefully fixed.
+        X = fold((A,B) -> A**B, dimVector(S)/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S)));
         M' := M;
         Pres1 := presentation M';
 	Pres2 := (map(ring X, S, gens ring X))(Pres1);
@@ -486,9 +485,9 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
         -- go from module over NormalToricVariety to module over productOfProjectiveSpaces
         -- assuming that the NormalToricVariety is a tensor product of toricProjectiveSpaces
         S = ring X;
-        (S', E') := productOfProjectiveSpaces(dimVector(X), CoefficientField => coefficientRing S); -- FIXME how to get {1,1} from X -- Juliette: Added dimVector hopefully fixed.
+        (S', E') := productOfProjectiveSpaces(dimVector(X), CoefficientField => coefficientRing S);
         -- Juliette: You cannot compute the image of (most) modules under a ring map
-	-- as a (somewhat hacky) fix I introdued the following three lines of code
+	-- as a fix I introdued the following three lines of code
 	Pres3 := presentation M;
 	Pres4 := (map(S', S, gens S'))(Pres3);
 	M' = coker Pres4;
