@@ -166,17 +166,6 @@ TEST ///
     r = res I;
     assert(isVirtual(I,irr,r) == true)
     ///
-
-TEST ///
--- This one might take too long...
-    debug needsPackage "VirtualResolutions"
-    S = ZZ/101[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(random({1,2},S),random({3,1},S),random({2,2},S));
-    J = ourSaturation(I,irr);
-    r = res J;
-    assert(isVirtual(I,irr,r) == true)
-    ///
     
 ----- Tests for findGensUpToIrrelevance
 TEST ///
@@ -187,17 +176,6 @@ TEST ///
     J = ourSaturation(I,irr);
     lst = {{0,1}};
     assert(findGensUpToIrrelevance(2,J,irr) == lst)
-    ///
-
-TEST ///
-    debug needsPackage "VirtualResolutions"
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    J = ourSaturation(I,irr);
-    lst = {{0, 1, 2}, {0, 1, 3}, {0, 2, 3}, {0, 1, 4}, {0, 2, 4}, {0, 1,5},
-	 {0, 3, 5}, {0, 4, 5}, {0, 1, 6}, {0, 1, 7}};
-    assert(findGensUpToIrrelevance(3,J,irr) == lst)
     ///
 
 TEST ///
@@ -214,10 +192,8 @@ TEST /// --FIXXXME
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
     I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
     J = ourSaturation(I,irr);
-    output = findGensUpToIrrelevance(3,I,irr,GeneralElements=>true);
-    assert(length(output) == 5 and output_1 == {0,1,2} and
-	    output_2 == {0,1,3} and output_3 == {0,2,3} and
-	    output_4 = {0,1,4})
+    output = findGensUpToIrrelevance(2,J,irr,GeneralElements=>true);
+    assert(length(output) == 2 and output_1 == {0,1})
     ///
 
 -- Test for intersectionRes
