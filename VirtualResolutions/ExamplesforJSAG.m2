@@ -5,7 +5,6 @@
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 restart
-needsPackage "Colon";
 needsPackage "VirtualResolutions";
 X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
 S = ring X; B = ideal X;
@@ -84,7 +83,3 @@ tally apply(500,i->(
 ----------------------------------------------------------------------------------
 I = randomRationalCurve(5,7);
 dim I 
-
-
-
-
