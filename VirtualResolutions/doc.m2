@@ -138,6 +138,20 @@ doc ///
 
 doc ///
     Key
+        [isVirtual, Strategy]
+    Headline
+        changes strategy from computing homology to computing minors of boundary maps
+    Description
+        Text
+            If Strategy is set to "Determinantal", isVirtual will check whether the given chain complex
+	    is a virtual resolution by checking the depth of the saturation of the ideals of maximal rank
+	    from the boundary maps.
+    SeeAlso
+        isVirtual
+///
+
+doc ///
+    Key
     	findGensUpToIrrelevance
 	(findGensUpToIrrelevance,ZZ,Ideal,Ideal)
 	(findGensUpToIrrelevance,ZZ,Ideal,NormalToricVariety)
@@ -362,7 +376,6 @@ doc ///
 
 doc ///
     Key
-        Bound
         [randomCurveP1P2, Bound]
     Headline
         Limit number of attempts for randomCurveP1P2

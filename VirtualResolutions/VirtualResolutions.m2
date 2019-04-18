@@ -34,6 +34,7 @@ newPackage ("VirtualResolutions",
 	"NormalToricVarieties",
 	"Elimination",
 	"SpaceCurves",
+	"Depth",
 	"Colon"
 	},
     DebuggingMode => true,
@@ -53,7 +54,6 @@ export{
     "multigraded", -- FIXME
     "MultigradedBettiTally", -- FIXME
     -- Options
-    "Bound",
     "PreserveDegree",
     "GeneralElements"
     }
@@ -131,8 +131,9 @@ resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
 -- Output: Boolean - true if complex is virtual resolution, false otherwise
 -- TODO: need to fix for modules; don't know how to saturate for modules
 
-isVirtual = method()
-isVirtual (Ideal, Ideal, ChainComplex) := Boolean => (I, irr, C) -> (
+
+isVirtual = method(Options => {Strategy => null})
+isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (    
     annHH0 := ideal(image(C.dd_1));
     Isat := ourSaturation(I,irr);
     annHH0sat := ourSaturation(annHH0,irr);
@@ -140,6 +141,28 @@ isVirtual (Ideal, Ideal, ChainComplex) := Boolean => (I, irr, C) -> (
 	if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
 	return false;
 	);
+
+-- if strategy "determinantal is selected, the method checks virtuality
+-- via the depth criterion on the saturated ideals of minors
+    if opts.Strategy === "Determinantal" then (
+	for i from 1 to length(C) do (
+	    if rank(source(C.dd_i)) != (rank(C.dd_i) + rank(C.dd_(i+1))) then (
+		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+		return false;
+		);
+	    );
+        for i from 1 to length(C) do (
+	    minor := minors(rank(C.dd_i),C.dd_i);
+	    minorSat := ourSaturation(minor,irr);
+	    if depth(minorSat,ring(minorSat)) < i then (
+		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+		return false;
+	    );
+        );
+    true
+    );
+-- default strategy is calculating homology and checking homology is
+-- supported on irrelevant ideal
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring I)) then (
@@ -152,7 +175,7 @@ isVirtual (Ideal, Ideal, ChainComplex) := Boolean => (I, irr, C) -> (
     true
     )
 
-isVirtual (Module, Ideal, ChainComplex) := Boolean => (M, irr,C) -> (
+isVirtual (Module, Ideal, ChainComplex) := Boolean => opts -> (M, irr,C) -> (
     annM := ann(M);
     annHH0 := ann(HH_0(C));
     annMsat := ourSaturation(annM,irr);
@@ -161,6 +184,28 @@ isVirtual (Module, Ideal, ChainComplex) := Boolean => (M, irr,C) -> (
 	if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
 	return false;
 	);
+-- if strategy "determinantal is selected, the method checks virtuality
+-- via the depth criterion on the saturated ideals of minors
+--FIXME: cite
+    if opts.Strategy === "Determinantal" then (
+	for i from 1 to length(C) do (
+	    if rank(source(C.dd_i)) != (rank(C.dd_i) + rank(C.dd_(i+1))) then (
+		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+		return false;
+		);
+	    );
+        for i from 1 to length(C) do (
+	    minor := minors(rank(C.dd_i),C.dd_i);
+	    minorSat := ourSaturation(minor,irr);
+	    if depth(minorSat,ring(minorSat)) < i then (
+		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+		return false;
+	    );
+        );
+    true
+    );
+-- default strategy is calculating homology and checking homology is
+-- supported on irrelevant ideal
     for i from 1 to length(C) do (
 	annHHi := ann HH_i(C);
 	if annHHi != ideal(sub(1,ring M)) then (
@@ -173,12 +218,12 @@ isVirtual (Module, Ideal, ChainComplex) := Boolean => (M, irr,C) -> (
     true
     )
 
-isVirtual (Ideal, NormalToricVariety, ChainComplex) := Boolean => (I, X, C) -> (
+isVirtual (Ideal, NormalToricVariety, ChainComplex) := Boolean => opts -> (I, X, C) -> (
     if ring(I) != ring(X) then error "ideal is not in Cox ring of normal toric variety";
     isVirtual(I, ideal(X), C)
     )
 
-isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => (M, X, C) -> (
+isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => opts -> (M, X, C) -> (
     if ring(M) != ring(X) then error "ideal is not in Cox ring of normal toric variety";
     isVirtual(M, ideal(X), C)
     )

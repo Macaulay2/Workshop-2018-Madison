@@ -132,6 +132,19 @@ TEST ///
     assert(isVirtual(I,irr,r) == true)
     ///
     
+TEST ///
+    X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
+    S = ring X; B = ideal X;
+    J = saturate(intersect(
+    	    ideal(x_1 - 1*x_0, x_3 - 4*x_2),
+    	    ideal(x_1 - 2*x_0, x_3 - 5*x_2),
+    	    ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
+     	    B);
+    minres = res J;
+    vres = virtualOfPair(J,{{3,1}});
+    assert isVirtual(J,B,vres,Strategy=>"Determinantal")
+///
+    
 ----- Tests for findGensUpToIrrelevance
 TEST ///
     debug needsPackage "VirtualResolutions"
