@@ -178,6 +178,11 @@ isVirtual (Ideal, NormalToricVariety, ChainComplex) := Boolean => (I, X, C) -> (
     isVirtual(I, ideal(X), C)
     )
 
+isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => (M, X, C) -> (
+    if ring(M) != ring(X) then error "ideal is not in Cox ring of normal toric variety";
+    isVirtual(M, ideal(X), C)
+    )
+
 -- Input: ZZ n - size of subset of generators to check
 --       Ideal J - ideal of ring
 --       Ideal irr - irrelevant ideal

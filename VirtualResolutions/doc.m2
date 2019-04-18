@@ -79,11 +79,15 @@ doc ///
     	isVirtual
 	(isVirtual,Ideal,Ideal,ChainComplex)
 	(isVirtual,Ideal,NormalToricVariety,ChainComplex)
+	(isVirtual,Module,Ideal,ChainComplex)
+	(isVirtual,Module,NormalToricVariety,ChainComplex)
     Headline
     	checks if a chain complex is a virtual resolution of a given ideal
     Usage
     	isVirtual(I,irr,C)
 	isVirtual(I,X,C)
+	isVirtual(M,irr,C)
+	isVirtual(M,X,C)
     Inputs
     	I:Ideal
 	    ideal that the virtual resolution should resolve
@@ -93,6 +97,8 @@ doc ///
 	    normal toric variety whose Cox ring contains I
 	C:ChainComplex
 	    chain complex we want to check is a virtual resolution
+	M:Module
+	    module that the virtual resolution should resolve
     Outputs
     	:Boolean
 	    true if C is a virtual resolution of I
@@ -102,13 +108,17 @@ doc ///
 	    Given an ideal I, irrelevant ideal irr, and a chain complex C, isVirtual returns true if
 	    C is a virtual resolution of I. If not, it returns false.
 
-	    This is done by checking that the saturation of I and the saturation of the annihilator of HH_0(C)
+	    This is done by checking that the saturations of I and of the annihilator of HH_0(C)
 	    agree, then checking that the higher homology groups of C are supported on the irrelevant ideal.
 
 	    If debugLevel is larger than zero, the homological degree where isVirtual fails is printed.
 	Example
 	    R = ZZ/101[x,y];
        	    isVirtual(ideal(x),ideal(x,y),res ideal(x))
+    Caveat
+    	    For a module, isVirtual may return true for a proposed virtual resolution despite the chain complex
+	    not being a virtual resolution; this occurs when the annihilator of the module and the annihilator of
+	    HH_0(C) saturate to the same module.
 ///
 
 doc ///
