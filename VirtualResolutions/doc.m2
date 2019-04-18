@@ -78,15 +78,19 @@ doc ///
     Key
     	isVirtual
 	(isVirtual,Ideal,Ideal,ChainComplex)
+	(isVirtual,Ideal,NormalToricVariety,ChainComplex)
     Headline
     	checks if a chain complex is a virtual resolution of a given ideal
     Usage
     	isVirtual(I,irr,C)
+	isVirtual(I,X,C)
     Inputs
     	I:Ideal
 	    ideal that the virtual resolution should resolve
 	irr:Ideal
 	    irrelevant ideal of the ring
+	X:NormalToricVariety
+	    normal toric variety whose Cox ring contains I
 	C:ChainComplex
 	    chain complex we want to check is a virtual resolution
     Outputs
@@ -111,10 +115,12 @@ doc ///
     Key
     	findGensUpToIrrelevance
 	(findGensUpToIrrelevance,ZZ,Ideal,Ideal)
+	(findGensUpToIrrelevance,ZZ,Ideal,NormalToricVariety)
     Headline
         creates a list of subsets of the minimal generators that generate a given ideal up to saturation
     Usage
     	findGensUpToIrrelevance(n,I,irr)
+	findGensUpToIrrelevance(n,I,X)
     Inputs
     	I:Ideal
 	    ideal we are intereseted in
@@ -122,6 +128,9 @@ doc ///
 	    size of subset of minimal generators of I that may generate I up to saturation with irr
 	irr:Ideal
 	    irrelevant ideal
+	X:NormalToricVariety
+	    normal toric variety whose Cox ring contains I
+	    
     Outputs
     	:List
 	    all subsets of size n of generators of I that generate I up to saturation with irr
