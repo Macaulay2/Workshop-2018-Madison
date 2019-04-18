@@ -151,7 +151,7 @@ TEST ///
     assert(length(output) == 3 and output_1 == {0,1} and output_2 == {1,2})
     ///
 
-TEST /// --FIXXXME
+TEST /// 
     debug needsPackage "VirtualResolutions"
     S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
