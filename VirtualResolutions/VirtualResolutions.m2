@@ -44,7 +44,7 @@ export{
     "curveFromP3toP1P2",
     "findGensUpToIrrelevance",
     "isVirtual",
-    "multiWinnow",
+    "virtualOfPair",
     "resolveViaFatPoint",
     "randomRationalCurve",
     "randomMonomialCurve",
@@ -87,10 +87,10 @@ ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 --If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
 --See Algorithm 3.4 of [BES]
 
-multiWinnow = method()
-multiWinnow (Ideal,        List) := (I, alphas) -> multiWinnow(res I, alphas)
-multiWinnow (Module,       List) := (M, alphas) -> multiWinnow(res M, alphas)
-multiWinnow (ChainComplex, List) := (F, alphas) -> (
+virtualOfPair = method()
+virtualOfPair (Ideal,        List) := (I, alphas) -> virtualOfPair(res I, alphas)
+virtualOfPair (Module,       List) := (M, alphas) -> virtualOfPair(res M, alphas)
+virtualOfPair (ChainComplex, List) := (F, alphas) -> (
     if any(alphas, alpha -> #alpha =!= degreeLength ring F) then error "degree has wrong length";
     L := apply(length F, i ->(
 	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));

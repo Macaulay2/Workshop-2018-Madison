@@ -50,7 +50,7 @@ doc ///
      regularity of $J$. From this we can compute a virtual resolution of $S/I$.
     Example
      multigradedRegularity(X, module J)
-     vres = multiWinnow(J,{{3,1}}) 
+     vres = virtualOfPair(J,{{3,1}}) 
      multigraded betti vres
     Text
      Notice that this virtual resolution of $S/J$ is much shorter and thinner than the graded minimal
@@ -412,16 +412,16 @@ doc ///
 
 doc ///
     Key
-        multiWinnow
-        (multiWinnow, Ideal,        List)
-        (multiWinnow, Module,       List)
-        (multiWinnow, ChainComplex, List)
+        virtualOfPair
+        (virtualOfPair, Ideal,        List)
+        (virtualOfPair, Module,       List)
+        (virtualOfPair, ChainComplex, List)
     Headline
         Creates a virtual resolution from a free resolution by keeping only summands of specified degrees.
     Usage
-	multiWinnow(I, L)
-	multiWinnow(M, L)
-	multiWinnow(C, L)
+	virtualOfPair(I, L)
+	virtualOfPair(M, L)
+	virtualOfPair(C, L)
     Inputs
 	I:Ideal
 	    ideal over multigraded ring
@@ -451,7 +451,7 @@ doc ///
                 B) 
          "Compute its minimal free resolution and a virtual resolution"
           minres = res J;
-          vres = multiWinnow(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
+          vres = virtualOfPair(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
           "Check that vres is indeed virtual"
           isVirtual(J,B,vres)
 ///

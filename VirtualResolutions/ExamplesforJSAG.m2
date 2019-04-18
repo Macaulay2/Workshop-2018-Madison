@@ -20,7 +20,7 @@ multigraded betti minres
 
 multigradedRegularity(X, S^1/J)
 
-vres = multiWinnow(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
+vres = virtualOfPair(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
 multigraded betti vres
 
 isVirtual(J,B,vres)
@@ -58,7 +58,7 @@ J = saturate(I,B);
 multigradedRegularity(S, S^1/J)
 
 minres = res J;
-vres = multiWinnow(S,minres,{{3,5}});
+vres = virtualOfPair(S,minres,{{3,5}});
 
 multigraded betti minres
 multigraded betti vres
@@ -117,10 +117,10 @@ multigradedRegularity(S, module J)
 
 minres = res J;
 multigraded betti minres
-vres = multiWinnow(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
+vres = virtualOfPair(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
 multigraded betti vres
 isVirtual(J,B,vres)
-vres2 = multiWinnow(J,{{2,0}})
+vres2 = virtualOfPair(J,{{2,0}})
 isVirtual(J,B,vres2)
 
 
