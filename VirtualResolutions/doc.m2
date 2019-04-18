@@ -350,10 +350,14 @@ doc ///
     	intersectionRes(I, irr, A)
     Inputs
 	J:Ideal
+	    saturated ideal corresponding to a zero-dimensional scheme
         irr:Ideal
+	    the irrelevant ideal
     	A:List
+	    power you want to take the irrelevant ideal to
     Outputs
     	:ChainComplex
+	    virtual resolution of our ideal
     Description
     	Text
             Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
@@ -399,9 +403,13 @@ doc ///
 	multiWinnow(X,C,L)
     Inputs
     	R:Ring
+	    ring to be resolved
 	X:NormalToricVariety
+	    toric variety to be resolved
 	C:ChainComplex
-	L:List  	
+	    free resolution of our variety
+	L:List
+	    multidegrees of summands to keep  	
     Outputs
     	:ChainComplex
     Description
