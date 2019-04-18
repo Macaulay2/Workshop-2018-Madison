@@ -438,9 +438,10 @@ doc ///
     	:ChainComplex
     Description
         Text
-          Given a ring and its free resolution, keeps only the summands in resolution of specified degrees L.
-          If the specified degrees are in the multigraded regularity, then the output is a virtual resolution. 
-          See Algorithm 3.4 of [BES] for further details.
+          Given a ring and its free resolution, keeps only the summands in resolution of specified degrees L plus.
+          If the specified degrees are in the multigraded regularity plus the dimension vector of the product
+	  of projective spaces then the output is a virtual resolution. See Algorithm 3.4 of [BES] for further details.
+	  
           If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
           
 	  For example we consider the ideal of three points in $\mathbb{P}^1\times\mathbb{P}^1$.
@@ -453,7 +454,9 @@ doc ///
                 ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
                 B) 
 	Text
-          We can now compute its minimal free resolution and a virtual resolution given the element (3,1) of the multigraded regularity
+          We can now compute its minimal free resolution and a virtual resolution. One can show that $(2,0)$ is in the multigraded
+	  regularity of this example. Thus, since we want to compute a virtual resolution we apply apply virtualOfPair to the element
+	  $(3,1)$ since $(3,1)=(2,0)+(1,1)$ and $(1,1)$ is the dimension vector for $\mathbb{P}^1\times\mathbb{P}^1$.
 	Example
           minres = res J;
           vres = virtualOfPair(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
@@ -461,6 +464,9 @@ doc ///
 	  Finally, we check that the result is indeed virtual
 	Example
           isVirtual(J,B,vres)
+	Caveat
+	  Given an element of the multigraded regularity you must add the dimension vector of the product of projective space
+	  for this to return a virtual resolution. 
 ///
 
 
@@ -501,9 +507,7 @@ doc ///
           Note that the module or ideal is assumed to be saturated by the irrelevant ideal of the Cox ring.
 	  
 	  As an example, here we compute the minimal elements of the multigraded regularity for Example 1.4
-	  of [BES]:
-        
-	  We consider the example of a hyperelliptic curve of genus 4 in $\mathbb{P}^1\times\mathbb{P}^2$. 
+	  of [BES]: We consider the example of a hyperelliptic curve of genus 4 in $\mathbb{P}^1\times\mathbb{P}^2$. 
 	Example
           X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
           S = ring X; B = ideal X;
