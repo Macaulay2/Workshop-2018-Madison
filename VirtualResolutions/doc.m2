@@ -120,9 +120,9 @@ doc ///
           in $\mathbb{P}^1 \times \mathbb{P}^1$. We can check that the virtual complex we compute below and
 	  in other places is in fact virtual
         Example
-	  X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
-          S = ring X; 
-          B = ideal X;
+	  Y = toricProjectiveSpace(1)**toricProjectiveSpace(1);
+          S = ring Y; 
+          B = ideal Y;
           J = saturate(intersect(
              ideal(x_1 - x_0, x_3 - 4*x_2),
              ideal(x_1 - 2*x_0, x_3 - 5*x_2),
@@ -214,18 +214,18 @@ doc ///
     Description
     	Text
 	    Given two positive integers d,e and a ring F, randomRationalCurve returns the ideal
-	    of a random curve in P1xP2 of degree (d,e) defined over the base ring F.
+	    of a random curve in $\mathbb{P}^1\times\mathbb{P}^2$ of degree (d,e) defined over the base ring F.
 
 	    This is done by randomly generating 2 homogenous polynomials of degree d and 3 homogenous
-	    polynomials of degree 3 in F[s,t] defining maps P^1->P^2 and P^1->P^3,
-	    respectively. The graph of the product of these two maps in P^1x(P^1xP^2) is computed,
-	    from which a curve of bi-degree (d,e) in P^1xP^2 over F is obtained by
+	    polynomials of degree 3 in F[s,t] defining maps $\mathbb{P}^1\to\mathbb{P}^1$ and $\mathbb{P}^1\to\mathbb{P}^2$,
+	    respectively. The graph of the product of these two maps in $\mathbb{P}^1\times(\mathbb{P}^1\times\mathbb{P}^2)$ is computed,
+	    from which a curve of bi-degree (d,e) in $\mathbb{P}^1\times\mathbb{P}^2$ over F is obtained by
 	    saturating and then eliminating.
 
-	    If no base ring is specified, the computations are performed over F=ZZ/101.
+	    If no base ring is specified, the computations are performed over ZZ/101.
 	Example
-	    randomRationalCurve(2,3,QQ)
-	    randomRationalCurve(2,3)
+	    randomRationalCurve(2,3,QQ);
+	    randomRationalCurve(2,3);
     Caveat
         This creates a ring $F[x_{0,0},x_{0,1},x_{1,0},x_{1,1},x_{1,2}]$ in which the resulting ideal is defined.
 ///
@@ -253,17 +253,17 @@ doc ///
     Description
     	Text
 	    Given two positive integers d,e and a ring F, randomMonomialCurve returns the ideal of a random curve
-	    in P1xP2 of degree (d,e) defined over the base ring F.
+	    in $\mathbb{P}^1\times\mathbb{P}^2$ of degree (d,e) defined over the base ring F.
 
 	    This is done by randomly generating a monomial m of degree e in F[s,t], which is not s^e or t^e.
-	    This allows one to define two maps P^1->P^1 and P^1->P^2
+	    This allows one to define two maps $\mathbb{P}^1\to\mathbb{P}^1$ and $\mathbb{P}^1\to\mathbb{P}^2$
 	    given by {s^d,t^d} and {s^e,m,t^e}, respectively. The graph of the product of these two maps
-	    in P^1x(P^1xP^2) is computed, from which a curve
-	    of bi-degree (d,e) in P^1xP^2 over F is obtained by saturating and then eliminating.
+	    in $\mathbb{P}^1\times(\mathbb{P}^1\times\mathbb{P}^2)$ is computed, from which a curve
+	    of bi-degree (d,e) in $\mathbb{P}^1\times\mathbb{P}^2$ over F is obtained by saturating and then eliminating.
 
-	    If no base ring is specified, the computations are performed over F=ZZ/101.
+	    If no base ring is specified, the computations are performed over ZZ/101.
 	Example
-	    randomMonomialCurve(2,3,QQ)
+	    randomMonomialCurve(2,3,QQ);
     Caveat
         This creates a ring $F[x_{0,0},x_{0,1},x_{1,0},x_{1,1},x_{1,2}]$ in which the resulting ideal is defined.
 ///
@@ -284,19 +284,19 @@ doc ///
 	    defining a curve in P^1xP^2.
     Description
     	Text
-	    Given an ideal J defining a curve C in P^3, curveFromP3toP1P2 produces the ideal of the curve in P^1xP^2 defined as follows:
-	    consider the projections P^3->P^2 and P^3->P^1 from the point [0:0:0:1] and the line [0:0:s:t], respectively.
-	    The product of these defines a map from P^3 to P^1xP^2. The curve produced by curveFromP3toP1P2 is the image of
+	    Given an ideal J defining a curve C in $\mathbb{P}^3$, curveFromP3toP1P2 produces the ideal of the curve in $\mathbb{P}^1\times\mathbb{P}^2$ defined as follows:
+	    consider the projections $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ from the point [0:0:0:1] and the line [0:0:s:t], respectively.
+	    The product of these defines a map from $\mathbb{P}^3$ to $\mathbb{P}^1\times\mathbb{P}^2$. The curve produced by curveFromP3toP1P2 is the image of
 	    the input curve under this map.
 
-	    This computation is done by first constructing the graph in P^3x(P^1xP^2) of the product of the two projections
-	    P^3->P^2 and P^3->P^1 defined above. This graph is then intersected with Cx(P^1xP^3). A curve in P^1xP^2 is then
+	    This computation is done by first constructing the graph in $\mathbb{P}^3\times(\mathbb{P}^1x\mathbb{P}^2)$ of the product of the two projections
+	    $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ defined above. This graph is then intersected with $C\times(\mathbb{P}^1\times\mathbb{P}^2)$. A curve in $\mathbb{P}^1\times\mathbb{P}^2$ is then
 	    obtained from this by saturating and then eliminating.
 
-	    Note the curve in P^1xP^2 will have degree and genus equal to the degree and genus of C as long as C does not intersect
+	    Note the curve in $\mathbb{P}^1\times\mathbb{P}^2$ will have degree and genus equal to the degree and genus of C as long as C does not intersect
 	    the base locus of the projection. If the option PreserveDegree is set to true, curveFromP3toP1P2 will check whether C
 	    intersects the base locus. If it does, the function will return an error. If PreserveDegree is set to false, this check is not
-	    performed and the output curve in P^1xP^2 may have degree and genus different from C.
+	    performed and the output curve in $\mathbb{P}^1\times\mathbb{P}^2$ may have degree and genus different from C.
 	Example
 	    R = ZZ/101[z_0,z_1,z_2,z_3];
             J = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
@@ -344,16 +344,16 @@ doc ///
     Description
     	Text
 	    Given a positive integer d, a non-negative integer g, and a ring F randomCurveP1P2 produces a random curve
-	    of bi-degree (d,d) and genus g in P^1xP^2.
+	    of bi-degree (d,d) and genus g in $\mathbb{P}^1\times\mathbb{P}^2$.
 	    This is done by using (random spaceCurve) function from the RandomSpaceCurve package to first generate a random curve
-	    of degree d and genus g in P^1xP^2, and then applying curveFromP3toP1P2 to produce a curve in P^1xP^2.
+	    of degree d and genus g in $\mathbb{P}^1\times\mathbb{P}^2$, and then applying curveFromP3toP1P2 to produce a curve in $\mathbb{P}^1\times\mathbb{P}^2$.
 
 	    Since curveFromP3toP1P2 relies on projecting from the point [0:0:0:1] and the line [0:0:s:t], randomCurveP1P2
-	    attempts to find a curve in P^3, which does not intersect the base locus of these projections.
-	    (If the curve did intersect the base locus the resulting curve in P^1xP^2 would not have degree (d,d).)
+	    attempts to find a curve in $\mathbb{P}^3$, which does not intersect the base locus of these projections.
+	    (If the curve did intersect the base locus the resulting curve in $\mathbb{P}^1\times\mathbb{P}^2$ would not have degree (d,d).)
 	    The number of attempts used to try to find such curves is controlled by the Bound option, which by default is set to 1000.
 	Example
-	    randomCurveP1P2(3,0)
+	    randomCurveP1P2(3,0);
 	    randomCurveP1P2(3,0,QQ);
     Caveat
         This creates a ring $F[x_{0,0},x_{0,1},x_{1,0},x_{1,1},x_{1,2}]$ in which the resulting ideal is defined.
