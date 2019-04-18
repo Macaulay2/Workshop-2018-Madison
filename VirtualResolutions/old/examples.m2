@@ -4,8 +4,6 @@
 
 restart
 needsPackage "VirtualResolutions"
-needsPackage "SplendidComplexes"
-load "CapeCod.m2"
 
 X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
 S = ring X
@@ -22,9 +20,7 @@ betti' multiWinnow(X, C, {{1,2}, {2,1}})
 
 
 restart
-needsPackage "SplendidComplexes"
 needsPackage "VirtualResolutions"
-debug needsPackage "TateOnProducts"
 
 (X, E) = productOfProjectiveSpaces {1, 2}
 irr = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)))
@@ -33,7 +29,7 @@ J' = saturate(I',irr);
 r' = res J'
 M = X^1/J'
 m = cohomologyMatrix(X^1/J', {0,0},{6,6})
-multigradedRegularity M
+multigradedRegularity(X, J')
 C = res M
 
 I = intersect(ideal(x_(0,0), x_(1,0)), ideal(x_(0,1), x_(1,1)))

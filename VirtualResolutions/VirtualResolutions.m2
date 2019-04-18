@@ -130,6 +130,7 @@ resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
 --       Chain Complex C - proposed virtual resolution
 -- Output: Boolean - true if complex is virtual resolution, false otherwise
 -- TODO: need to fix for modules; don't know how to saturate for modules
+-- Note: the Determinatal strategy is based on Theorem 1.3 of [Loper2019].
 
 
 isVirtual = method(Options => {Strategy => null})
@@ -186,7 +187,6 @@ isVirtual (Module, Ideal, ChainComplex) := Boolean => opts -> (M, irr,C) -> (
 	);
 -- if strategy "determinantal is selected, the method checks virtuality
 -- via the depth criterion on the saturated ideals of minors
---FIXME: cite
     if opts.Strategy === "Determinantal" then (
 	for i from 1 to length(C) do (
 	    if rank(source(C.dd_i)) != (rank(C.dd_i) + rank(C.dd_(i+1))) then (
