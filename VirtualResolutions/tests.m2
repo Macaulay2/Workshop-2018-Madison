@@ -1,51 +1,27 @@
 ------ Tests for randomRationalCurve
 TEST ///
-    assert (dim randomRationalCurve(2,3,ZZ/101) == 3)
+    assert (dim randomRationalCurve(2,3,ZZ/32003) == 3)
     ///
 
 TEST ///
-    assert (degree randomRationalCurve(2,3,ZZ/101) == 2+3)
-    ///
-
-TEST ///
-    assert (dim randomRationalCurve(2,3,ZZ/101) == 3)
-    ///
-
-TEST ///
-    assert (degree randomRationalCurve(2,3,ZZ/101) == 2+3)
+    assert (dim randomRationalCurve(2,3,ZZ/32003) == 3)
     ///
 
 TEST ///
     assert (dim randomRationalCurve(2,3) == 3)
     ///
 
-TEST ///
-    assert (degree randomRationalCurve(2,3) == 2+3)
-    ///
-
 ------ Tests for randomMonomialCurve
 TEST ///
-    assert (dim randomMonomialCurve(2,3,ZZ/101) == 3)
+    assert (dim randomMonomialCurve(2,3,ZZ/32003) == 3)
     ///
 
 TEST ///
-    assert (degree randomMonomialCurve(2,3,ZZ/101) == 2+3)
-    ///
-
-TEST ///
-    assert (dim randomMonomialCurve(2,3,ZZ/101) == 3)
-    ///
-
-TEST ///
-    assert (degree randomMonomialCurve(2,3,ZZ/101) == 2+3)
+    assert (dim randomMonomialCurve(2,3,ZZ/32003) == 3)
     ///
 
 TEST ///
     assert (dim randomMonomialCurve(2,3) == 3)
-    ///
-
-TEST ///
-    assert (degree randomMonomialCurve(2,3) == 2+3)
     ///
 
 ------ Tests for curveFromP3toP1P2
@@ -63,19 +39,11 @@ TEST ///
 
 ------ Tests for randomCurveP1P2
 TEST ///
-    assert (dim randomCurveP1P2(3,0,ZZ/101) == 3)
+    assert (dim randomCurveP1P2(3,0,ZZ/32003) == 3)
     ///
-
+    
 TEST ///
-    assert (degree randomCurveP1P2(3,0,ZZ/101) == 3+3)
-    ///
-
-TEST ///
-    assert (dim randomCurveP1P2(5,2,ZZ/101,Bound=>10) == 3)
-    ///
-
-TEST ///
-    assert (degree randomCurveP1P2(5,2,ZZ/101,Bound=>10) == 5+5)
+    assert (dim randomCurveP1P2(5,2,ZZ/32003,Bound=>50) == 3)
     ///
 
 TEST ///
@@ -83,24 +51,21 @@ TEST ///
     ///
 
 TEST ///
-    assert (degree randomCurveP1P2(3,0) == 3+3)
+    assert (degree randomCurveP1P2(3,0) == 6)
     ///
 
 TEST ///
-    assert (dim randomCurveP1P2(3,0,Bound=>10) == 3)
+    assert (dim randomCurveP1P2(3,0,Bound=>50) == 3)
     ///
 
 TEST ///
-    assert (degree randomCurveP1P2(3,0,Bound=>10) == 3+3)
+    assert (degree randomCurveP1P2(3,0,Bound=>50) == 6)
     ///
 
 TEST ///
-    assert (dim randomCurveP1P2(5,2,Bound=>10) == 3)
+    assert (dim randomCurveP1P2(5,2,Bound=>50) == 3)
     ///
-
-TEST ///
-    assert (degree randomCurveP1P2(5,2,Bound=>10) == 5+5)
-    ///
+    
 
 ------ Tests for isVirtual
 TEST ///

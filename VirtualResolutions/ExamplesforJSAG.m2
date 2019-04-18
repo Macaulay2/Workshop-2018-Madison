@@ -114,7 +114,7 @@ multigraded betti vres
 ----------------------------------------------------------------------------------
 
 time apply(500,i->(
-	I := randomCurveP1P2(7,3);
+	I := randomCurveP1P2(7,3,ZZ/32003);
 	S := ring I;
 	B := intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)));
 	J := saturate(I,B);
