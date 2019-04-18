@@ -12,8 +12,8 @@
 -- PROGRAMMERS :
 --
 --
--- UPDATE HISTORY #0 : created 14 April 2018;
--- UPDATE HISTORY #1 : major changes 15 April 2019;
+-- UPDATE HISTORY #0 : created 14 April 2018; - M2@UW
+-- UPDATE HISTORY #1 : major changes 15 April 2019; - IMA Code Sprint
 ---------------------------------------------------------------------------
 newPackage ("VirtualResolutions",
     Version => "1.0",
@@ -57,16 +57,24 @@ export{
     }
 
 debug Core
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- CODE
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 
---------------------------------------------------------
--- CODE
---------------------------------------------------------
---------------------------------------------------------
 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (I,irr) = (ideal, ideal)
+----- Output: saturation of I with respect to irr.
+----- Description: This is the fast saturation from Colon.m2. Since
+----- Colon.m2 might change at some point we have created this wrap
+----- function to easily implement other saturations that might be 
+----- created. We hope this is eventually removed.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 
-------------------------------------------------------------------
--- This is the fast saturation algorithm that we use from Colon.m2
--- Hopefully can be replaced by saturate(I, irr) eventually
 ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 
 
@@ -80,7 +88,7 @@ ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 multiWinnow = method()
 multiWinnow (Ideal,        List) := (I, alphas) -> multiWinnow(res I, alphas)
 multiWinnow (Module,       List) := (M, alphas) -> multiWinnow(res M, alphas)
-multiWinnow (ChainComplex, List) := (F, alphas) ->(
+multiWinnow (ChainComplex, List) := (F, alphas) -> (
     if any(alphas, alpha -> #alpha =!= degreeLength ring F) then error "degree has wrong length";
     L := apply(length F, i ->(
 	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
@@ -498,11 +506,19 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
     apply(flatten entries mingens I, g -> (flatten exponents g) + low)
     )
 
-------------------------------------------------------------------------------------------
---Input: A chain complex
---Output: The resolution of the tail end of the complex appended to the chain complex
---Note: this is not currently exported, but can be used to generate new virtual resolutions.
---It is not known if applying multiWinnow and then resolveTail yields a virtual resolution or not.
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (C)=(ChainComplex)
+----- Output: A resolution of the tail end of the complex appended 
+----- to the given complex. 
+----- Description: This function is not currently being exported,
+----- but we hope it will eventually be useful in generating new
+----- virtual resolutions. The key is we need a way, like for example
+----- module primary decomposition to add irrlevence to a chain 
+----- complex before we apply resolveTail. (See comment.)
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+
 --TODO: Finish test
 --      Add length limit
 resolveTail = method()
@@ -517,9 +533,11 @@ resolveTail(ChainComplex) := C ->(
     );
 
 
-----------------------------------------------
--- Begining of the tests and the documentation
-----------------------------------------------
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Begining of the tests and the documentation
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 
 load ("./multigradedBetti.m2") -- FIXME
 load ("./tests.m2")
@@ -528,9 +546,11 @@ load ("./doc.m2")
 
 end--
 
---------------------------------------
--- Begining of the development section
---------------------------------------
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Begining of the development section
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 
 restart
 uninstallPackage "Colon"
