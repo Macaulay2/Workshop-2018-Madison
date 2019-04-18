@@ -50,7 +50,7 @@ doc ///
      regularity of $J$. From this we can compute a virtual resolution of $S/I$.
     Example
      multigradedRegularity(X, module J)
-     vres = multiWinnow(J,{{3,1}}) 
+     vres = virtualOfPair(J,{{3,1}}) 
      multigraded betti vres
     Text
      Notice that this virtual resolution of $S/J$ is much shorter and thinner than the graded minimal
