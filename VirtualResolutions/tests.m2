@@ -192,6 +192,6 @@ TEST ///
     	    ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
      	    B) 
     minres = res J;
-    vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
+    vres = multiWinnow(X,{{3,1}}) --(3,1) = (2,0) + (1,1)
     assert isVirtual(J,B,vres)
     ///
