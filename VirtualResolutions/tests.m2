@@ -161,7 +161,7 @@ TEST /// --FIXXXME
     assert(length(output) == 2 and output_1 == {0,1})
     ///
 
--- Test for intersectionRes
+-- Test for resolveViaFatPoint
 TEST ///
     debug needsPackage "TateOnProducts"
     N = {1,1,2} -- Example 5.7 of [BES] uses 1x1x2 and 6 points
@@ -178,8 +178,8 @@ TEST ///
   	R := sum for n to N#2 - 1 list ideal random({0,0,1}, S);
   	P + Q + R
   	)
-    assert isVirtual(I, irr, intersectionRes (I, irr, {2,1,0}))
-    assert isVirtual(I, irr, intersectionRes (I, irr, {3,3,0}))
+    assert isVirtual(I, irr, resolveViaFatPoint (I, irr, {2,1,0}))
+    assert isVirtual(I, irr, resolveViaFatPoint (I, irr, {3,3,0}))
     ///
     
 -- Test for multiWinnow  
@@ -190,8 +190,8 @@ TEST ///
     	    ideal(x_1 - 1*x_0, x_3 - 4*x_2),
     	    ideal(x_1 - 2*x_0, x_3 - 5*x_2),
     	    ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
-     	    B) 
+     	    B);
     minres = res J;
-    vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
+    vres = multiWinnow(J,{{3,1}});
     assert isVirtual(J,B,vres)
     ///

@@ -22,19 +22,19 @@ multigradedRegularity(X, S^1/J)
 
 minres = res J;
 multigraded betti minres
-vres = multiWinnow(X,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
+vres = multiWinnow(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
 multigraded betti vres
 isVirtual(J,B,vres)
-vres2 = multiWinnow(X,minres,{{2,0}})
+vres2 = multiWinnow(J,{{2,0}})
 isVirtual(J,B,vres2)
 
 
--- Trying to find example for intersectionRes
+-- Trying to find example for resolveViaFatPoint
 N=6
 I = intersect apply(N,i -> ideal(random({1,0},S),random({0,1},S)));
 J = saturate(I,B)
 I == J
-isVirtual(J,B,intersectionRes(J,B,{0,3}))
+isVirtual(J,B,resolveViaFatPoint(J,B,{0,3}))
 
 --example for Mike of spacecurves failing
 restart
@@ -66,10 +66,10 @@ multigradedRegularity(S, module J)
 
 minres = res J;
 multigraded betti minres
-vres = multiWinnow(S,minres,{{3,1}}) --(3,1) = (2,0) + (1,1)
+vres = multiWinnow(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
 multigraded betti vres
 isVirtual(J,B,vres)
-vres2 = multiWinnow(S,minres,{{2,0}})
+vres2 = multiWinnow(J,{{2,0}})
 isVirtual(J,B,vres2)
 
 

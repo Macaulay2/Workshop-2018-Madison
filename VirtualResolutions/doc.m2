@@ -342,12 +342,12 @@ doc ///
 
 doc ///
     Key
-    	intersectionRes
-	(intersectionRes, Ideal, Ideal, List)
+    	resolveViaFatPoint
+	(resolveViaFatPoint, Ideal, Ideal, List)
     Headline
         Returns a virtual resolution of a zero-dimensional scheme
     Usage
-    	intersectionRes(I, irr, A)
+    	resolveViaFatPoint(I, irr, A)
     Inputs
 	J:Ideal
 	    saturated ideal corresponding to a zero-dimensional scheme
@@ -383,7 +383,7 @@ doc ///
   		P + Q + R
   		)
 	    "Find the virtual resolution"
-	    C = intersectionRes (I, irr, {2,1,0})
+	    C = resolveViaFatPoint (I, irr, {2,1,0})
 	    "Confirm that this is a virtual resolution"
     	    isVirtual(I, irr, C)
     Caveat
@@ -477,19 +477,21 @@ doc ///
 	  As an example, here we compute the minimal elements of the multigraded regularity for Example 1.4
 	  of [BES]:
         Example
-	  "Generate P1xP2"
-	  X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
-	  S = ring X; B = ideal X;
-	  "Generate the ideal of a hyperelliptic curve of genus 4 in P1xP2"
+          "Generate P1xP2"
+          X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
+          S = ring X; B = ideal X;
+          "Generate the ideal of a hyperelliptic curve of genus 4 in P1xP2"
           I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-	  "Saturate by the irrelevant ideal"
+          "Saturate by the irrelevant ideal"
           J' = saturate(I',B);
-	  "Compute the multigraded regularity"
+          "Compute the multigraded regularity"
           L = multigradedRegularity(X, J')
-	  "Check that winnowing at each minimal element gives a virtual resolution"
+          "Check that winnowing at each minimal element + (1,2) gives a virtual resolution"
           minres = res J';
-	  for l in L do (
-            vres = multiWinnow(J',{l + {1,2}}); --(3,1) = (2,0) + (1,1)
+          for l in L do (
+            vres = multiWinnow(J',{l + {1,2}});
             print isVirtual(J',B,vres)
-	  )
+          )
+    Caveat
+      The input is assumed to be saturated.
 ///
