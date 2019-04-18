@@ -49,7 +49,7 @@ doc ///
      Continuing the example from above, we see that $(3,1)$ is an element of the multigraded
      regularity of $J$. From this we can compute a virtual resolution of $S/I$.
     Example
-     multigradedRegularity(X, module J)
+     multigradedRegularity(X, comodule J)
      vres = virtualOfPair(J,{{3,1}}) 
      multigraded betti vres
     Text
@@ -161,6 +161,7 @@ doc ///
 
 doc ///
     Key
+        GeneralElements
         [findGensUpToIrrelevance, GeneralElements]
     Headline
         combines generators of same degree into a general linear combination
@@ -291,6 +292,7 @@ doc ///
 
 doc ///
     Key
+        PreserveDegree
         [curveFromP3toP1P2, PreserveDegree]
     Headline
         Determines if curve is disjoint from base locuses
@@ -345,6 +347,7 @@ doc ///
 
 doc ///
     Key
+        Bound
         [randomCurveP1P2, Bound]
     Headline
         Limit number of attempts for randomCurveP1P2
@@ -381,10 +384,17 @@ doc ///
     	Text
             Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
 	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
+<<<<<<< HEAD
 	    See Theorem 4.1 of [BES]. Below we follow example 4.7 of [BES] and compute the virtual resolution of 6 points in
 	    $\mathbb{P}^1\times\mathbb{P}^1\times\mathbb{P}^2$.
     	Example  
 	    N = {1,1,2}
+=======
+	    See Theorem 4.1 of [BES].
+    	Example
+     	    "Following Example 5.7 of [BES]: 6 points in P1xP1xP2"
+    	    N = {1,1,2}
+>>>>>>> bf10a4db62a5e25b67ad44289a87b570617e6c58
     	    pts = 6
     	    (S, E) = productOfProjectiveSpaces N
 	    irr = intersect for n to #N-1 list (
@@ -492,15 +502,16 @@ doc ///
 	  
 	  As an example, here we compute the minimal elements of the multigraded regularity for Example 1.4
 	  of [BES]:
-        Example
-          "Generate P1xP2"
+        
+	  We consider the example of a hyperelliptic curve of genus 4 in $\mathbb{P}^1\times\mathbb{P}^2$. 
+	Example
           X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
           S = ring X; B = ideal X;
-          "Generate the ideal of a hyperelliptic curve of genus 4 in P1xP2"
           I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-          "Saturate by the irrelevant ideal"
-          J' = saturate(I',B);
-          "Compute the multigraded regularity"
+        Text  
+	  After saturating the defining ideal by the irrelevant ideal we may compute its multigraded regularity.
+        Example  
+	  J' = saturate(I',B);
           L = multigradedRegularity(X, J')
     Caveat
       The input is assumed to be saturated.
