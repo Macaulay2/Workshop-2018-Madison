@@ -115,6 +115,21 @@ doc ///
 	Example
 	    R = ZZ/101[x,y];
        	    isVirtual(ideal(x),ideal(x,y),res ideal(x))
+	Text
+	  Continuing our running example of three points $([1:1],[1:4])$, $([1:2],[1:5])$, and $([1:3],[1:6])$
+          in $\mathbb{P}^1 \times \mathbb{P}^1$. We can check that the virtual complex we compute below and
+	  in other places is in fact virtual
+        Example
+	  X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
+          S = ring X; 
+          B = ideal X;
+          J = saturate(intersect(
+             ideal(x_1 - x_0, x_3 - 4*x_2),
+             ideal(x_1 - 2*x_0, x_3 - 5*x_2),
+             ideal(x_1 - 3*x_0, x_3 - 6*x_2)), B);
+          minres = res J;
+          vres = virtualOfPair(J,{{3,1}});
+	  isVirtual(J,B,vres)
     Caveat
     	    For a module, isVirtual may return true for a proposed virtual resolution despite the chain complex
 	    not being a virtual resolution; this occurs when the annihilator of the module and the annihilator of
@@ -384,17 +399,12 @@ doc ///
     	Text
             Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
 	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
-<<<<<<< HEAD
-	    See Theorem 4.1 of [BES]. Below we follow example 4.7 of [BES] and compute the virtual resolution of 6 points in
+	    See Theorem 4.1 of [BES]. 
+	    
+	    Below we follow example 4.7 of [BES] and compute the virtual resolution of 6 points in
 	    $\mathbb{P}^1\times\mathbb{P}^1\times\mathbb{P}^2$.
-    	Example  
-	    N = {1,1,2}
-=======
-	    See Theorem 4.1 of [BES].
     	Example
-     	    "Following Example 5.7 of [BES]: 6 points in P1xP1xP2"
     	    N = {1,1,2}
->>>>>>> bf10a4db62a5e25b67ad44289a87b570617e6c58
     	    pts = 6
     	    (S, E) = productOfProjectiveSpaces N
 	    irr = intersect for n to #N-1 list (
@@ -464,9 +474,9 @@ doc ///
 	  Finally, we check that the result is indeed virtual
 	Example
           isVirtual(J,B,vres)
-	Caveat
-	  Given an element of the multigraded regularity you must add the dimension vector of the product of projective space
-	  for this to return a virtual resolution. 
+    Caveat
+      Given an element of the multigraded regularity you must add the dimension vector of the product of projective space
+      for this to return a virtual resolution. 
 ///
 
 
