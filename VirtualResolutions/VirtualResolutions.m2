@@ -95,12 +95,18 @@ multiWinnow (ChainComplex, List) := (F, alphas) -> (
     chainComplex L
     );
 
--------------------------------------------------------------------------
--- Given a saturated ideal J corresponding to a zero-dimensional scheme, irrelevant ideal irr, and a vector A,
--- computes free resolution of J intersected with Ath power of the
--- irrelevant ideal.
---See Theorem 4.1 of [BES]
 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (J,irr,A)=(Ideal,Ideal,List) where J defines a 0-dim
+----- subscheme and irr is the irrelevant ideal
+----- Output: A virtual resolution of S/J, which is potentially short.
+----- Description: This function implements Theorem 4.1 of [BES]. 
+----- In particular, it computes a virutal resolution of S/J by 
+----- computing a graded minimal free resolution of S/(J\cap B^A).
+----- By the theorem this might be a short virtual resolution 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 resolveViaFatPoint = method()
 resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     L := decompose irr;
@@ -415,7 +421,6 @@ randomCurveP1P2 (ZZ,ZZ) := randomCurveP1P2 => opts -> (d,g)->(
     randomCurveP1P2(d,g,ZZ/101)
     )
 
-
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: S = Cox ring of a product of projective spaces.
@@ -450,12 +455,19 @@ multigradedPolynomialRing = n -> (
     ZZ/32003[xx, Degrees=>degs]
     )
 
--- Computes the multigraded regularity of a module
--- See Definition 1.1 of [Maclagan, Smith 2004]
--- Input: Ring S, Module M; or
--- Input: NormalToricVariety X, Module M
--- Output: a list of r-tuples
--- Caveat: assumed M is B-saturated already (i.e., H^1_I(M) = 0)
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+----- Input: (S,M) = (Ring, Module)
+-- OR
+----- Input: (X,M) = (NormalToricVariety,Module)
+----- Output: A list consisting of the minimal elements of the
+----- multigraded regularity of M.
+----- Description: This computes the multigraded regularity of a 
+----- module as defined in Definition 1.1 of [Maclagan, Smith 2004]. 
+----- It returns a list of the minimal elements.
+----- Caveat: This assumes M is B-saturated already i.e. H^1_I(M)=0
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 multigradedRegularity = method()
 multigradedRegularity(Thing,              Ideal)  := List => (T, I)  -> multigradedRegularity(T, comodule I)
 multigradedRegularity(Ring,               Module) := List => (S, M') -> multigradedRegularity(null, S, M')
