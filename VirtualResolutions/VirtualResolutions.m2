@@ -43,7 +43,7 @@ export{
     "findGensUpToIrrelevance",
     "isVirtual",
     "multiWinnow",
-    "intersectionRes",
+    "resolveViaFatPoint",
     "randomRationalCurve",
     "randomMonomialCurve",
     "randomCurveP1P2",
@@ -93,8 +93,8 @@ multiWinnow (ChainComplex, List) := (F, alphas) ->(
 -- irrelevant ideal.
 --See Theorem 4.1 of [BES]
 
-intersectionRes = method()
-intersectionRes(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
+resolveViaFatPoint = method()
+resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     L := decompose irr;
     if #A != #L then error "intersectionRes: expected exponent vector of the right length.";
     -- note: decompose doesn't necessarily return in the right order

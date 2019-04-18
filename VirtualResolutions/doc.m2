@@ -342,12 +342,12 @@ doc ///
 
 doc ///
     Key
-    	intersectionRes
-	(intersectionRes, Ideal, Ideal, List)
+    	resolveViaFatPoint
+	(resolveViaFatPoint, Ideal, Ideal, List)
     Headline
         Returns a virtual resolution of a zero-dimensional scheme
     Usage
-    	intersectionRes(I, irr, A)
+    	resolveViaFatPoint(I, irr, A)
     Inputs
 	J:Ideal
 	    saturated ideal corresponding to a zero-dimensional scheme
@@ -383,7 +383,7 @@ doc ///
   		P + Q + R
   		)
 	    "Find the virtual resolution"
-	    C = intersectionRes (I, irr, {2,1,0})
+	    C = resolveViaFatPoint (I, irr, {2,1,0})
 	    "Confirm that this is a virtual resolution"
     	    isVirtual(I, irr, C)
     Caveat

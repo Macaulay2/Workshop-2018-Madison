@@ -29,12 +29,12 @@ vres2 = multiWinnow(X,minres,{{2,0}})
 isVirtual(J,B,vres2)
 
 
--- Trying to find example for intersectionRes
+-- Trying to find example for resolveViaFatPoint
 N=6
 I = intersect apply(N,i -> ideal(random({1,0},S),random({0,1},S)));
 J = saturate(I,B)
 I == J
-isVirtual(J,B,intersectionRes(J,B,{0,3}))
+isVirtual(J,B,resolveViaFatPoint(J,B,{0,3}))
 
 --example for Mike of spacecurves failing
 restart
