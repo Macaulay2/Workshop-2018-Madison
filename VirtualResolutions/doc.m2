@@ -499,15 +499,16 @@ doc ///
 	  
 	  As an example, here we compute the minimal elements of the multigraded regularity for Example 1.4
 	  of [BES]:
-        Example
-          "Generate P1xP2"
+        
+	  We consider the example of a hyperelliptic curve of genus 4 in $\mathbb{P}^1\times\mathbb{P}^2$. 
+	Example
           X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
           S = ring X; B = ideal X;
-          "Generate the ideal of a hyperelliptic curve of genus 4 in P1xP2"
           I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
-          "Saturate by the irrelevant ideal"
-          J' = saturate(I',B);
-          "Compute the multigraded regularity"
+        Text  
+	  After saturating the defining ideal by the irrelevant ideal we may compute its multigraded regularity.
+        Example  
+	  J' = saturate(I',B);
           L = multigradedRegularity(X, J')
     Caveat
       The input is assumed to be saturated.
