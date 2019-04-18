@@ -369,7 +369,7 @@ doc ///
 	    Since curveFromP3toP1P2 relies on projecting from the point [0:0:0:1] and the line [0:0:s:t], randomCurveP1P2
 	    attempts to find a curve in $\mathbb{P}^3$, which does not intersect the base locus of these projections.
 	    (If the curve did intersect the base locus the resulting curve in $\mathbb{P}^1\times\mathbb{P}^2$ would not have degree (d,d).)
-	    The number of attempts used to try to find such curves is controlled by the Bound option, which by default is set to 1000.
+	    The number of attempts used to try to find such curves is controlled by the Attempt option, which by default is set to 1000.
 	Example
 	    randomCurveP1P2(3,0);
 	    randomCurveP1P2(3,0,QQ);
@@ -380,15 +380,16 @@ doc ///
 
 doc ///
     Key
-        [randomCurveP1P2, Bound]
+        Attempt
+        [randomCurveP1P2, Attempt]
     Headline
         Limit number of attempts for randomCurveP1P2
     Description
       Text
            When randomCurveP1P2 generates a random curve in $\mathbb{P}^3$ using the SpaceCurves package, it is possible the resulting
 	   curve will intersect the base locuses of the projections used to construct the curve in $\mathbb{P}^1\times\mathbb{P}^2$. If the curve
-	   does intersect the base locuses it will generate a new random curve in $\mathbb{P}^3$. The option Bound limits the number
-	   of attempts to find a curve disjoint from the base locuses before quitting. By default, Bound is set to 1000. 
+	   does intersect the base locuses it will generate a new random curve in $\mathbb{P}^3$. The option Attempts limits the number
+	   of attempts to find a curve disjoint from the base locuses before quitting. By default, Attempt is set to 1000. 
     SeeAlso
         randomCurveP1P2
 ///

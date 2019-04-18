@@ -54,6 +54,7 @@ export{
     "multigraded", -- FIXME
     "MultigradedBettiTally", -- FIXME
     -- Options
+    "Attempt",
     "PreserveDegree",
     "GeneralElements"
     }
@@ -436,7 +437,7 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
 ----- and the projection P3----->P2 on the last three variables.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-randomCurveP1P2 = method(Options => {Bound => 1000})
+randomCurveP1P2 = method(Options => {Attempt => 1000})
 randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     --- Defines P3
     z := getSymbol "z";
@@ -449,7 +450,7 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     --- Randomly generates curve in P3 until finds one not intersecting
     --- base locus of projection or until Bound is reached.
     C := ideal(0);
-    apply(opts.Bound,i->(
+    apply(opts.Attempt,i->(
 	    C = curve(d,g,R);
 	    if class(C) === Curve then C = ideal(C);
 	    if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;

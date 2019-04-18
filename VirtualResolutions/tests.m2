@@ -43,7 +43,7 @@ TEST ///
     ///
     
 TEST ///
-    assert (dim randomCurveP1P2(5,2,ZZ/32003,Bound=>50) == 3)
+    assert (dim randomCurveP1P2(5,2,ZZ/32003,Attempt=>50) == 3)
     ///
 
 TEST ///
@@ -55,15 +55,15 @@ TEST ///
     ///
 
 TEST ///
-    assert (dim randomCurveP1P2(3,0,Bound=>50) == 3)
+    assert (dim randomCurveP1P2(3,0,Attempt=>50) == 3)
     ///
 
 TEST ///
-    assert (degree randomCurveP1P2(3,0,Bound=>50) == 6)
+    assert (degree randomCurveP1P2(3,0,Attempt=>50) == 6)
     ///
 
 TEST ///
-    assert (dim randomCurveP1P2(5,2,Bound=>50) == 3)
+    assert (dim randomCurveP1P2(5,2,Attempt=>50) == 3)
     ///
     
 
