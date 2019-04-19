@@ -1,9 +1,9 @@
 newPackage(
         "Colon",
-        Version => "0.1", 
+        Version => "0.1",
         Date => "",
-        Authors => {{Name => "", 
-                  Email => "", 
+        Authors => {{Name => "",
+                  Email => "",
                   HomePage => ""}},
         Headline => "saturation and ideal and submodule colon/quotient routines",
         DebuggingMode => true
@@ -128,8 +128,8 @@ saturationByGrevLex(Ideal, Ideal) := (I, J) -> (
     L := for g in J_* list saturationByGrevLex(I, g);
     pows := L/last;
     ids := L/first;
-    if any(pows, x -> x == 0) then 
-      I 
+    if any(pows, x -> x == 0) then
+      I
     else
       intersectionByElimination ids
     )
@@ -149,13 +149,13 @@ saturationZero (Module,Ideal) := (M,B) ->(
     Vars := flatten entries vars ring B;
     bGens := flatten entries mingens B;
     for i from 0 to #bGens-1 do (
-    	  b := bGens#i;
-	  bVars := support b;
-	      rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
-	      R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
-	      P := sub(presentation M,R);
-	      G := gb P;
-	      if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
+          b := bGens#i;
+          bVars := support b;
+              rVars := delete(bVars#1,delete(bVars#0,Vars))|bVars;
+              R := coefficientRing ring B [rVars,MonomialOrder=>{Position=>Up,#Vars-2,2}];
+              P := sub(presentation M,R);
+              G := gb P;
+              if (ann coker selectInSubring(1,leadTerm G)) == 0 then return false;
     );
     true
 )
@@ -174,29 +174,28 @@ beginDocumentation()
 
 doc ///
     Key
-    	saturationZero
-	(saturationZero,Module,Ideal)
-	(saturationZero,Ideal,Ideal)
+        saturationZero
+        (saturationZero,Module,Ideal)
+        (saturationZero,Ideal,Ideal)
     Headline
-    	checks whether the saturation of a module with respects to a given ideal is zero
+        checks whether the saturation of a module with respects to a given ideal is zero
     Usage
-    	saturationZero(M,B)
-	saturationZero(I,B)
+        saturationZero(M,B)
+        saturationZero(I,B)
     Inputs
-    	M:Module
-	B:Ideal
+        M:Module
+        B:Ideal
         I:Ideal
     Outputs
-    	:Boolean
+        :Boolean
     Description
-    	Text
+        Text
             Given an module M and an ideal B saturationZero checks whether the saturation of M by B is zero. If it is
-	    saturationZero returns true otherwise it returns false. This is done without computing the saturation of M by B.
-	    Instead we check whether for each generator of B some power of it annihilates the module M. We do this
-	    generator by generator.
+            saturationZero returns true otherwise it returns false. This is done without computing the saturation of M by B.
+            Instead we check whether for each generator of B some power of it annihilates the module M. We do this
+            generator by generator.
 
-	    If M is an ideal saturationZero checks whether the saturation comodule of M by B is zero.
-
+            If M is an ideal saturationZero checks whether the saturation comodule of M by B is zero.
 ///
 
 
@@ -256,7 +255,7 @@ TEST ///
     t = (saturate(R,irr)==0);
     assert (saturationZero(I',irr)==t)
     ///
-    
+
 end--
 
 restart
