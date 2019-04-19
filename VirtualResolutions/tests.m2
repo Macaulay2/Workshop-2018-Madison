@@ -65,7 +65,7 @@ TEST ///
 TEST ///
     assert (dim randomCurveP1P2(5,2,Attempt=>50) == 3)
 ///
-    
+
 
 ------ Tests for isVirtual
 TEST ///
@@ -213,6 +213,27 @@ TEST ///
     X = toricProjectiveSpace(1)**toricProjectiveSpace(2);
     S = ring X; B = ideal X;
     I = saturate(ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3)), B);
+    -- taking NormalToricVariety as input
+    assert(multigradedRegularity(S, I) == {{2,2},{4,1},{1,5}})
+    -- taking the ring of NormalToricVariety as input
     assert(multigradedRegularity(X, I) == {{2,2},{4,1},{1,5}})
+///
+
+
+TEST ///
+    (S, E) = productOfProjectiveSpaces {1, 2};
+    B = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)))
+    I = saturate(ideal(x_(0,0)^2*x_(1,0)^2+x_(0,1)^2*x_(1,1)^2+x_(0,0)*x_(0,1)*x_(1,2)^2,
+	    x_(0,0)^3*x_(1,2)+x_(0,1)^3*(x_(1,0)+x_(1,1))), B);
+    -- taking the ring of a productOfProjectiveSpaces as input
     assert(multigradedRegularity(S, I) == {{2,2},{4,1},{1,5}})
 ///
+
+-- FIXME: this test fails. the issue seems to be with cohomologyHashTable
+///
+    (S, E) = productOfProjectiveSpaces {1, 1, 2};
+    irr = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1)), ideal(x_(2,0), x_(2,1), x_(2,2)))
+    I = saturate(intersect apply(6,i-> ideal(random({1,0,0},S),random({0,1,0},S), random({0,0,1},S),random({0,0,1},S))), irr);
+    assert(multigradedRegularity(S, I) == {{5,0,0}, {2,1,0}, {1,2,0}, {0,5,0}, {1,0,1}, {0,1,1}, {0,0,2}})
+///
+

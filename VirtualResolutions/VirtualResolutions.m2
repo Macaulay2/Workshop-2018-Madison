@@ -23,11 +23,11 @@ newPackage ("VirtualResolutions",
     Headline => "Methods for virtual resolutions on products of projective spaces",
     Authors =>{
         {Name => "Ayah Almousa",       Email => "aka66@cornell.edu",   HomePage => "http://www.math.cornell.edu/~aalmousa "},
-        {Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://www-users.math.umn.edu/~cberkesc/"},
+        {Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://math.umn.edu/~cberkesc/"},
         {Name => "Juliette Bruce",     Email => "jebruce2@wisc.edu",   HomePage => "https://juliettebruce.github.io"},
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
-        {Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://www-users.math.umn.edu/~loper012/"},
-        {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu", HomePage => "http://math.umn.edu/~mahrud/"}
+        {Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://math.umn.edu/~loper012/"},
+        {Name => "Mahrud Sayrafi",     Email => "mahrud@umn.edu",      HomePage => "http://math.umn.edu/~mahrud/"}
         },
     PackageExports => {
         "TateOnProducts",
@@ -534,9 +534,10 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
         ) else (
         -- go from module over productOfProjectiveSpaces to module over tensor product of toricProjectiveSpaces
         (S', E') = productOfProjectiveSpaces(dimVector S, CoefficientField => coefficientRing S);
-        X = fold((A,B) -> A**B, dimVector(S)/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S)));
         M' = coker (map(S', S, gens S'))(presentation M);
-        M = coker (map(ring X, S, gens ring X))(presentation M');
+        X = fold((A,B) -> A**B, dimVector(S)/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S)));
+        M = coker (map(ring X, S, gens ring X))(presentation M);
+	S = ring X;
         );
     n := #(degrees S)_0;
     r := regularity M;

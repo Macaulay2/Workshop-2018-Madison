@@ -387,7 +387,7 @@ doc ///
            When randomCurveP1P2 generates a random curve in $\mathbb{P}^3$ using the SpaceCurves package, it is possible the resulting
            curve will intersect the base locuses of the projections used to construct the curve in $\mathbb{P}^1\times\mathbb{P}^2$. If the curve
            does intersect the base locuses it will generate a new random curve in $\mathbb{P}^3$. The option Attempts limits the number
-           of attempts to find a curve disjoint from the base locuses before quitting. By default, Attempt is set to 1000. 
+           of attempts to find a curve disjoint from the base locuses before quitting. By default, Attempt is set to 1000.
     SeeAlso
         randomCurveP1P2
 ///
