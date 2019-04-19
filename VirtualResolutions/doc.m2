@@ -345,7 +345,7 @@ doc ///
         (randomCurveP1P2,ZZ,ZZ,Ring)
         (randomCurveP1P2,ZZ,ZZ)
     Headline
-        creates the ideal of a random curve in P^1xP^2.
+        creates the ideal of a random curve in P^1xP^2
     Usage
         randomCurveP1P2(d,g,F)
         randomCurveP1P2(d,g)
@@ -446,7 +446,7 @@ doc ///
         (virtualOfPair, Module,       List)
         (virtualOfPair, ChainComplex, List)
     Headline
-        creates a virtual resolution from a free resolution by keeping only summands of specified degrees.
+        creates a virtual resolution from a free resolution by keeping only summands of specified degrees
     Usage
         virtualOfPair(I, L)
         virtualOfPair(M, L)
