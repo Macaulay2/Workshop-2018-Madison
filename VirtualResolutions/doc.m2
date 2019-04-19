@@ -215,7 +215,7 @@ doc ///
 	(randomRationalCurve,ZZ,ZZ,Ring)
 	(randomRationalCurve,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random rational curve of degree (d,e) in $\mathbb{P}^1\times\mathbb{P}^2$
+    	creates the Ideal of a random rational curve of degree (d,e) in P^1xP^2
     Usage
     	randomRationalCurve(d,e,F)
     	randomRationalCurve(d,e)
@@ -254,7 +254,7 @@ doc ///
 	(randomMonomialCurve,ZZ,ZZ,Ring)
 	(randomMonomialCurve,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random monomial curve of degree (d,e) in $\mathbb{P}^1\times\mathbb{P}^2$
+    	creates the Ideal of a random monomial curve of degree (d,e) in P^1xP^2
     Usage
     	randomMonomialCurve(d,e,F)
     	randomMonomialCurve(d,e)
@@ -291,7 +291,7 @@ doc ///
     	curveFromP3toP1P2
         (curveFromP3toP1P2,Ideal)
     Headline
-    	creates the Ideal of a curve in $\mathbb{P}^1\times\mathbb{P}^2$ from the ideal of a curve in P^3
+    	creates the Ideal of a curve in $P^1xP^2$ from the ideal of a curve in P^3
     Usage
     	I=curveFromP3toP1P2(J)
     Inputs
@@ -358,7 +358,7 @@ doc ///
 	    base ring.
     Outputs
     	:Ideal
-	    defining random curve of degree (d,d) and genus g in P1xP2 over F.
+	    defining random curve $\mathhb${P}^1\times\mathbb{P}^2$ from a curve of degree d and genus g in $\mathbb{P}^3$ over F.
     Description
     	Text
 	    Given a positive integer d, a non-negative integer g, and a ring F randomCurveP1P2 produces a random curve
@@ -417,9 +417,9 @@ doc ///
     	Text
             Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
 	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
-	    See Theorem 4.1 of [BES]. 
+	    See Theorem 4.1 of [BES, @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@]. 
 	    
-	    Below we follow example 4.7 of [BES] and compute the virtual resolution of 6 points in
+	    Below we follow example 4.7 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] and compute the virtual resolution of 6 points in
 	    $\mathbb{P}^1\times\mathbb{P}^1\times\mathbb{P}^2$.
     	Example
     	    N = {1,1,2}
@@ -468,7 +468,7 @@ doc ///
         Text
           Given a ring and its free resolution, keeps only the summands in resolution of specified degrees L plus.
           If the specified degrees are in the multigraded regularity plus the dimension vector of the product
-	  of projective spaces then the output is a virtual resolution. See Algorithm 3.4 of [BES] for further details.
+	  of projective spaces then the output is a virtual resolution. See Algorithm 3.4 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] for further details.
 	  
           If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
           
