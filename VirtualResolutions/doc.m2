@@ -356,7 +356,7 @@ doc ///
             base ring.
     Outputs
     	:Ideal
-	    defining random curve $\mathhb${P}^1\times\mathbb{P}^2$ from a curve of degree d and genus g in $\mathbb{P}^3$ over F.
+	    defining random curve $\mathbb{P}^1\times\mathbb{P}^2$ from a curve of degree d and genus g in $\mathbb{P}^3$ over F.
     Description
     	Text
             Given a positive integer d, a non-negative integer g, and a ring F randomCurveP1P2 produces a random curve
@@ -415,8 +415,8 @@ doc ///
         Text
             Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
 	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
-	    See Theorem 4.1 of [BES, @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@]. 
-	    
+	    See Theorem 4.1 of [BES, @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@].
+
 	    Below we follow example 4.7 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] and compute the virtual resolution of 6 points in
 	    $\mathbb{P}^1\times\mathbb{P}^1\times\mathbb{P}^2$.
     	Example
@@ -433,7 +433,7 @@ doc ///
   		P + Q + R
   		);
 	    C = resolveViaFatPoint (I, irr, {2,1,0})
-	    isVirtual(I, irr, C)l
+	    isVirtual(I, irr, C)
     Caveat
         The output is only a virtual resolution for inputs that are zero-dimensional subschemes.
 ///
@@ -467,7 +467,7 @@ doc ///
           Given a ring and its free resolution, keeps only the summands in resolution of specified degrees L plus.
           If the specified degrees are in the multigraded regularity plus the dimension vector of the product
 	  of projective spaces then the output is a virtual resolution. See Algorithm 3.4 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] for further details.
-	  
+
           If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
 
           For example we consider the ideal of three points in $\mathbb{P}^1\times\mathbb{P}^1$.
@@ -537,12 +537,12 @@ doc ///
         Example
           X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
           S = ring X; B = ideal X;
-          I' = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
+          I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3))
         Text
           After saturating the defining ideal by the irrelevant ideal we may compute its multigraded regularity.
         Example
-          J' = saturate(I',B);
-          L = multigradedRegularity(X, J')
+          J = saturate(I,B);
+          L = multigradedRegularity(X, J)
     Caveat
         The input is assumed to be saturated.
 ///

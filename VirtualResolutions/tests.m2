@@ -219,7 +219,6 @@ TEST ///
     assert(multigradedRegularity(X, I) == {{2,2},{4,1},{1,5}})
 ///
 
-
 TEST ///
     (S, E) = productOfProjectiveSpaces {1, 2};
     B = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)))
@@ -236,4 +235,3 @@ TEST ///
     I = saturate(intersect apply(6,i-> ideal(random({1,0,0},S),random({0,1,0},S), random({0,0,1},S),random({0,0,1},S))), irr);
     assert(multigradedRegularity(S, I) == {{5,0,0}, {2,1,0}, {1,2,0}, {0,5,0}, {1,0,1}, {0,1,1}, {0,0,2}})
 ///
-
