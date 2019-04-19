@@ -80,7 +80,7 @@ doc ///
         (isVirtual,Module,Ideal,ChainComplex)
         (isVirtual,Module,NormalToricVariety,ChainComplex)
     Headline
-        checks if a chain complex is a virtual resolution of a given ideal
+        checks if a chain complex is a virtual resolution of a given module
     Usage
         isVirtual(I,irr,C)
         isVirtual(I,X,C)
@@ -92,7 +92,86 @@ doc ///
         irr:Ideal
             irrelevant ideal of the ring
         X:NormalToricVariety
-            normal toric variety whose Cox ring contains I
+            normal toric variety
+        C:ChainComplex
+            chain complex we want to check is a virtual resolution
+        M:Module
+            module that the virtual resolution should resolve
+    Outputs
+        :Boolean
+            true if C is a virtual resolution of I
+            false if not
+    Description
+        Text
+            Given an ideal I, irrelevant ideal irr, and a chain complex C, isVirtual returns true if
+            C is a virtual resolution of I. If not, it returns false.
+
+            This is done by checking that the saturations of I and of the annihilator of $H_0(C)$
+            agree, then checking that the higher homology groups of C are supported on the irrelevant ideal.
+
+            If debugLevel is larger than zero, the homological degree where isVirtual fails is printed.
+        Example
+          R = ZZ/101[s,t];
+          isVirtual(ideal(s),ideal(s,t),res ideal(t))
+        Text
+          Continuing our running example of three points $([1:1],[1:4])$, $([1:2],[1:5])$, and $([1:3],[1:6])$
+          in $\mathbb{P}^1 \times \mathbb{P}^1$, we can check that the virtual complex we compute below and
+          in other places is in fact virtual.
+        Example
+          Y = toricProjectiveSpace(1)**toricProjectiveSpace(1);
+          S = ring Y;
+          B = ideal Y;
+          J = saturate(intersect(
+             ideal(x_1 - x_0, x_3 - 4*x_2),
+             ideal(x_1 - 2*x_0, x_3 - 5*x_2),
+             ideal(x_1 - 3*x_0, x_3 - 6*x_2)), B);
+          minres = res J;
+          vres = virtualOfPair(J,{{3,1}});
+          isVirtual(J,B,vres)
+        Text
+          Finally, we can also use the Determinantal strategy, which implements Theorem 1.3 of 
+	  @{HREF("http://arxiv.org/abs/1904.05994","arXiv:1904.05994")}@.
+        Example
+          isVirtual(J,B,vres,Strategy=>Determinantal)
+    Caveat
+        For a module, isVirtual may return true for a proposed virtual resolution despite the chain complex
+        not being a virtual resolution; this occurs when the annihilator of the module and the annihilator of
+        $H_0(C)$ saturate to the same ideal.
+///
+
+doc ///
+    Key
+        [isVirtual, Strategy]
+    Headline
+        changes strategy from computing homology to computing minors of boundary maps
+    Description
+        Text
+            If Strategy is set to "Determinantal", isVirtual will check whether the given chain complex
+            is a virtual resolution by checking the depth of the saturation of the ideals of maximal rank
+            from the boundary maps. See Theorem 1.3 of @{HREF("http://arxiv.org/abs/1904.05994","arXiv:1904.05994")}@.
+///
+
+doc ///
+    Key
+        isVirtual
+        (isVirtual,Ideal,Ideal,ChainComplex)
+        (isVirtual,Ideal,NormalToricVariety,ChainComplex)
+        (isVirtual,Module,Ideal,ChainComplex)
+        (isVirtual,Module,NormalToricVariety,ChainComplex)
+    Headline
+        checks if a chain complex is a virtual resolution of a given module
+    Usage
+        isVirtual(I,irr,C)
+        isVirtual(I,X,C)
+        isVirtual(M,irr,C)
+        isVirtual(M,X,C)
+    Inputs
+        I:Ideal
+            ideal that the virtual resolution should resolve
+        irr:Ideal
+            irrelevant ideal of the ring
+        X:NormalToricVariety
+            normal toric variety
         C:ChainComplex
             chain complex we want to check is a virtual resolution
         M:Module
@@ -147,7 +226,7 @@ doc ///
         Text
             If Strategy is set to "Determinantal", isVirtual will check whether the given chain complex
             is a virtual resolution by checking the depth of the saturation of the ideals of maximal rank
-            from the boundary maps.
+            from the boundary maps. See Theorem 1.3 of 
     SeeAlso
         isVirtual
 ///

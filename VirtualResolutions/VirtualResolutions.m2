@@ -22,7 +22,7 @@ newPackage ("VirtualResolutions",
     Date => "April 14, 2018",
     Headline => "Methods for virtual resolutions on products of projective spaces",
     Authors =>{
-        {Name => "Ayah Almousa",       Email => "aka66@cornell.edu",   HomePage => "http://www.math.cornell.edu/~aalmousa "},
+        {Name => "Ayah Almousa",       Email => "aka66@cornell.edu",   HomePage => "http://www.pi.math.cornell.edu/~aalmousa "},
         {Name => "Christine Berkesch", Email => "cberkesc@umn.edu",    HomePage => "http://www-users.math.umn.edu/~cberkesc/"},
         {Name => "Juliette Bruce",     Email => "jebruce2@wisc.edu",   HomePage => "https://juliettebruce.github.io"},
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
