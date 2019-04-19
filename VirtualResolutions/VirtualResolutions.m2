@@ -10,7 +10,7 @@
 --
 --
 -- PROGRAMMERS : Ayah Almousa, Christine Berkesch, Juliette Bruce,
--- David Eisenbud, Daniel Erman, Michael Loper, Mahrud Sayrafi, 
+-- David Eisenbud, Daniel Erman, Michael Loper, Mahrud Sayrafi,
 -- Greg Smith.
 --
 --
@@ -28,15 +28,15 @@ newPackage ("VirtualResolutions",
         {Name => "David Eisenbud",     Email => "de@msri.org",         HomePage => "http://www.msri.org/~de/"},
         {Name => "Michael Loper",      Email => "loper012@umn.edu",    HomePage => "http://www-users.math.umn.edu/~loper012/"},
         {Name => "Mahrud Sayrafi",     Email => "mahrud@berkeley.edu", HomePage => "http://math.umn.edu/~mahrud/"}
-    	},
+        },
     PackageExports => {
-	"TateOnProducts",
-	"NormalToricVarieties",
-	"Elimination",
-	"SpaceCurves",
-	"Depth",
-	"Colon"
-	},
+        "TateOnProducts",
+        "NormalToricVarieties",
+        "Elimination",
+        "SpaceCurves",
+        "Depth",
+        "Colon"
+        },
     DebuggingMode => true,
     AuxiliaryFiles => false
     )
@@ -73,7 +73,7 @@ debug Core
 ----- Output: saturation of I with respect to irr.
 ----- Description: This is the fast saturation from Colon.m2. Since
 ----- Colon.m2 might change at some point we have created this wrap
------ function to easily implement other saturations that might be 
+----- function to easily implement other saturations that might be
 ----- created. We hope this is eventually removed.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -93,8 +93,8 @@ virtualOfPair (Ideal,        List) := (I, alphas) -> virtualOfPair(res I, alphas
 virtualOfPair (Module,       List) := (M, alphas) -> virtualOfPair(res M, alphas)
 virtualOfPair (ChainComplex, List) := (F, alphas) -> (
     if any(alphas, alpha -> #alpha =!= degreeLength ring F) then error "degree has wrong length";
-    L := apply(length F, i ->(
-	    m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
+    L := apply(length F, i -> (
+            m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));
     chainComplex L
     );
 
@@ -104,10 +104,10 @@ virtualOfPair (ChainComplex, List) := (F, alphas) -> (
 ----- Input: (J,irr,A)=(Ideal,Ideal,List) where J defines a 0-dim
 ----- subscheme and irr is the irrelevant ideal
 ----- Output: A virtual resolution of S/J, which is potentially short.
------ Description: This function implements Theorem 4.1 of [BES]. 
------ In particular, it computes a virutal resolution of S/J by 
+----- Description: This function implements Theorem 4.1 of [BES].
+----- In particular, it computes a virutal resolution of S/J by
 ----- computing a graded minimal free resolution of S/(J\cap B^A).
------ By the theorem this might be a short virtual resolution 
+----- By the theorem this might be a short virtual resolution
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 resolveViaFatPoint = method()
@@ -116,10 +116,10 @@ resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     if #A != #L then error "intersectionRes: expected exponent vector of the right length.";
     -- note: decompose doesn't necessarily return in the right order
     Q := intersect for X in L list (
-    	D := degree X_0;
-    	d := (select((0..#D-1), i -> D#i == 1))_0;
-    	X ^ (A#d)
-    	);
+        D := degree X_0;
+        d := (select((0..#D-1), i -> D#i == 1))_0;
+        X ^ (A#d)
+        );
     res intersect (Q, J)
     )
 
@@ -130,50 +130,49 @@ resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
 --       Ideal irr - the irrelevant ideal of the ring
 --       Chain Complex C - proposed virtual resolution
 -- Output: Boolean - true if complex is virtual resolution, false otherwise
--- TODO: need to fix for modules; don't know how to saturate for modules
 -- Note: the Determinatal strategy is based on Theorem 1.3 of [Loper2019].
+-- TODO: need to fix for modules; don't know how to saturate for modules
 
 
 isVirtual = method(Options => {Strategy => null})
-isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (    
+isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (
     annHH0 := ideal(image(C.dd_1));
     Isat := ourSaturation(I,irr);
     annHH0sat := ourSaturation(annHH0,irr);
     if not(Isat == annHH0sat) then (
-	if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
-	return false;
-	);
-
+        if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
+        return false;
+        );
 -- if strategy "determinantal is selected, the method checks virtuality
 -- via the depth criterion on the saturated ideals of minors
     if opts.Strategy === "Determinantal" then (
-	for i from 1 to length(C) do (
-	    if rank(source(C.dd_i)) != (rank(C.dd_i) + rank(C.dd_(i+1))) then (
-		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-		return false;
-		);
-	    );
         for i from 1 to length(C) do (
-	    minor := minors(rank(C.dd_i),C.dd_i);
-	    minorSat := ourSaturation(minor,irr);
-	    if depth(minorSat,ring(minorSat)) < i then (
-		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-		return false;
-	    );
+            if rank(source(C.dd_i)) != (rank(C.dd_i) + rank(C.dd_(i+1))) then (
+                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+                return false;
+                );
+            );
+        for i from 1 to length(C) do (
+            minor := minors(rank(C.dd_i),C.dd_i);
+            minorSat := ourSaturation(minor,irr);
+            if depth(minorSat,ring(minorSat)) < i then (
+                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+                return false;
+            );
         );
     true
     );
 -- default strategy is calculating homology and checking homology is
 -- supported on irrelevant ideal
     for i from 1 to length(C) do (
-	annHHi := ann HH_i(C);
-	if annHHi != ideal(sub(1,ring I)) then (
-	    if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring I)) then (
-		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-		return false;
-		);
-	    );
-	);
+        annHHi := ann HH_i(C);
+        if annHHi != ideal(sub(1,ring I)) then (
+            if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring I)) then (
+                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+                return false;
+                );
+            );
+        );
     true
     )
 
@@ -183,50 +182,50 @@ isVirtual (Module, Ideal, ChainComplex) := Boolean => opts -> (M, irr,C) -> (
     annMsat := ourSaturation(annM,irr);
     annHH0sat := ourSaturation(annHH0,irr);
     if not(annMsat == annHH0sat) then (
-	if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
-	return false;
-	);
+        if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
+        return false;
+        );
 -- if strategy "determinantal is selected, the method checks virtuality
 -- via the depth criterion on the saturated ideals of minors
     if opts.Strategy === "Determinantal" then (
-	for i from 1 to length(C) do (
-	    if rank(source(C.dd_i)) != (rank(C.dd_i) + rank(C.dd_(i+1))) then (
-		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-		return false;
-		);
-	    );
         for i from 1 to length(C) do (
-	    minor := minors(rank(C.dd_i),C.dd_i);
-	    minorSat := ourSaturation(minor,irr);
-	    if depth(minorSat,ring(minorSat)) < i then (
-		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-		return false;
-	    );
+            if rank(source(C.dd_i)) != (rank(C.dd_i) + rank(C.dd_(i+1))) then (
+                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+                return false;
+                );
+            );
+        for i from 1 to length(C) do (
+            minor := minors(rank(C.dd_i),C.dd_i);
+            minorSat := ourSaturation(minor,irr);
+            if depth(minorSat,ring(minorSat)) < i then (
+                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+                return false;
+            );
         );
     true
     );
 -- default strategy is calculating homology and checking homology is
 -- supported on irrelevant ideal
     for i from 1 to length(C) do (
-	annHHi := ann HH_i(C);
-	if annHHi != ideal(sub(1,ring M)) then (
-	    if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring irr)) then (
-		if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-		return false;
-		);
-	    );
-	);
+        annHHi := ann HH_i(C);
+        if annHHi != ideal(sub(1,ring M)) then (
+            if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring irr)) then (
+                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
+                return false;
+                );
+            );
+        );
     true
     )
 
 isVirtual (Ideal, NormalToricVariety, ChainComplex) := Boolean => opts -> (I, X, C) -> (
-    if ring(I) != ring(X) then error "ideal is not in Cox ring of normal toric variety";
-    isVirtual(I, ideal(X), C)
+    if ring I != ring X then error "ideal is not in Cox ring of normal toric variety";
+    isVirtual(I, ideal X, C)
     )
 
 isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => opts -> (M, X, C) -> (
-    if ring(M) != ring(X) then error "ideal is not in Cox ring of normal toric variety";
-    isVirtual(M, ideal(X), C)
+    if ring M != ring X then error "module is not in Cox ring of normal toric variety";
+    isVirtual(M, ideal X, C)
     )
 
 -- Input: ZZ n - size of subset of generators to check
@@ -238,36 +237,36 @@ isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => opts -> (M, X
 --         before outputting the subsets, the ideal generatered by the
 --         general elements is outputted
 findGensUpToIrrelevance = method(Options => {GeneralElements => false})
-findGensUpToIrrelevance(ZZ,Ideal,Ideal):= List => opts -> (n,J,irr) -> (
+findGensUpToIrrelevance(ZZ, Ideal, Ideal) := List => opts -> (n, J, irr) -> (
     R := ring(J);
     k := coefficientRing(R);
     Jsat := ourSaturation(J,irr);
     comps := decompose irr;
     if opts.GeneralElements == true then (
-	degs := degrees(J);
-	--place of all unique degrees
-	allmatches := unique(apply(degs,i->positions(degs, j -> j == i)));
-	--creates an ideal where if degrees of generators match
- 	--  those generators are replaced by one generator that
-	--  is a random combination of all generators of that degree
-	K := ideal(apply(allmatches,i->sum(apply(i, j-> random(k) * J_(j)))));
-	J = K;
-	);
-    lists := subsets(numgens(J),n);
+        degs := degrees(J);
+        -- place of all unique degrees
+        allmatches := unique(apply(degs, i -> positions(degs, j -> j == i)));
+        -- creates an ideal where if degrees of generators match
+        -- those generators are replaced by one generator that
+        -- is a random combination of all generators of that degree
+        K := ideal(apply(allmatches, i -> sum(apply(i, j -> random(k) * J_j))));
+        J = K;
+        );
+    lists := subsets(numgens(J), n);
     output := {};
     if opts.GeneralElements == true then output = {J};
     apply(lists, l -> (
             I := ideal(J_*_l);
-            if ourSaturation(ourSaturation(I,comps_0),comps_1) == Jsat then (
-                output = append(output,l);
+            if ourSaturation(ourSaturation(I, comps_0), comps_1) == Jsat then (
+                output = append(output, l);
                 );
             )
         );
     output
     )
 
-findGensUpToIrrelevance(ZZ,Ideal,NormalToricVariety):= List => opts -> (n,J,X) -> (
-    findGensUpToIrrelevance(n,J,ideal(X))
+findGensUpToIrrelevance(ZZ, Ideal, NormalToricVariety) := List => opts -> (n, J, X) -> (
+    findGensUpToIrrelevance(n, J, ideal X)
     )
 
 
@@ -396,8 +395,8 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     --- If PreserveDegree => true checks whether curve intersects base locus;
     --- this ensures the curve has the correct degree and genus.
     if opts.PreserveDegree == true then (
-	if (saturate((J+BL1))==ideal(rVars)) or (saturate((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
-	);
+        if (saturate((J+BL1))==ideal(rVars)) or (saturate((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
+        );
     --- Defines P1xP2
     x := getSymbol "x";
     y := getSymbol "y";
@@ -451,11 +450,11 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     --- base locus of projection or until Bound is reached.
     C := ideal(0);
     apply(opts.Attempt,i->(
-	    C = curve(d,g,R);
-	    if class(C) === Curve then C = ideal(C);
-	    if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;
-	    )
-	);
+            C = curve(d,g,R);
+            if class(C) === Curve then C = ideal(C);
+            if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;
+            )
+        );
     --- Checks whether curve in P3 intersects base locus of projection;
     --- this ensures the curve has the correct degree and genus.
     if (saturate(C+BL1)==ideal(rVars)) or (saturate(C+BL2)==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
@@ -481,7 +480,7 @@ randomCurveP1P2 (ZZ,ZZ) := randomCurveP1P2 => opts -> (d,g)->(
 ----- Output: The dimension vector for the product of projective spaces.
 ----- Note the dimension is ordered assuming the degree {1,0,...} is first.
 --------------------------------------------------------------------
--------------------------------------------------------------------- 
+--------------------------------------------------------------------
 dimVector = method()
 dimVector(Ring) := (S) -> (
     deg := degrees S;
@@ -503,7 +502,7 @@ multigradedPolynomialRing = n -> (
     x := local x;
     xx := flatten apply(#n, i -> apply(n_i+1, j -> x_(i,j)));
     degs := flatten apply(#n, i -> apply(n_i+1, k ->
-	    apply(#n, j -> if i == j then 1 else 0)));
+            apply(#n, j -> if i == j then 1 else 0)));
     ZZ/32003[xx, Degrees=>degs]
     )
 
@@ -514,8 +513,8 @@ multigradedPolynomialRing = n -> (
 ----- Input: (X,M) = (NormalToricVariety,Module)
 ----- Output: A list consisting of the minimal elements of the
 ----- multigraded regularity of M.
------ Description: This computes the multigraded regularity of a 
------ module as defined in Definition 1.1 of [Maclagan, Smith 2004]. 
+----- Description: This computes the multigraded regularity of a
+----- module as defined in Definition 1.1 of [Maclagan, Smith 2004].
 ----- It returns a list of the minimal elements.
 ----- Caveat: This assumes M is B-saturated already i.e. H^1_I(M)=0
 --------------------------------------------------------------------
@@ -526,24 +525,18 @@ multigradedRegularity(Ring,               Module) := List => (S, M') -> multigra
 multigradedRegularity(NormalToricVariety, Module) := List => (X, M)  -> multigradedRegularity(X, null, M)
 -- Note: some hacking is involved to deal with the differences between productOfProjectiveSpaces and toricProjectiveSpaces
 multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
-    if class X === Nothing then (
-        -- go from module over productOfProjectiveSpaces to module over tensor product of toricProjectiveSpaces
-        X = fold((A,B) -> A**B, dimVector(S)/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S)));
-        M' := M;
-        Pres1 := presentation M';
-	Pres2 := (map(ring X, S, gens ring X))(Pres1);
-	M = coker Pres2
-        );
-    if class S === Nothing then (
+    if class X === NormalToricVariety then (
         -- go from module over NormalToricVariety to module over productOfProjectiveSpaces
         -- assuming that the NormalToricVariety is a tensor product of toricProjectiveSpaces
         S = ring X;
-        (S', E') := productOfProjectiveSpaces(dimVector(X), CoefficientField => coefficientRing S);
-        -- Juliette: You cannot compute the image of (most) modules under a ring map
-	-- as a fix I introdued the following three lines of code
-	Pres3 := presentation M;
-	Pres4 := (map(S', S, gens S'))(Pres3);
-	M' = coker Pres4;
+        (S', E') := productOfProjectiveSpaces(dimVector X, CoefficientField => coefficientRing S);
+        M' := coker (map(S', S, gens S'))(presentation M);
+        ) else (
+        -- go from module over productOfProjectiveSpaces to module over tensor product of toricProjectiveSpaces
+        (S', E') = productOfProjectiveSpaces(dimVector S, CoefficientField => coefficientRing S);
+        X = fold((A,B) -> A**B, dimVector(S)/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S)));
+        M' = coker (map(S', S, gens S'))(presentation M);
+        M = coker (map(ring X, S, gens ring X))(presentation M');
         );
     n := #(degrees S)_0;
     r := regularity M;
@@ -554,18 +547,18 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
     P := multigradedPolynomialRing toList(n:0);
     gt := new MutableHashTable;
     apply(L, ell -> (
-	    -- Check that Hilbert function and Hilbert polynomial match
-	    -- (this imposes a condition on the alternating sum of local cohomology dimensions)
-	    if hilbertFunction(ell_0_0, M) != (map(QQ, ring H, ell_0_0))(H) then (
-	        gt#(ell_0_0) = true;
-	        );
-	    -- Check that higher local cohomology vanishes (i.e., H^i_I(M) = 0 for i > 1)
-	    if ell_1 != 0 and ell_0_1 > 0 then (
-	        gt#(ell_0_0) = true;
-	        apply(n, j -> gt#(ell_0_0 + degree P_j) = true);
-	        );
-	    )
-	);
+            -- Check that Hilbert function and Hilbert polynomial match
+            -- (this imposes a condition on the alternating sum of local cohomology dimensions)
+            if hilbertFunction(ell_0_0, M) != (map(QQ, ring H, ell_0_0))(H) then (
+                gt#(ell_0_0) = true;
+                );
+            -- Check that higher local cohomology vanishes (i.e., H^i_I(M) = 0 for i > 1)
+            if ell_1 != 0 and ell_0_1 > 0 then (
+                gt#(ell_0_0) = true;
+                apply(n, j -> gt#(ell_0_0 + degree P_j) = true);
+                );
+            )
+        );
     low := apply(n, i -> min (L / (ell -> ell_0_0_i - 1)));
     I := ideal apply(L, ell -> if not gt#?(ell_0_0) then product(n, j -> P_j^(ell_0_0_j - low_j)) else 0);
     apply(flatten entries mingens I, g -> (flatten exponents g) + low)
@@ -574,12 +567,12 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- Input: (C)=(ChainComplex)
------ Output: A resolution of the tail end of the complex appended 
------ to the given complex. 
+----- Output: A resolution of the tail end of the complex appended
+----- to the given complex.
 ----- Description: This function is not currently being exported,
 ----- but we hope it will eventually be useful in generating new
 ----- virtual resolutions. The key is we need a way, like for example
------ module primary decomposition to add irrlevence to a chain 
+----- module primary decomposition to add irrlevence to a chain
 ----- complex before we apply resolveTail. (See comment.)
 --------------------------------------------------------------------
 --------------------------------------------------------------------
