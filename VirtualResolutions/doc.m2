@@ -40,7 +40,7 @@ doc ///
      As described in Algorithm 3.4 of Berkesch, Erman, and Smith's
      paper, one may construct a virtual resolution of a module from its graded minimal free resolution and
      an element of the multigraded Castelnuovo-Mumford regularity of the module. (See Maclagan and Smith's paper
-     {\em Multigraded Castelnuovo-Mumford Regularity} for the definition of multigraded regularity.)
+     {\em Multigraded Castelnuovo-Mumford Regularity} (@{HREF("http://arxiv.org/abs/0305214","arXiv:0305214")}@) for the definition of multigraded regularity.)
      Building on the TateOnProducts package, this package contains a function allowing one
      to compute the minimal elements of the multigraded Castelnuovo-Mumford regularity of a $B$-saturated module.
 
@@ -53,7 +53,7 @@ doc ///
     Text
      Notice that this virtual resolution of $S/J$ is much shorter and thinner than the graded minimal
      free resolution of $S/J$. This is a common theme: virtual resolutions tend to be much
-     shorter and less wide than graded minimal free resolutions over the Cox ring, put they still
+     shorter and less wide than graded minimal free resolutions over the Cox ring, but they still
      preserve geometric information about $S/J$.
 
      In addition to the functions highlighted above, the VirtualResolutions package contains
