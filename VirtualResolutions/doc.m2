@@ -113,8 +113,8 @@ doc ///
 
 	    If debugLevel is larger than zero, the homological degree where isVirtual fails is printed.
 	Example
-	    R = ZZ/101[x,y];
-       	    isVirtual(ideal(x),ideal(x,y),res ideal(x))
+	    R = ZZ/101[s,t];
+       	    isVirtual(ideal(s),ideal(s,t),res ideal(t))
 	Text
 	  Continuing our running example of three points $([1:1],[1:4])$, $([1:2],[1:5])$, and $([1:3],[1:6])$
           in $\mathbb{P}^1 \times \mathbb{P}^1$. We can check that the virtual complex we compute below and
