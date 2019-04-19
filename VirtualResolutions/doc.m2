@@ -415,12 +415,12 @@ doc ///
             virtual resolution of our ideal
     Description
         Text
-            Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
-            intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
+            Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a tuple A,
+            resolveViaFatPoint computes a free resolution of J intersected with A-th power of the irrelevant ideal.
             See Theorem 4.1 of [BES, @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@].
 
-            Below we follow example 4.7 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] and compute the virtual resolution of 6 points in
-            $\mathbb{P}^1\times\mathbb{P}^1\times\mathbb{P}^2$.
+            Below we follow example 4.7 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] and
+            compute the virtual resolution of 6 points in $\mathbb{P}^1\times\mathbb{P}^1\times\mathbb{P}^2$.
         Example
             N = {1,1,2}
             pts = 6
@@ -436,8 +436,6 @@ doc ///
                 );
             C = resolveViaFatPoint (I, irr, {2,1,0})
             isVirtual(I, irr, C)
-    Caveat
-        The output is only a virtual resolution for inputs that are zero-dimensional subschemes.
 ///
 
 
