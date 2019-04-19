@@ -40,7 +40,7 @@ doc ///
      As described in Algorithm 3.4 of Berkesch, Erman, and Smith's
      paper, one may construct a virtual resolution of a module from its graded minimal free resolution and
      an element of the multigraded Castelnuovo-Mumford regularity of the module. (See Maclagan and Smith's paper
-     {\em Multigraded Castelnuovo-Mumford Regularity} (@{HREF("http://arxiv.org/abs/0305214","arXiv:0305214")}@) for the definition of multigraded regularity.)
+     {\em Multigraded Castelnuovo-Mumford Regularity} (@{HREF("http://arxiv.org/abs/math/0305214","arXiv:math/0305214")}@) for the definition of multigraded regularity.)
      Building on the TateOnProducts package, this package contains a function allowing one
      to compute the minimal elements of the multigraded Castelnuovo-Mumford regularity of a $B$-saturated module.
 
@@ -165,7 +165,6 @@ doc ///
         findGensUpToIrrelevance(n,I,X)
     Inputs
         I:Ideal
-            ideal we are intereseted in
         n:ZZ
             size of subset of minimal generators of I that may generate I up to saturation with irr
         irr:Ideal
@@ -181,14 +180,14 @@ doc ///
             Given an ideal I, integer n, and irrelevant ideal irr, findGensUpToIrrelevance searches through
             all n-subsets of the generators of I. If a subset generates the same irr-saturated ideal as the
             irr-saturation of I, then that subset is added to a list. After running through all subsets, the list
-            is outputted.
+            is returned.
         Example
             R = ZZ/101[x_0,x_1,x_2,x_3,x_4,Degrees=>{2:{1,0},3:{0,1}}];
             B = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
             I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
             findGensUpToIrrelevance(2,I,B)
     Caveat
-        If no subset of generators generates the ideal up to saturation, then the empty list is outputted
+        If no subset of generators generates the ideal up to saturation, then the empty list is returned.
 ///
 
 doc ///
@@ -214,7 +213,7 @@ doc ///
         (randomRationalCurve,ZZ,ZZ,Ring)
         (randomRationalCurve,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random rational curve of degree (d,e) in P^1xP^2
+    	creates the ideal of a random rational curve of degree (d,e) in P^1xP^2
     Usage
         randomRationalCurve(d,e,F)
         randomRationalCurve(d,e)
@@ -233,8 +232,8 @@ doc ///
             Given two positive integers d,e and a ring F, randomRationalCurve returns the ideal
             of a random curve in $\mathbb{P}^1\times\mathbb{P}^2$ of degree (d,e) defined over the base ring F.
 
-            This is done by randomly generating 2 homogenous polynomials of degree d and 3 homogenous
-            polynomials of degree 3 in F[s,t] defining maps $\mathbb{P}^1\to\mathbb{P}^1$ and $\mathbb{P}^1\to\mathbb{P}^2$,
+            This is done by randomly generating two homogenous polynomials of degree d and three homogenous
+            polynomials of degree three in F[s,t] defining maps $\mathbb{P}^1\to\mathbb{P}^1$ and $\mathbb{P}^1\to\mathbb{P}^2$,
             respectively. The graph of the product of these two maps in $\mathbb{P}^1\times(\mathbb{P}^1\times\mathbb{P}^2)$ is computed,
             from which a curve of bi-degree (d,e) in $\mathbb{P}^1\times\mathbb{P}^2$ over F is obtained by
             saturating and then eliminating.
@@ -253,7 +252,7 @@ doc ///
         (randomMonomialCurve,ZZ,ZZ,Ring)
         (randomMonomialCurve,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random monomial curve of degree (d,e) in P^1xP^2
+    	creates the ideal of a random monomial curve of degree (d,e) in P^1xP^2
     Usage
         randomMonomialCurve(d,e,F)
         randomMonomialCurve(d,e)
@@ -290,7 +289,7 @@ doc ///
         curveFromP3toP1P2
         (curveFromP3toP1P2,Ideal)
     Headline
-    	creates the Ideal of a curve in $P^1xP^2$ from the ideal of a curve in P^3
+    	creates the Ideal of a curve in P^1xP^2 from the ideal of a curve in P^3
     Usage
         I = curveFromP3toP1P2(J)
     Inputs
@@ -301,17 +300,19 @@ doc ///
             defining a curve in $\mathbb{P}^1\times\mathbb{P}^2$.
     Description
         Text
-            Given an ideal J defining a curve C in $\mathbb{P}^3$, curveFromP3toP1P2 produces the ideal of the curve in $\mathbb{P}^1\times\mathbb{P}^2$ defined as follows:
-            consider the projections $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ from the point [0:0:0:1] and the line [0:0:s:t], respectively.
-            The product of these defines a map from $\mathbb{P}^3$ to $\mathbb{P}^1\times\mathbb{P}^2$. The curve produced by curveFromP3toP1P2 is the image of
-            the input curve under this map.
+            Given an ideal J defining a curve C in $\mathbb{P}^3$, curveFromP3toP1P2 produces the ideal of the curve
+	    in $\mathbb{P}^1\times\mathbb{P}^2$ defined as follows:
+            consider the projections $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ from the point [0:0:0:1]
+	    and the line [0:0:s:t], respectively. The product of these defines a map from $\mathbb{P}^3$ to $\mathbb{P}^1\times\mathbb{P}^2$.
+	    The curve produced by curveFromP3toP1P2 is the image of the input curve under this map.
 
-            This computation is done by first constructing the graph in $\mathbb{P}^3\times(\mathbb{P}^1x\mathbb{P}^2)$ of the product of the two projections
-            $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ defined above. This graph is then intersected with $C\times(\mathbb{P}^1\times\mathbb{P}^2)$. A curve in $\mathbb{P}^1\times\mathbb{P}^2$ is then
+            This computation is done by first constructing the graph in $\mathbb{P}^3\times(\mathbb{P}^1x\mathbb{P}^2)$ of the product
+	    of the two projections $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ defined above.
+	    This graph is then intersected with $C\times(\mathbb{P}^1\times\mathbb{P}^2)$. A curve in $\mathbb{P}^1\times\mathbb{P}^2$ is then
             obtained from this by saturating and then eliminating.
 
-            Note the curve in $\mathbb{P}^1\times\mathbb{P}^2$ will have degree and genus equal to the degree and genus of C as long as C does not intersect
-            the base locus of the projection. If the option PreserveDegree is set to true, curveFromP3toP1P2 will check whether C
+            Note the curve in $\mathbb{P}^1\times\mathbb{P}^2$ will have degree and genus equal to the degree and genus of C as long as C
+	    does not intersect the base locus of the projection. If the option PreserveDegree is set to true, curveFromP3toP1P2 will check whether C
             intersects the base locus. If it does, the function will return an error. If PreserveDegree is set to false, this check is not
             performed and the output curve in $\mathbb{P}^1\times\mathbb{P}^2$ may have degree and genus different from C.
         Example
@@ -327,7 +328,7 @@ doc ///
         PreserveDegree
         [curveFromP3toP1P2, PreserveDegree]
     Headline
-        Determines if curve is disjoint from base locuses
+        Determines if curve is disjoint from base loci
     Description
       Text
             When set to true, curveFromP3toP1P2 will check whether or not the given curve
@@ -344,7 +345,7 @@ doc ///
         (randomCurveP1P2,ZZ,ZZ,Ring)
         (randomCurveP1P2,ZZ,ZZ)
     Headline
-        creates the Ideal of a random  curve of degree (d,d) and genus g in P^1xP^2.
+        creates the ideal of a random curve in P^1xP^2.
     Usage
         randomCurveP1P2(d,g,F)
         randomCurveP1P2(d,g)
@@ -362,12 +363,12 @@ doc ///
     	Text
             Given a positive integer d, a non-negative integer g, and a ring F randomCurveP1P2 produces a random curve
             of bi-degree (d,d) and genus g in $\mathbb{P}^1\times\mathbb{P}^2$.
-            This is done by using (random spaceCurve) function from the RandomSpaceCurve package to first generate a random curve
+            This is done by using the curve function from the SpaceCurves package to first generate a random curve
             of degree d and genus g in $\mathbb{P}^1\times\mathbb{P}^2$, and then applying curveFromP3toP1P2 to produce a curve in $\mathbb{P}^1\times\mathbb{P}^2$.
 
             Since curveFromP3toP1P2 relies on projecting from the point [0:0:0:1] and the line [0:0:s:t], randomCurveP1P2
             attempts to find a curve in $\mathbb{P}^3$, which does not intersect the base locus of these projections.
-            (If the curve did intersect the base locus the resulting curve in $\mathbb{P}^1\times\mathbb{P}^2$ would not have degree (d,d).)
+            If the curve did intersect the base locus the resulting curve in $\mathbb{P}^1\times\mathbb{P}^2$ would not have degree (d,d).
             The number of attempts used to try to find such curves is controlled by the Attempt option, which by default is set to 1000.
         Example
             randomCurveP1P2(3,0);
@@ -386,9 +387,9 @@ doc ///
     Description
       Text
            When randomCurveP1P2 generates a random curve in $\mathbb{P}^3$ using the SpaceCurves package, it is possible the resulting
-           curve will intersect the base locuses of the projections used to construct the curve in $\mathbb{P}^1\times\mathbb{P}^2$. If the curve
-           does intersect the base locuses it will generate a new random curve in $\mathbb{P}^3$. The option Attempts limits the number
-           of attempts to find a curve disjoint from the base locuses before quitting. By default, Attempt is set to 1000.
+           curve will intersect the base loci of the projections used to construct the curve in $\mathbb{P}^1\times\mathbb{P}^2$. If the curve
+           does intersect the base locusi it will generate a new random curve in $\mathbb{P}^3$. The option Attempts limits the number
+           of attempts to find a curve disjoint from the base loci before quitting. By default, Attempt is set to 1000.
     SeeAlso
         randomCurveP1P2
 ///
@@ -525,7 +526,7 @@ doc ///
         Text
           Given a module M over a multigraded ring S or a product of toric varieties X, this method finds the
           minimal elements of the multigraded Castelnuovo-Mumford regularity of M as defined in Definition 1.1
-          of [MS04]. If the input is an ideal, multigraded regularity of S^1/I is computed.
+          of [MS04] (see @{HREF("http://arxiv.org/abs/math/0305214","arXiv:math/0305214")}@). If the input is an ideal, multigraded regularity of S^1/I is computed.
 
           This is done by calling the cohomologyHashTable method from TateOnProducts and checking for the
           multidegrees where Hilbert polynomial and Hilbert function match and where the higher sheaf cohomology
@@ -534,7 +535,7 @@ doc ///
           Note that the module or ideal is assumed to be saturated by the irrelevant ideal of the Cox ring.
 
           As an example, here we compute the minimal elements of the multigraded regularity for Example 1.4
-          of [BES]: We consider the example of a hyperelliptic curve of genus 4 in $\mathbb{P}^1\times\mathbb{P}^2$.
+          of [BES](see @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@). We consider the example of a hyperelliptic curve of genus 4 in $\mathbb{P}^1\times\mathbb{P}^2$.
         Example
           X = toricProjectiveSpace(1)**toricProjectiveSpace(2)
           S = ring X; B = ideal X;
