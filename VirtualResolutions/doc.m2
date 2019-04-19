@@ -108,7 +108,7 @@ doc ///
 	    Given an ideal I, irrelevant ideal irr, and a chain complex C, isVirtual returns true if
 	    C is a virtual resolution of I. If not, it returns false.
 
-	    This is done by checking that the saturations of I and of the annihilator of HH_0(C)
+	    This is done by checking that the saturations of I and of the annihilator of $H_0(C)$
 	    agree, then checking that the higher homology groups of C are supported on the irrelevant ideal.
 
 	    If debugLevel is larger than zero, the homological degree where isVirtual fails is printed.
@@ -137,7 +137,7 @@ doc ///
     Caveat
     	    For a module, isVirtual may return true for a proposed virtual resolution despite the chain complex
 	    not being a virtual resolution; this occurs when the annihilator of the module and the annihilator of
-	    HH_0(C) saturate to the same module.
+	    $H_0(C)$ saturate to the same module.
 ///
 
 doc ///
