@@ -537,7 +537,7 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
         M' = coker (map(S', S, gens S'))(presentation M);
         X = fold((A,B) -> A**B, dimVector(S)/(i->toricProjectiveSpace(i, CoefficientRing => coefficientRing S)));
         M = coker (map(ring X, S, gens ring X))(presentation M);
-	S = ring X;
+        S = ring X;
         );
     n := #(degrees S)_0;
     r := regularity M;

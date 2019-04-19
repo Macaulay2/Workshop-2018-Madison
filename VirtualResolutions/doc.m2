@@ -2,7 +2,7 @@ doc ///
   Key
     VirtualResolutions
   Headline
-    A package for computing virtual resolutions
+    a package for computing virtual resolutions
   Description
     Text
      While graded minimal free resolutions are useful for studying quasicoherent
@@ -129,8 +129,8 @@ doc ///
           vres = virtualOfPair(J,{{3,1}});
           isVirtual(J,B,vres)
         Text
-          Finally, we can also use the Determinantal strategy, which implements Theorem 1.3 of 
-	  @{HREF("http://arxiv.org/abs/1904.05994","arXiv:1904.05994")}@.
+          Finally, we can also use the Determinantal strategy, which implements Theorem 1.3 of
+          @{HREF("http://arxiv.org/abs/1904.05994","arXiv:1904.05994")}@.
         Example
           isVirtual(J,B,vres,Strategy=>Determinantal)
     Caveat
@@ -214,7 +214,7 @@ doc ///
         (randomRationalCurve,ZZ,ZZ,Ring)
         (randomRationalCurve,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random rational curve of degree (d,e) in P^1xP^2
+        creates the Ideal of a random rational curve of degree (d,e) in P^1xP^2
     Usage
         randomRationalCurve(d,e,F)
         randomRationalCurve(d,e)
@@ -253,7 +253,7 @@ doc ///
         (randomMonomialCurve,ZZ,ZZ,Ring)
         (randomMonomialCurve,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random monomial curve of degree (d,e) in P^1xP^2
+        creates the Ideal of a random monomial curve of degree (d,e) in P^1xP^2
     Usage
         randomMonomialCurve(d,e,F)
         randomMonomialCurve(d,e)
@@ -290,7 +290,7 @@ doc ///
         curveFromP3toP1P2
         (curveFromP3toP1P2,Ideal)
     Headline
-    	creates the Ideal of a curve in $P^1xP^2$ from the ideal of a curve in P^3
+        creates the Ideal of a curve in $P^1xP^2$ from the ideal of a curve in P^3
     Usage
         I = curveFromP3toP1P2(J)
     Inputs
@@ -327,7 +327,7 @@ doc ///
         PreserveDegree
         [curveFromP3toP1P2, PreserveDegree]
     Headline
-        Determines if curve is disjoint from base locuses
+        determines if curve is disjoint from base locuses
     Description
       Text
             When set to true, curveFromP3toP1P2 will check whether or not the given curve
@@ -356,10 +356,10 @@ doc ///
         F:Ring
             base ring.
     Outputs
-    	:Ideal
-	    defining random curve $\mathbb{P}^1\times\mathbb{P}^2$ from a curve of degree d and genus g in $\mathbb{P}^3$ over F.
+        :Ideal
+            defining random curve $\mathbb{P}^1\times\mathbb{P}^2$ from a curve of degree d and genus g in $\mathbb{P}^3$ over F.
     Description
-    	Text
+        Text
             Given a positive integer d, a non-negative integer g, and a ring F randomCurveP1P2 produces a random curve
             of bi-degree (d,d) and genus g in $\mathbb{P}^1\times\mathbb{P}^2$.
             This is done by using (random spaceCurve) function from the RandomSpaceCurve package to first generate a random curve
@@ -382,7 +382,7 @@ doc ///
         Attempt
         [randomCurveP1P2, Attempt]
     Headline
-        Limit number of attempts for randomCurveP1P2
+        limit number of attempts for randomCurveP1P2
     Description
       Text
            When randomCurveP1P2 generates a random curve in $\mathbb{P}^3$ using the SpaceCurves package, it is possible the resulting
@@ -399,7 +399,7 @@ doc ///
         resolveViaFatPoint
         (resolveViaFatPoint, Ideal, Ideal, List)
     Headline
-        Returns a virtual resolution of a zero-dimensional scheme
+        returns a virtual resolution of a zero-dimensional scheme
     Usage
         resolveViaFatPoint(I, irr, A)
     Inputs
@@ -415,26 +415,26 @@ doc ///
     Description
         Text
             Given a saturated ideal J of a zero-dimensional subscheme, irrelevant ideal irr, and a vector A,
-	    intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
-	    See Theorem 4.1 of [BES, @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@].
+            intersectionRes computes a free resolution of J intersected with A-th power of the irrelevant ideal.
+            See Theorem 4.1 of [BES, @{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@].
 
-	    Below we follow example 4.7 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] and compute the virtual resolution of 6 points in
-	    $\mathbb{P}^1\times\mathbb{P}^1\times\mathbb{P}^2$.
-    	Example
-    	    N = {1,1,2}
-    	    pts = 6
-    	    (S, E) = productOfProjectiveSpaces N
-	    irr = intersect for n to #N-1 list (
-    		ideal select(gens S, i -> (degree i)#n == 1)
-    		);
-    	    I = saturate intersect for i to pts - 1 list (
-  		P := sum for n to N#0 - 1 list ideal random({1,0,0}, S);
-  		Q := sum for n to N#1 - 1 list ideal random({0,1,0}, S);
-  		R := sum for n to N#2 - 1 list ideal random({0,0,1}, S);
-  		P + Q + R
-  		);
-	    C = resolveViaFatPoint (I, irr, {2,1,0})
-	    isVirtual(I, irr, C)
+            Below we follow example 4.7 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] and compute the virtual resolution of 6 points in
+            $\mathbb{P}^1\times\mathbb{P}^1\times\mathbb{P}^2$.
+        Example
+            N = {1,1,2}
+            pts = 6
+            (S, E) = productOfProjectiveSpaces N
+            irr = intersect for n to #N-1 list (
+                ideal select(gens S, i -> (degree i)#n == 1)
+                );
+            I = saturate intersect for i to pts - 1 list (
+                P := sum for n to N#0 - 1 list ideal random({1,0,0}, S);
+                Q := sum for n to N#1 - 1 list ideal random({0,1,0}, S);
+                R := sum for n to N#2 - 1 list ideal random({0,0,1}, S);
+                P + Q + R
+                );
+            C = resolveViaFatPoint (I, irr, {2,1,0})
+            isVirtual(I, irr, C)
     Caveat
         The output is only a virtual resolution for inputs that are zero-dimensional subschemes.
 ///
@@ -447,7 +447,7 @@ doc ///
         (virtualOfPair, Module,       List)
         (virtualOfPair, ChainComplex, List)
     Headline
-        Creates a virtual resolution from a free resolution by keeping only summands of specified degrees.
+        creates a virtual resolution from a free resolution by keeping only summands of specified degrees.
     Usage
         virtualOfPair(I, L)
         virtualOfPair(M, L)
@@ -467,7 +467,7 @@ doc ///
         Text
           Given a ring and its free resolution, keeps only the summands in resolution of specified degrees L plus.
           If the specified degrees are in the multigraded regularity plus the dimension vector of the product
-	  of projective spaces then the output is a virtual resolution. See Algorithm 3.4 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] for further details.
+          of projective spaces then the output is a virtual resolution. See Algorithm 3.4 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] for further details.
 
           If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
 
@@ -503,7 +503,7 @@ doc ///
         (multigradedRegularity, Ring, Module)
         (multigradedRegularity, NormalToricVariety, Module)
     Headline
-        Computes the minimal elements of the multigraded regularity of a module over a multigraded ring
+        computes the minimal elements of the multigraded regularity of a module over a multigraded ring
     Usage
         multigradedRegularity(S,I)
         multigradedRegularity(S,M)
@@ -544,6 +544,9 @@ doc ///
         Example
           J = saturate(I,B);
           L = multigradedRegularity(X, J)
+
+        Text
+          This method also accepts the ring provided by productOfProjectiveSpaces from TateOnProduct package.
     Caveat
         The input is assumed to be saturated.
 ///

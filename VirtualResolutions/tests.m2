@@ -223,7 +223,7 @@ TEST ///
     (S, E) = productOfProjectiveSpaces {1, 2};
     B = intersect(ideal(x_(0,0), x_(0,1)), ideal(x_(1,0), x_(1,1), x_(1,2)))
     I = saturate(ideal(x_(0,0)^2*x_(1,0)^2+x_(0,1)^2*x_(1,1)^2+x_(0,0)*x_(0,1)*x_(1,2)^2,
-	    x_(0,0)^3*x_(1,2)+x_(0,1)^3*(x_(1,0)+x_(1,1))), B);
+            x_(0,0)^3*x_(1,2)+x_(0,1)^3*(x_(1,0)+x_(1,1))), B);
     -- taking the ring of a productOfProjectiveSpaces as input
     assert(multigradedRegularity(S, I) == {{2,2},{4,1},{1,5}})
 ///
