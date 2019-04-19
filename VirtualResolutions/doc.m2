@@ -215,20 +215,20 @@ doc ///
 	(randomRationalCurve,ZZ,ZZ,Ring)
 	(randomRationalCurve,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random rational curve of degree (d,e) in P^1xP^2
+    	creates the Ideal of a random rational curve of degree (d,e) in $\mathbb{P}^1\times\mathbb{P}^2$
     Usage
     	randomRationalCurve(d,e,F)
     	randomRationalCurve(d,e)
     Inputs
     	d:ZZ
-	    degree of curve on the P^1 factor of P^1xP^2
+	    degree of curve on the $\mathbb{P}^1$ factor of $\mathbb{P}^1\times\mathbb{P}^2$
 	e:ZZ
-	    degree of curve on the P^2 factor of P^1xP^2
+	    degree of curve on the $\mathbb{P}^2$ factor of $\mathbb{P}^1\times\mathbb{P}^2$
 	F:Ring
 	    base ring
     Outputs
     	:Ideal
-	    defining random rational curve in P1xP2 of degree (d,e) over F.
+	    defining random rational curve in $\mathbb{P}^1\times\mathbb{P}^2$ of degree (d,e) over F.
     Description
     	Text
 	    Given two positive integers d,e and a ring F, randomRationalCurve returns the ideal
@@ -254,20 +254,20 @@ doc ///
 	(randomMonomialCurve,ZZ,ZZ,Ring)
 	(randomMonomialCurve,ZZ,ZZ)
     Headline
-    	creates the Ideal of a random monomial curve of degree (d,e) in P^1xP^2
+    	creates the Ideal of a random monomial curve of degree (d,e) in $\mathbb{P}^1\times\mathbb{P}^2$
     Usage
     	randomMonomialCurve(d,e,F)
     	randomMonomialCurve(d,e)
     Inputs
     	d:ZZ
-	    degree of curve on the P^1 factor of P^1xP^2
+	    degree of curve on the $\mathbb{P}^1$ factor of $\mathbb{P}^1\times\mathbb{P}^2$
 	e:ZZ
-	    degree of curve on the P^2 factor of P^1xP^2
+	    degree of curve on the $\mathbb{P}^2$ factor of $\mathbb{P}^1\times\mathbb{P}^2$
 	F:Ring
 	    base ring
     Outputs
     	:Ideal
-	    defining random monomial curve in P^1xP^2 of degree (d,e) over F.
+	    defining random monomial curve in $\mathbb{P}^1\times\mathbb{P}^2$ of degree (d,e) over F.
     Description
     	Text
 	    Given two positive integers d,e and a ring F, randomMonomialCurve returns the ideal of a random curve
@@ -291,15 +291,15 @@ doc ///
     	curveFromP3toP1P2
         (curveFromP3toP1P2,Ideal)
     Headline
-    	creates the Ideal of a curve in P^1xP^2 from the ideal of a curve in P^3
+    	creates the Ideal of a curve in $\mathbb{P}^1\times\mathbb{P}^2$ from the ideal of a curve in P^3
     Usage
     	I=curveFromP3toP1P2(J)
     Inputs
     	J:Ideal
-	    defining a curve in P^3.
+	    defining a curve in $\mathbb{P}^3$.
     Outputs
     	I:Ideal
-	    defining a curve in P^1xP^2.
+	    defining a curve in $\mathbb{P}^1\times\mathbb{P}^2$.
     Description
     	Text
 	    Given an ideal J defining a curve C in $\mathbb{P}^3$, curveFromP3toP1P2 produces the ideal of the curve in $\mathbb{P}^1\times\mathbb{P}^2$ defined as follows:
