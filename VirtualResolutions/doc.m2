@@ -45,10 +45,10 @@ doc ///
      to compute the minimal elements of the multigraded Castelnuovo-Mumford regularity of a $B$-saturated module.
 
      Continuing the example from above, we see that $(2,0)$ is an element of the multigraded
-     regularity of $J$. From this we can compute a virtual resolution of $S/J$.
+     regularity of $S/J$. From this we can compute a virtual resolution of $S/J$.
     Example
-     multigradedRegularity(X, comodule J)
-     vres = virtualOfPair(J,{{3,1}})
+     multigradedRegularity(X, J)
+     vres = virtualOfPair(J, {{3,1}})
      multigraded betti vres
     Text
      Notice that this virtual resolution of $S/J$ is much shorter and thinner than the graded minimal
