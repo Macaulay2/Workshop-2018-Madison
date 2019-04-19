@@ -213,7 +213,7 @@ doc ///
         (randomRationalCurve,ZZ,ZZ,Ring)
         (randomRationalCurve,ZZ,ZZ)
     Headline
-    	creates the ideal of a random rational curve of degree (d,e) in P^1xP^2
+        creates the ideal of a random rational curve of degree (d,e) in P^1xP^2
     Usage
         randomRationalCurve(d,e,F)
         randomRationalCurve(d,e)
@@ -252,7 +252,7 @@ doc ///
         (randomMonomialCurve,ZZ,ZZ,Ring)
         (randomMonomialCurve,ZZ,ZZ)
     Headline
-    	creates the ideal of a random monomial curve of degree (d,e) in P^1xP^2
+        creates the ideal of a random monomial curve of degree (d,e) in P^1xP^2
     Usage
         randomMonomialCurve(d,e,F)
         randomMonomialCurve(d,e)
@@ -289,7 +289,7 @@ doc ///
         curveFromP3toP1P2
         (curveFromP3toP1P2,Ideal)
     Headline
-    	creates the ideal of a curve in P^1xP^2 from the ideal of a curve in P^3
+        creates the ideal of a curve in P^1xP^2 from the ideal of a curve in P^3
     Usage
         I = curveFromP3toP1P2(J)
     Inputs
@@ -301,18 +301,18 @@ doc ///
     Description
         Text
             Given an ideal J defining a curve C in $\mathbb{P}^3$, curveFromP3toP1P2 produces the ideal of the curve
-	    in $\mathbb{P}^1\times\mathbb{P}^2$ defined as follows:
+            in $\mathbb{P}^1\times\mathbb{P}^2$ defined as follows:
             consider the projections $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ from the point [0:0:0:1]
-	    and the line [0:0:s:t], respectively. The product of these defines a map from $\mathbb{P}^3$ to $\mathbb{P}^1\times\mathbb{P}^2$.
-	    The curve produced by curveFromP3toP1P2 is the image of the input curve under this map.
+            and the line [0:0:s:t], respectively. The product of these defines a map from $\mathbb{P}^3$ to $\mathbb{P}^1\times\mathbb{P}^2$.
+            The curve produced by curveFromP3toP1P2 is the image of the input curve under this map.
 
             This computation is done by first constructing the graph in $\mathbb{P}^3\times(\mathbb{P}^1x\mathbb{P}^2)$ of the product
-	    of the two projections $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ defined above.
-	    This graph is then intersected with $C\times(\mathbb{P}^1\times\mathbb{P}^2)$. A curve in $\mathbb{P}^1\times\mathbb{P}^2$ is then
+            of the two projections $\mathbb{P}^3\to\mathbb{P}^2$ and $\mathbb{P}^3\to\mathbb{P}^1$ defined above.
+            This graph is then intersected with $C\times(\mathbb{P}^1\times\mathbb{P}^2)$. A curve in $\mathbb{P}^1\times\mathbb{P}^2$ is then
             obtained from this by saturating and then eliminating.
 
             Note the curve in $\mathbb{P}^1\times\mathbb{P}^2$ will have degree and genus equal to the degree and genus of C as long as C
-	    does not intersect the base locus of the projection. If the option PreserveDegree is set to true, curveFromP3toP1P2 will check whether C
+            does not intersect the base locus of the projection. If the option PreserveDegree is set to true, curveFromP3toP1P2 will check whether C
             intersects the base locus. If it does, the function will return an error. If PreserveDegree is set to false, this check is not
             performed and the output curve in $\mathbb{P}^1\times\mathbb{P}^2$ may have degree and genus different from C.
         Example
@@ -465,8 +465,8 @@ doc ///
     Description
         Text
           Given an ideal, a module, or a free resolution, this function keeps only the summands in the minimal graded free resolution
-	  generated in degrees in L. If the list L contains only one element which is in the multigraded regularity of M plus the dimension vector,
-	  the output will be the virtual resolution of a pair as defined in Section 1 of [BES]. See Algorithm 3.4 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] for further details.
+          generated in degrees in L. If the list L contains only one element which is in the multigraded regularity of M plus the dimension vector,
+          the output will be the virtual resolution of a pair as defined in Section 1 of [BES]. See Algorithm 3.4 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] for further details.
 
           For example, consider the ideal of three points in $\mathbb{P}^1\times\mathbb{P}^1$.
         Example
