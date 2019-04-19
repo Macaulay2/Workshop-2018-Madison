@@ -457,20 +457,18 @@ doc ///
         M:Module
             module over multigraded ring
         C:ChainComplex
-            free resolution of our variety
+            free resolution of a module
         L:List
             multidegrees of summands to keep
     Outputs
         :ChainComplex
     Description
         Text
-          Given a ring and its free resolution, keeps only the summands in resolution of specified degrees L plus.
-          If the specified degrees are in the multigraded regularity plus the dimension vector of the product
-          of projective spaces then the output is a virtual resolution. See Algorithm 3.4 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] for further details.
+          Given an ideal, a module, or a free resolution, this function keeps only the summands in the minimal graded free resolution
+	  generated in degrees in L. If the list L contains only one element which is in the multigraded regularity of M plus the dimension vector,
+	  the output will be the virtual resolution of a pair as defined in Section 1 of [BES]. See Algorithm 3.4 of [BES,@{HREF("http://arxiv.org/abs/1703.07631","arXiv:1703.07631")}@] for further details.
 
-          If the list L contains only one element, the output will be the complex with summands generated in multidegree less than or equal to L.
-
-          For example we consider the ideal of three points in $\mathbb{P}^1\times\mathbb{P}^1$.
+          For example, consider the ideal of three points in $\mathbb{P}^1\times\mathbb{P}^1$.
         Example
           X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
           S = ring X; B = ideal X;
@@ -481,7 +479,7 @@ doc ///
                 B)
         Text
           We can now compute its minimal free resolution and a virtual resolution. One can show that $(2,0)$ is in the multigraded
-          regularity of this example. Thus, since we want to compute a virtual resolution we apply apply virtualOfPair to the element
+          regularity of this example. Thus, since we want to compute a virtual resolution we apply virtualOfPair to the element
           $(3,1)$ since $(3,1)=(2,0)+(1,1)$ and $(1,1)$ is the dimension vector for $\mathbb{P}^1\times\mathbb{P}^1$.
         Example
           minres = res J;
@@ -491,7 +489,7 @@ doc ///
         Example
           isVirtual(J,B,vres)
     Caveat
-        Given an element of the multigraded regularity you must add the dimension vector of the product of projective space
+        Given an element of the multigraded regularity, one must add the dimension vector of the product of projective spaces
         for this to return a virtual resolution.
 ///
 
