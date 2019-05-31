@@ -1,21 +1,13 @@
---*
---restart
---loadPackage("VirtualResolutions", Reload =>true)
---installPackage "VirtualResolutions"
---viewHelp "VirtualResolutions"
---check "VirtualResolutions"
---*-
 ---------------------------------------------------------------------------
--- PURPOSE : To create a virtual resolutions
---
+-- PURPOSE : Construct, display, and study virtual resolutions for products
+--           of projective spaces.
 --
 -- PROGRAMMERS : Ayah Almousa, Christine Berkesch, Juliette Bruce,
 -- David Eisenbud, Daniel Erman, Michael Loper, Mahrud Sayrafi,
 -- Greg Smith.
 --
---
--- UPDATE HISTORY #0 : created 14 April 2018; - M2@UW
--- UPDATE HISTORY #1 : major changes 15 April 2019; - IMA Code Sprint
+-- UPDATE HISTORY : created 14 April 2018 at M2@UW;
+--                  updated 15 April 2019 at IMA Coding Sprint.
 ---------------------------------------------------------------------------
 newPackage ("VirtualResolutions",
     Version => "1.0",
@@ -34,11 +26,9 @@ newPackage ("VirtualResolutions",
         "NormalToricVarieties",
         "Elimination",
         "SpaceCurves",
-        "Depth",
-        "Colon"
+        "Depth"
         },
-    DebuggingMode => true,
-    AuxiliaryFiles => false
+    AuxiliaryFiles => true
     )
 
 export{
@@ -51,15 +41,12 @@ export{
     "randomMonomialCurve",
     "randomCurveP1P2",
     "multigradedRegularity",
-    "multigraded", -- FIXME
-    "MultigradedBettiTally", -- FIXME
     -- Options
     "Attempt",
     "PreserveDegree",
     "GeneralElements"
     }
 
-debug Core
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 ----- CODE
@@ -77,17 +64,19 @@ debug Core
 ----- created. We hope this is eventually removed.
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-
+load("./VirtualResolutions/Colon.m2")
 ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 
 
-------------------------------------------------------------------
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 --Input: F a free chain complex on Cox (X), alphas a list of degrees
 --Output: A subcomplex of summands generated only in degrees in the list alphas.
 --Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
 --See Algorithm 3.4 of [BES]
-
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 virtualOfPair = method()
 virtualOfPair (Ideal,        List) := (I, alphas) -> virtualOfPair(res I, alphas)
 virtualOfPair (Module,       List) := (M, alphas) -> virtualOfPair(res M, alphas)
@@ -123,7 +112,8 @@ resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
     res intersect (Q, J)
     )
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 -- This method checks if a given complex is a virtual resolution by computing
 -- homology and checking whether its annihilator saturates to the whole ring.
 -- Input: Ideal I (or module) - what the virtual resolution resolves
@@ -132,8 +122,8 @@ resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
 -- Output: Boolean - true if complex is virtual resolution, false otherwise
 -- Note: the Determinatal strategy is based on Theorem 1.3 of [Loper2019].
 -- TODO: need to fix for modules; don't know how to saturate for modules
-
-
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 isVirtual = method(Options => {Strategy => null})
 isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (
     annHH0 := ideal(image(C.dd_1));
@@ -228,6 +218,8 @@ isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => opts -> (M, X
     isVirtual(M, ideal X, C)
     )
 
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 -- Input: ZZ n - size of subset of generators to check
 --       Ideal J - ideal of ring
 --       Ideal irr - irrelevant ideal
@@ -236,6 +228,8 @@ isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => opts -> (M, X
 --         If the option GeneralElements is set to true, then
 --         before outputting the subsets, the ideal generatered by the
 --         general elements is outputted
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 findGensUpToIrrelevance = method(Options => {GeneralElements => false})
 findGensUpToIrrelevance(ZZ, Ideal, Ideal) := List => opts -> (n, J, irr) -> (
     R := ring(J);
@@ -516,7 +510,7 @@ multigradedPolynomialRing = n -> (
 ----- Description: This computes the multigraded regularity of a
 ----- module as defined in Definition 1.1 of [Maclagan, Smith 2004].
 ----- It returns a list of the minimal elements.
------ Caveat: This assumes M is B-saturated already i.e. H^1_I(M)=0
+----- Caveat: This assumes M is B-saturated already i.e. H^0_B(M)=0
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 multigradedRegularity = method()
@@ -553,7 +547,7 @@ multigradedRegularity(Thing, Thing, Module) := List => (X, S, M) -> (
             if hilbertFunction(ell_0_0, M) != (map(QQ, ring H, ell_0_0))(H) then (
                 gt#(ell_0_0) = true;
                 );
-            -- Check that higher local cohomology vanishes (i.e., H^i_I(M) = 0 for i > 1)
+            -- Check that higher local cohomology vanishes (i.e., H^i_B(M) = 0 for i > 1)
             if ell_1 != 0 and ell_0_1 > 0 then (
                 gt#(ell_0_0) = true;
                 apply(n, j -> gt#(ell_0_0 + degree P_j) = true);
@@ -598,10 +592,9 @@ resolveTail(ChainComplex) := C ->(
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 
-load ("./multigradedBetti.m2") -- FIXME
-load ("./tests.m2")
+load ("./VirtualResolutions/tests.m2")
 beginDocumentation()
-load ("./doc.m2")
+load ("./VirtualResolutions/doc.m2")
 
 end--
 
@@ -612,12 +605,10 @@ end--
 --------------------------------------------------------------------
 
 restart
-uninstallPackage "Colon"
 uninstallPackage "VirtualResolutions"
 restart
-installPackage "Colon"
 installPackage "VirtualResolutions"
 restart
-needsPackage "VirtualResolutions"
+needsPackage("VirtualResolutions", FileName => "./VirtualResolutions.m2")
 elapsedTime check "VirtualResolutions"
 viewHelp "VirtualResolutions"

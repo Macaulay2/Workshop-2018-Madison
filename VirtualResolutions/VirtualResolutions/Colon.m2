@@ -1,3 +1,8 @@
+-- This file is intended to be turned into an independent package,
+-- at which point VirtualResolutions will simply include it as an
+-- exported package.
+
+-*
 newPackage(
         "Colon",
         Version => "0.1",
@@ -16,6 +21,7 @@ export {
     "saturationByGrevLex",
     "intersectionByElimination"
     }
+*-
 
 -- quotient methods:
 -- 1. syzygyies
@@ -169,6 +175,8 @@ saturationZero (Module,Ideal) := (M,B) ->(
 saturationZero (Ideal,Ideal) := (I,B) ->(
     saturationZero(comodule I,B)
     )
+
+end--
 
 beginDocumentation()
 
