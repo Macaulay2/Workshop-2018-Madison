@@ -77,17 +77,18 @@ ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 --See Algorithm 3.4 of [BES]
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-virtualOfPair = method()
-virtualOfPair (Ideal,        List) := (I, alphas) -> virtualOfPair((ring I)^1/I, alphas)
-virtualOfPair (Module,       List) := (M, alphas) -> (
+virtualOfPair = method(Options => {Strategy => null})
+virtualOfPair (Ideal,        List) := Boolean => opts -> (I, alphas) -> virtualOfPair((ring I)^1/I, alphas)
+virtualOfPair (Module,       List) := Boolean => opts -> (M, alphas) -> (
+    if opts.Strategy == null then return virtualOfPair(res M, alphas);
     if any(alphas, alpha -> #alpha =!= degreeLength ring M) then error "degree has wrong length";
-    m := presentation M; -- FIXME make sure this is the right matrix
+    m := presentation M;
     apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
     L := {m} | while m != 0 list (
 	m = syz m; apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m);
     chainComplex L
     )
-virtualOfPair (ChainComplex, List) := (F, alphas) -> (
+virtualOfPair (ChainComplex, List) := Boolean => opts -> (F, alphas) -> (
     if any(alphas, alpha -> #alpha =!= degreeLength ring F) then error "degree has wrong length";
     L := apply(length F, i -> (
             m := F.dd_(i+1); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m));

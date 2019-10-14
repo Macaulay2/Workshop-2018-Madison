@@ -191,9 +191,10 @@ TEST ///
             ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
             B);
     minres = res J;
-    vres = virtualOfPair(J,{{3,1}});
+    vres = virtualOfPair(minres,{{3,1}});
+    vres' = virtualOfPair(J,{{3,1}},Strategy=>"Syzygies");
     assert isVirtual(J,B,vres);
-    assert isVirtual(J,B,vres,Strategy=>"Determinantal");
+    assert isVirtual(J,B,vres',Strategy=>"Determinantal");
 ///
 
 -- Tests for multigradedRegularity

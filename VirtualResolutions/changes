@@ -2,9 +2,11 @@ Done:
 
 - export SpaceCurves before Polyhedra so Polyhedra$isSmooth is not shadowed
 - renamed findGensUpToIrrelevance → idealSheafGens
--
+- virtualOfPair gets a Strategy option
+- added documentation for virtualOfPair strategy
 
 
 TODO:
 - ask Mike why we need idealSheafGens and why does it output like that. Can we change it?
-- 
+- ask Mike and Christine about restating theorems?
+- benchmark virtualOfPair?

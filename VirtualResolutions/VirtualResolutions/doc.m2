@@ -493,6 +493,20 @@ doc ///
         for this to return a virtual resolution.
 ///
 
+doc ///
+    Key
+        [virtualOfPair, Strategy]
+    Headline
+        compute a virtual resolution using a syzygy by syzygy strategy
+    Description
+        Text
+            If Strategy is unspecified, virtualOfPair will compute a minimal free resolution before removing summands
+	    in specified degrees. This is often the fastest strategy because resolutions are efficiently computed in
+	    the engine. For larger cases, setting Strategy to "Syzygies" will compute a virtual resolution by iteratively
+	    computing syzygies and removing the desired degrees.
+    SeeAlso
+        virtualOfPair
+///
 
 doc ///
     Key
