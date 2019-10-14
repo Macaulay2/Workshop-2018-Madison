@@ -155,14 +155,14 @@ doc ///
 
 doc ///
     Key
-        findGensUpToIrrelevance
-        (findGensUpToIrrelevance,ZZ,Ideal,Ideal)
-        (findGensUpToIrrelevance,ZZ,Ideal,NormalToricVariety)
+        idealSheafGens
+        (idealSheafGens,ZZ,Ideal,Ideal)
+        (idealSheafGens,ZZ,Ideal,NormalToricVariety)
     Headline
         creates a list of subsets of the minimal generators that generate a given ideal up to saturation
     Usage
-        findGensUpToIrrelevance(n,I,irr)
-        findGensUpToIrrelevance(n,I,X)
+        idealSheafGens(n,I,irr)
+        idealSheafGens(n,I,X)
     Inputs
         I:Ideal
         n:ZZ
@@ -177,7 +177,7 @@ doc ///
             all subsets of size n of generators of I that generate I up to saturation with irr
     Description
         Text
-            Given an ideal I, integer n, and irrelevant ideal irr, findGensUpToIrrelevance searches through
+            Given an ideal I, integer n, and irrelevant ideal irr, idealSheafGens searches through
             all n-subsets of the generators of I. If a subset generates the same irr-saturated ideal as the
             irr-saturation of I, then that subset is added to a list. After running through all subsets, the list
             is returned.
@@ -185,7 +185,7 @@ doc ///
             R = ZZ/101[x_0,x_1,x_2,x_3,x_4,Degrees=>{2:{1,0},3:{0,1}}];
             B = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
             I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-            findGensUpToIrrelevance(2,I,B)
+            idealSheafGens(2,I,B)
     Caveat
         If no subset of generators generates the ideal up to saturation, then the empty list is returned.
 ///
@@ -193,18 +193,18 @@ doc ///
 doc ///
     Key
         GeneralElements
-        [findGensUpToIrrelevance, GeneralElements]
+        [idealSheafGens, GeneralElements]
     Headline
         combines generators of same degree into a general linear combination
     Description
         Text
-            If GeneralElements is set to true, findGensUpToIrrelevance will replace the given ideal with
+            If GeneralElements is set to true, idealSheafGens will replace the given ideal with
             an ideal where all generators of the same degree are combined into a general linear combination
-            of those generators, then run findGensUpToIrrelevance on the new ideal. The first element in the
+            of those generators, then run idealSheafGens on the new ideal. The first element in the
             output will be the new ideal, followed by the subsets of generators that will generate the original
             ideal up to saturation.
     SeeAlso
-        findGensUpToIrrelevance
+        idealSheafGens
 ///
 
 doc ///

@@ -132,20 +132,7 @@ TEST ///
     assert(isVirtual(I,irr,r) == true)
 ///
 
-TEST ///
-    X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
-    S = ring X; B = ideal X;
-    J = saturate(intersect(
-            ideal(x_1 - 1*x_0, x_3 - 4*x_2),
-            ideal(x_1 - 2*x_0, x_3 - 5*x_2),
-            ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
-            B);
-    minres = res J;
-    vres = virtualOfPair(J,{{3,1}});
-    assert isVirtual(J,B,vres,Strategy=>"Determinantal")
-///
-
------ Tests for findGensUpToIrrelevance
+----- Tests for idealSheafGens
 TEST ///
     debug needsPackage "VirtualResolutions"
     S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
@@ -153,14 +140,14 @@ TEST ///
     I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
     J = ourSaturation(I,irr);
     lst = {{0,1}};
-    assert(findGensUpToIrrelevance(2,J,irr) == lst)
+    assert(idealSheafGens(2,J,irr) == lst)
 ///
 
 TEST ///
     S = ZZ/32003[x_0,x_1,y_0,y_1, Degrees=>{2:{1,0},2:{0,1}}];
     irr = intersect(ideal(x_0,x_1),ideal(y_0,y_1));
     I = intersect(ideal(x_0,y_0),ideal(x_1,y_1));
-    output = findGensUpToIrrelevance(2,I,irr,GeneralElements=>true);
+    output = idealSheafGens(2,I,irr,GeneralElements=>true);
     assert(length(output) == 3 and output_1 == {0,1} and output_2 == {1,2})
 ///
 
@@ -170,7 +157,7 @@ TEST ///
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
     I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
     J = ourSaturation(I,irr);
-    output = findGensUpToIrrelevance(2,J,irr,GeneralElements=>true);
+    output = idealSheafGens(2,J,irr,GeneralElements=>true);
     assert(length(output) == 2 and output_1 == {0,1})
 ///
 
@@ -194,7 +181,7 @@ TEST ///
     assert isVirtual(I, irr, resolveViaFatPoint (I, irr, {3,3,0}))
 ///
 
--- Test for multiWinnow
+-- Test for virtualOfPair
 TEST ///
     X = toricProjectiveSpace(1)**toricProjectiveSpace(1);
     S = ring X; B = ideal X;
@@ -205,7 +192,8 @@ TEST ///
             B);
     minres = res J;
     vres = virtualOfPair(J,{{3,1}});
-    assert isVirtual(J,B,vres)
+    assert isVirtual(J,B,vres);
+    assert isVirtual(J,B,vres,Strategy=>"Determinantal");
 ///
 
 -- Tests for multigradedRegularity

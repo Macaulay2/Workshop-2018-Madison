@@ -1,0 +1,202 @@
+technical comments on
+
+THE VIRTUAL RESOLUTIONS PACKAGE FOR MACAULAY2
+
+by
+
+AYAH ALMOUSA, JULIETTE BRUCE, MICHAEL C. LOPER, AND MAHRUD SAYRAFI
+
+version v2
+
+=============================================================================
+
+comments on the code
+
+
+The subdirectory structure of the zip file is wrong:
+
+    $ ls -Rl VirtualResolutions
+    total 168
+    -rw-r--r--@ 1 dan  staff  12359 Apr 19 10:46 Colon.m2
+    -rw-r--r--@ 1 dan  staff  27366 May 16 16:29 VirtualResolutions.m2
+    -rw-r--r--@ 1 dan  staff  25092 May 16 16:29 doc.m2
+    -rw-r--r--@ 1 dan  staff   2174 Apr 16 16:02 multigradedBetti.m2
+    -rw-r--r--@ 1 dan  staff   8007 May 16 16:29 tests.m2
+
+The auxiliary files should be in a subdirectory called VirtualResolutions and
+instead of
+
+	AuxiliaryFiles => false
+
+use
+
+	AuxiliaryFiles => true
+
+
+
+The code should be made to work with the most recent version of M2, which is
+1.14.  It works with 1.13 currently, it install, and the tests succeed.  I hope
+this involves removing this line:
+
+    "MultigradedBettiTally", -- FIXME
+
+and this file:
+
+    multigradedBetti.m2
+
+
+
+
+The source file includes a package called "Colon", which needs to be installed
+first, but no mention of this is made in the article or the documentation.
+Do you want it refereed, too, and regarded as part of the subject of the
+article?  If so, provide some justification.  Even if not, it might be good to
+mention the use of it.
+
+
+
+The function
+
+    findGensUpToIrrelevance -- creates a list of subsets of the minimal generators that generate a given ideal up to saturation
+
+is an annoyingly long name.  The real problem is that you want to consider a
+coherent sheaf of ideals on X, and find "generators" for it.  If you had a new
+"type" for such things, called "SheafOfIdeals", you could just name this
+"findGens".  That's probably too much work, but it might be worth a comment in
+the code.
+
+
+
+The warning
+
+	Caveat
+	If no subset of generators generates the ideal up to saturation, then the empty list is returned.
+
+seems, to me, to ber overkill, because the description above it precise.
+
+
+
+"checks whether" sounds beter always than "checks if"
+
+
+
+First we read
+
+       isVirtual returns true if C is a virtual resolution of I. If not, it returns false.
+
+Then we read
+
+       isVirtual may return true for a proposed virtual resolution despite the chain complex not being a virtual resolution
+
+in a "Caveat" section.  That's an internal contradiction.  Avoid such
+contradictions by adding precision, or by fixing the code.  Explain why there
+is no algorithm that is reliable, if that's true.
+
+
+
+In
+
+	This method also accepts the ring provided by productOfProjectiveSpaces from TateOnProduct package.
+
+the identifiers should be links to the corresponding documentation.
+
+
+
+
+
+
+=============================================================================
+
+comments on the article
+
+
+This comment 
+
+	  a virtual resolution is a homological representation of a finitely generated graded module over the Cox ring of a smooth projective toric variety.
+
+would be more helpful if anyone knew what a "homological representation" is.
+Maybe say something like
+
+	  a virtual resolution is a complex of finitely generated graded
+	  modules over the Cox ring of a smooth projective toric variety that
+	  becomes exact upon passing to the corresponding coherent sheaves.
+
+
+
+"to check whether" always sounds better to me than "to check if".  Look for
+similar things.
+
+
+Set "Macaulay2" in italic, always.
+
+
+
+In "is supported on B" one should replace B by the subvariety it defines, for
+it to make sense.
+
+
+Change "set-up" to "setup"
+
+
+Sentences should all be complete.  E.g., change
+
+	  One can show the Z2-graded minimal free resolution of S/J is
+
+to
+
+	  One can show the Z2-graded minimal free resolution of S/J is the
+	  following complex.
+
+Here also:
+
+		the universal property of fibre products gives the diagram
+
+Look for other examples.
+
+By the way, the diagram is overkill: a pair of rational maps from P^3 clearly
+gives a rational map to the product of the targets.  Also, citing the universal
+property of fibre products isn't enough, since the maps are not morphisms.
+Also, calling them "fibre products" instead of "products" is overkill.
+
+
+In
+
+	  given projections π1 : P3 → P1 and π2 : P3 → P2
+
+it would be better if the arrows were dotted or dashed, since they aren't
+morphisms.
+
+
+Change "bi-degree" to "bidegree"
+
+
+=============================================================================
+
+comments on the documentation
+
+
+
+change
+
+	 if X is a smooth toric variety, S the Cox ring of X graded by the Picard group of X, and B⊂S the irrelevant ideal of X,
+
+to
+
+	 if X is a smooth toric variety, S is the Cox ring of X graded by the
+	 Picard group of X, and B⊂S is the irrelevant ideal of X,
+
+to add the missing verbs
+
+
+Change Attempts to Attempt in
+
+      The option Attempts limits the number
+
+
+
+
+
+=============================================================================
+
+
+

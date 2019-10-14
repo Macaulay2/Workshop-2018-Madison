@@ -22,10 +22,10 @@ newPackage ("VirtualResolutions",
         {Name => "Mahrud Sayrafi",     Email => "mahrud@umn.edu",      HomePage => "http://math.umn.edu/~mahrud/"}
         },
     PackageExports => {
+        "SpaceCurves",
         "TateOnProducts",
         "NormalToricVarieties",
         "Elimination",
-        "SpaceCurves",
         "Depth"
         },
     AuxiliaryFiles => true
@@ -33,7 +33,7 @@ newPackage ("VirtualResolutions",
 
 export{
     "curveFromP3toP1P2",
-    "findGensUpToIrrelevance",
+    "idealSheafGens",
     "isVirtual",
     "virtualOfPair",
     "resolveViaFatPoint",
@@ -70,7 +70,7 @@ ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
---Input: F a free chain complex on Cox (X), alphas a list of degrees
+--Input: F a free chain complex on Cox(X), alphas a list of degrees
 --Output: A subcomplex of summands generated only in degrees in the list alphas.
 --Given a ring and its free resolution, keeps only the summands in resolution of specified degrees
 --If the list alphas contains only one element, the output will be summands generated in degree less than or equal to alpha.
@@ -78,8 +78,15 @@ ourSaturation = (I,irr) -> saturationByElimination(I,irr)
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 virtualOfPair = method()
-virtualOfPair (Ideal,        List) := (I, alphas) -> virtualOfPair(res I, alphas)
-virtualOfPair (Module,       List) := (M, alphas) -> virtualOfPair(res M, alphas)
+virtualOfPair (Ideal,        List) := (I, alphas) -> virtualOfPair((ring I)^1/I, alphas)
+virtualOfPair (Module,       List) := (M, alphas) -> (
+    if any(alphas, alpha -> #alpha =!= degreeLength ring M) then error "degree has wrong length";
+    m := presentation M; -- FIXME make sure this is the right matrix
+    apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
+    L := {m} | while m != 0 list (
+	m = syz m; apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m);
+    chainComplex L
+    )
 virtualOfPair (ChainComplex, List) := (F, alphas) -> (
     if any(alphas, alpha -> #alpha =!= degreeLength ring F) then error "degree has wrong length";
     L := apply(length F, i -> (
@@ -230,8 +237,8 @@ isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => opts -> (M, X
 --         general elements is outputted
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-findGensUpToIrrelevance = method(Options => {GeneralElements => false})
-findGensUpToIrrelevance(ZZ, Ideal, Ideal) := List => opts -> (n, J, irr) -> (
+idealSheafGens = method(Options => {GeneralElements => false})
+idealSheafGens(ZZ, Ideal, Ideal) := List => opts -> (n, J, irr) -> (
     R := ring(J);
     k := coefficientRing(R);
     Jsat := ourSaturation(J,irr);
@@ -258,11 +265,9 @@ findGensUpToIrrelevance(ZZ, Ideal, Ideal) := List => opts -> (n, J, irr) -> (
         );
     output
     )
-
-findGensUpToIrrelevance(ZZ, Ideal, NormalToricVariety) := List => opts -> (n, J, X) -> (
-    findGensUpToIrrelevance(n, J, ideal X)
+idealSheafGens(ZZ, Ideal, NormalToricVariety) := List => opts -> (n, J, X) -> (
+    idealSheafGens(n, J, ideal X)
     )
-
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------

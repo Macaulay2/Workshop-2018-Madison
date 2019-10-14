@@ -1,0 +1,10 @@
+Done:
+
+- export SpaceCurves before Polyhedra so Polyhedra$isSmooth is not shadowed
+- renamed findGensUpToIrrelevance → idealSheafGens
+-
+
+
+TODO:
+- ask Mike why we need idealSheafGens and why does it output like that. Can we change it?
+- 
