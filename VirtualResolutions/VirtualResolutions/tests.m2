@@ -81,7 +81,7 @@ TEST ///
         {x_0, -x_1, 0},
         {0, x_0, x_1}});
     C = chainComplex({d1,d2});
-    assert(isVirtual(I,irr,C) == true)
+    assert(isVirtual(irr,C) == true)
 ///
 
 TEST ///
@@ -92,7 +92,7 @@ TEST ///
         x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
         x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
     C = chainComplex({d1});
-    assert(isVirtual(I,irr,C) == false)
+    assert(isVirtual(irr,C) == false)
 ///
 
 TEST ///
@@ -103,25 +103,7 @@ TEST ///
         x_0*x_1*x_2^3+x_0*x_1*x_2^2*x_3-x_0^2*x_3^2*x_4+x_1^2*x_2*x_4^2+x_1^2*x_3*x_4^2,
         x_1^2*x_2^3+x_1^2*x_2^2*x_3-x_0*x_1*x_3^2*x_4-x_0^2*x_4^3}};
     C = chainComplex({d1});
-    assert(isVirtual(I,irr,C) == false)
-///
-
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
-    C = chainComplex({d1});
-    assert(isVirtual(I,irr,C) == false)
-///
-
-TEST ///
-    S = ZZ/32003[x_0,x_1,x_2,x_3,x_4, Degrees=>{2:{1,0},3:{0,1}}];
-    irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
-    I = ideal(x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2, x_0^3*x_4+x_1^3*(x_2+x_3));
-    d1 = matrix{{x_0^2*x_2^2+x_1^2*x_3^2+x_0*x_1*x_4^2}};
-    C = chainComplex({d1});
-    assert(isVirtual(I,irr,C) == false)
+    assert(isVirtual(irr,C) == false)
 ///
 
 TEST ///
@@ -129,7 +111,7 @@ TEST ///
     irr = intersect(ideal(x_0,x_1),ideal(x_2,x_3,x_4));
     I = ideal(random({1,2},S),random({3,1},S),random({2,2},S));
     r = res I;
-    assert(isVirtual(I,irr,r) == true)
+    assert(isVirtual(irr,r) == true)
 ///
 
 ----- Tests for idealSheafGens
@@ -177,8 +159,8 @@ TEST ///
         R := sum for n to N#2 - 1 list ideal random({0,0,1}, S);
         P + Q + R
         )
-    assert isVirtual(I, irr, resolveViaFatPoint (I, irr, {2,1,0}))
-    assert isVirtual(I, irr, resolveViaFatPoint (I, irr, {3,3,0}))
+    assert isVirtual(irr, resolveViaFatPoint (I, irr, {2,1,0}))
+    assert isVirtual(irr, resolveViaFatPoint (I, irr, {3,3,0}))
 ///
 
 -- Test for virtualOfPair
@@ -193,8 +175,8 @@ TEST ///
     minres = res J;
     vres = virtualOfPair(minres,{{3,1}});
     vres' = virtualOfPair(J,{{3,1}},Strategy=>"Syzygies");
-    assert isVirtual(J,B,vres);
-    assert isVirtual(J,B,vres',Strategy=>"Determinantal");
+    assert isVirtual(B,vres);
+    assert isVirtual(B,vres',Strategy=>"Determinantal");
 ///
 
 -- Tests for multigradedRegularity
