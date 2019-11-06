@@ -4,6 +4,7 @@ Done:
 - renamed findGensUpToIrrelevance → idealSheafGens
 - virtualOfPair gets a Strategy option
 - added documentation for virtualOfPair strategy
+- fixed virtualOfPair (only checks if chain complex is a virtual resolution now not of what)
 
 
 TODO:
