@@ -522,7 +522,7 @@ doc ///
           minimal elements of the multigraded Castelnuovo-Mumford regularity of M as defined in Definition 1.1
           of [MS04] (see @{HREF("http://arxiv.org/abs/math/0305214","arXiv:math/0305214")}@). If the input is an ideal, multigraded regularity of S^1/I is computed.
 
-          This is done by calling the cohomologyHashTable method from TateOnProducts and checking for the
+          This is done by calling the @TO cohomologyHashTable@ method from @TO TateOnProducts@ and checking for the
           multidegrees where Hilbert polynomial and Hilbert function match and where the higher sheaf cohomology
           vanishes.
 
@@ -541,7 +541,7 @@ doc ///
           L = multigradedRegularity(X, J)
 
         Text
-          This method also accepts the ring provided by productOfProjectiveSpaces from TateOnProduct package.
+          This method also accepts the ring provided by @TO productOfProjectiveSpaces@ from the @TO TateOnProducts@ package.
     Caveat
         The input is assumed to be saturated.
 ///
