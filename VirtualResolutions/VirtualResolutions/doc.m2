@@ -78,7 +78,7 @@ doc ///
         (isVirtual,Ideal,ChainComplex)
         (isVirtual,NormalToricVariety,ChainComplex)
     Headline
-        checks if a chain complex is a virtual resolution
+        checks whether a chain complex is a virtual resolution
     Usage
         isVirtual(irr,C)
         isVirtual(X,C)
@@ -88,7 +88,7 @@ doc ///
         X:NormalToricVariety
             normal toric variety
         C:ChainComplex
-            chain complex we want to check is a virtual resolution
+            chain complex we want to check if is a virtual resolution
     Outputs
         :Boolean
             true if C is a virtual resolution of I
@@ -105,7 +105,7 @@ doc ///
           isVirtual(ideal(s,t),res ideal(t))
         Text
           Continuing our running example of three points $([1:1],[1:4])$, $([1:2],[1:5])$, and $([1:3],[1:6])$
-          in $\mathbb{P}^1 \times \mathbb{P}^1$, we can check that the virtual complex we compute below and
+          in $\mathbb{P}^1 \times \mathbb{P}^1$, we can check whether the virtual complex we compute below and
           in other places is in fact virtual.
         Example
           Y = toricProjectiveSpace(1)**toricProjectiveSpace(1);
