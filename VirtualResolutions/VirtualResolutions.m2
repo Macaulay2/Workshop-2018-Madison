@@ -124,23 +124,14 @@ resolveViaFatPoint(Ideal, Ideal, List) := ChainComplex => (J, irr, A) -> (
 --------------------------------------------------------------------
 -- This method checks if a given complex is a virtual resolution by computing
 -- homology and checking whether its annihilator saturates to the whole ring.
--- Input: Ideal I (or module) - what the virtual resolution resolves
---       Ideal irr - the irrelevant ideal of the ring
+-- Input: Ideal irr - the irrelevant ideal of the ring
 --       Chain Complex C - proposed virtual resolution
 -- Output: Boolean - true if complex is virtual resolution, false otherwise
 -- Note: the Determinatal strategy is based on Theorem 1.3 of [Loper2019].
--- TODO: need to fix for modules; don't know how to saturate for modules
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 isVirtual = method(Options => {Strategy => null})
-isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (
-    annHH0 := ideal(image(C.dd_1));
-    Isat := ourSaturation(I,irr);
-    annHH0sat := ourSaturation(annHH0,irr);
-    if not(Isat == annHH0sat) then (
-        if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
-        return false;
-        );
+isVirtual (Ideal, ChainComplex) := Boolean => opts -> (irr, C) -> (
 -- if strategy "determinantal is selected, the method checks virtuality
 -- via the depth criterion on the saturated ideals of minors
     if opts.Strategy === "Determinantal" then (
@@ -164,8 +155,8 @@ isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (
 -- supported on irrelevant ideal
     for i from 1 to length(C) do (
         annHHi := ann HH_i(C);
-        if annHHi != ideal(sub(1,ring I)) then (
-            if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring I)) then (
+        if annHHi != ideal(sub(1,ring C)) then (
+            if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring C)) then (
                 if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
                 return false;
                 );
@@ -174,56 +165,10 @@ isVirtual (Ideal, Ideal, ChainComplex) := Boolean => opts -> (I, irr, C) -> (
     true
     )
 
-isVirtual (Module, Ideal, ChainComplex) := Boolean => opts -> (M, irr,C) -> (
-    annM := ann(M);
-    annHH0 := ann(HH_0(C));
-    annMsat := ourSaturation(annM,irr);
-    annHH0sat := ourSaturation(annHH0,irr);
-    if not(annMsat == annHH0sat) then (
-        if debugLevel >= 1 then print "isVirtual failed at homological degree 0";
-        return false;
-        );
--- if strategy "determinantal is selected, the method checks virtuality
--- via the depth criterion on the saturated ideals of minors
-    if opts.Strategy === "Determinantal" then (
-        for i from 1 to length(C) do (
-            if rank(source(C.dd_i)) != (rank(C.dd_i) + rank(C.dd_(i+1))) then (
-                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-                return false;
-                );
-            );
-        for i from 1 to length(C) do (
-            minor := minors(rank(C.dd_i),C.dd_i);
-            minorSat := ourSaturation(minor,irr);
-            if depth(minorSat,ring(minorSat)) < i then (
-                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-                return false;
-            );
-        );
-    true
-    );
--- default strategy is calculating homology and checking homology is
--- supported on irrelevant ideal
-    for i from 1 to length(C) do (
-        annHHi := ann HH_i(C);
-        if annHHi != ideal(sub(1,ring M)) then (
-            if annHHi == 0 or ourSaturation(annHHi,irr) != ideal(sub(1,ring irr)) then (
-                if debugLevel >= 1 then print "isVirtual failed at homological degree " | toString i;
-                return false;
-                );
-            );
-        );
-    true
-    )
 
-isVirtual (Ideal, NormalToricVariety, ChainComplex) := Boolean => opts -> (I, X, C) -> (
-    if ring I != ring X then error "ideal is not in Cox ring of normal toric variety";
-    isVirtual(I, ideal X, C)
-    )
-
-isVirtual (Module, NormalToricVariety, ChainComplex) := Boolean => opts -> (M, X, C) -> (
-    if ring M != ring X then error "module is not in Cox ring of normal toric variety";
-    isVirtual(M, ideal X, C)
+isVirtual (NormalToricVariety, ChainComplex) := Boolean => opts -> (X, C) -> (
+    if ring C != ring X then error "chain complex is not in Cox ring of normal toric variety";
+    isVirtual(ideal X, C)
     )
 
 --------------------------------------------------------------------
