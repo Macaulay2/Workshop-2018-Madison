@@ -32,6 +32,18 @@ TEST ///
 ///
 
 TEST ///
+    R = ZZ/101[w_0,w_1,w_2,w_3];
+    C = ideal(w_0*w_2-w_1^2, w_1*w_3-w_2^2, w_0*w_3-w_1*w_2);
+    assert (dim curveFromP3toP1P2(C) == 3)
+///
+
+TEST ///
+    R = ZZ/101[x_0,x_1,x_2,x_3];
+    C = ideal(x_0*x_2-x_1^2, x_1*x_3-x_2^2, x_0*x_3-x_1*x_2);
+    assert (dim curveFromP3toP1P2(C) == 3)
+///
+
+TEST ///
     R = ZZ/101[z_0,z_1,z_2,z_3];
     C = ideal(z_0*z_2-z_1^2, z_1*z_3-z_2^2, z_0*z_3-z_1*z_2);
     assert (dim curveFromP3toP1P2(C,PreserveDegree=>false) == 3)

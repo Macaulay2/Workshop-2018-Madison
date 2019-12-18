@@ -327,8 +327,10 @@ randomMonomialCurve (ZZ,ZZ) := (d,e)->(
 curveFromP3toP1P2 = method(Options => {PreserveDegree => true})
 curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     --- Defines P3
-    R := ring J;
+    w := getSymbol "w";
+    R := (coefficientRing ring J) monoid([w_0,w_1,w_2,w_3]);
     rVars := flatten entries vars R;
+    J1 := sub(J,matrix{{R_0,R_1,R_2,R_3}});
     --- Base locus of projection
     BL1 := ideal(rVars#0,rVars#1);
     BL2 := ideal(rVars#1,rVars#2,rVars#3);
