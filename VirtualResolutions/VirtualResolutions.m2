@@ -53,6 +53,7 @@ export{
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 
+debug Core;
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
@@ -78,15 +79,16 @@ ourSaturation = (I,irr) -> saturationByElimination(I, decompose irr);
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 virtualOfPair = method(Options => {Strategy => null})
-virtualOfPair (Ideal,  List) := Boolean => opts -> (I, alphas) -> virtualOfPair((ring I)^1/I, alphas)
+virtualOfPair (Ideal,  List) := Boolean => opts -> (I, alphas) -> virtualOfPair((ring I)^1/I, alphas, opts) -- TODO: add opts everywhere
 virtualOfPair (Module, List) := Boolean => opts -> (M, alphas) -> (
-    if opts.Strategy == null then return virtualOfPair(res M, alphas);
-    if opts.Strategy == UseSyzygies then (
+    R := ring M;
+    if opts.Strategy === null then return virtualOfPair(res M, alphas);
+    if opts.Strategy === UseSyzygies then (
 	if any(alphas, alpha -> #alpha =!= degreeLength ring M) then error "degree has wrong length";
-	m := presentation M;
+	m := schreyerOrder gens gb presentation M;
 	apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
 	L := {m} | while m != 0 list (
-	    m = syz m; apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m);
+	    m = map(R, rawKernelOfGB raw m); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m);
 	chainComplex L
 	)
     )
@@ -330,7 +332,7 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     w := getSymbol "w";
     R := (coefficientRing ring J) monoid([w_0,w_1,w_2,w_3]);
     rVars := flatten entries vars R;
-    J1 := sub(J,matrix{{R_0,R_1,R_2,R_3}});
+    J = sub(J,matrix{{R_0,R_1,R_2,R_3}});
     --- Base locus of projection
     BL1 := ideal(rVars#0,rVars#1);
     BL2 := ideal(rVars#1,rVars#2,rVars#3);
