@@ -1,3 +1,8 @@
+undocumented {
+    (multigradedRegularity, Thing, Ideal),
+    (multigradedRegularity, Thing, Thing, Module)
+    }
+
 doc ///
   Key
     VirtualResolutions
