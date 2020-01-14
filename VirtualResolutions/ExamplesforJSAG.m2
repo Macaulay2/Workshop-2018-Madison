@@ -59,7 +59,8 @@ J = saturate(I,B);
 multigradedRegularity(S, S^1/J)
 
 minres = res J;
-vres = virtualOfPair(S,minres,{{3,5}});
+elapsedTime vres = virtualOfPair(res J,{{3,5}});
+elapsedTime vres = virtualOfPair(J,{{3,5}});
 
 multigraded betti minres
 multigraded betti vres

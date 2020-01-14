@@ -28,7 +28,8 @@ newPackage ("VirtualResolutions",
         "Elimination",
         "Depth"
         },
-    AuxiliaryFiles => true
+    AuxiliaryFiles => true,
+    DebuggingMode => false
     )
 
 export{
@@ -78,19 +79,19 @@ ourSaturation = (I,irr) -> saturationByElimination(I, decompose irr);
 --See Algorithm 3.4 of [BES]
 --------------------------------------------------------------------
 --------------------------------------------------------------------
-virtualOfPair = method(Options => {Strategy => null})
+virtualOfPair = method(Options => {LengthLimit => infinity})
 virtualOfPair (Ideal,  List) := Boolean => opts -> (I, alphas) -> virtualOfPair((ring I)^1/I, alphas, opts) -- TODO: add opts everywhere
 virtualOfPair (Module, List) := Boolean => opts -> (M, alphas) -> (
     R := ring M;
-    if opts.Strategy === null then return virtualOfPair(res M, alphas);
-    if opts.Strategy === UseSyzygies then (
-	if any(alphas, alpha -> #alpha =!= degreeLength ring M) then error "degree has wrong length";
-	m := schreyerOrder gens gb presentation M;
-	apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
-	L := {m} | while m != 0 list (
-	    m = map(R, rawKernelOfGB raw m); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m);
-	chainComplex L
-	)
+    if M.cache.?resolution then return virtualOfPair(M.cache.resolution, alphas, opts);
+    if any(alphas, alpha -> #alpha =!= degreeLength ring M) then error "degree has wrong length";
+    m := schreyerOrder gens gb presentation M;
+    apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha)));
+    i := 2;
+    L := {m} | while m != 0 and i <= opts.LengthLimit list (
+	i = i + 1;
+	m = map(R, rawKernelOfGB raw m); apply(alphas, alpha -> m = submatrixByDegrees(m, (,alpha), (,alpha))); m);
+    chainComplex L
     )
 virtualOfPair (ChainComplex, List) := Boolean => opts -> (F, alphas) -> (
     if any(alphas, alpha -> #alpha =!= degreeLength ring F) then error "degree has wrong length";

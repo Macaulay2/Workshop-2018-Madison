@@ -185,9 +185,8 @@ TEST ///
             ideal(x_1 - 2*x_0, x_3 - 5*x_2),
             ideal(x_1 - 3*x_0, x_3 - 6*x_2)),
             B);
-    minres = res J;
-    vres = virtualOfPair(minres,{{3,1}});
-    vres' = virtualOfPair(J,{{3,1}},Strategy=>UseSyzygies);
+    elapsedTime vres = virtualOfPair(res(J, LengthLimit => 2), {{3,1}});
+    elapsedTime vres' = virtualOfPair(J, {{3,1}}, LengthLimit => 2);
     assert isVirtual(B,vres);
     assert isVirtual(B,vres',Strategy=>"Determinantal");
 ///
