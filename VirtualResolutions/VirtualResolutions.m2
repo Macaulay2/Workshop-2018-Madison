@@ -10,8 +10,8 @@
 --                  updated 15 April 2019 at IMA Coding Sprint.
 ---------------------------------------------------------------------------
 newPackage ("VirtualResolutions",
-    Version => "1.1",
-    Date => "November 13, 2018",
+    Version => "1.2",
+    Date => "February 2, 2020",
     Headline => "Methods for virtual resolutions on products of projective spaces",
     Authors =>{
         {Name => "Ayah Almousa",       Email => "aka66@cornell.edu",   HomePage => "http://pi.math.cornell.edu/~aalmousa "},
