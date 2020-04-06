@@ -22,9 +22,9 @@ multigradedRegularity(X, S^1/J)
 vres = virtualOfPair(J,{{3,1}}) --(3,1) = (2,0) + (1,1)
 multigraded betti vres
 
-isVirtual(J,B,vres)
+isVirtual(B,vres)
 
-isVirtual(J,B,vres,Strategy => Determinantal)
+isVirtual(B,vres,Strategy => Determinantal)
 
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
@@ -32,6 +32,7 @@ isVirtual(J,B,vres,Strategy => Determinantal)
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 C = resolveViaFatPoint(J,B,{2,0})
+multigraded betti C
 isVirtual(J,B,C)
 
 ----------------------------------------------------------------------------------
