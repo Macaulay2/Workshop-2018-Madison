@@ -80,7 +80,7 @@ ourSaturation = (I,irr) -> saturationByElimination(I, decompose irr);
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 virtualOfPair = method(Options => {LengthLimit => infinity})
-virtualOfPair (Ideal,  List) := Boolean => opts -> (I, alphas) -> virtualOfPair((ring I)^1/I, alphas, opts) -- TODO: add opts everywhere
+virtualOfPair (Ideal,  List) := Boolean => opts -> (I, alphas) -> virtualOfPair(comodule I, alphas, opts)
 virtualOfPair (Module, List) := Boolean => opts -> (M, alphas) -> (
     R := ring M;
     if M.cache.?resolution then return virtualOfPair(M.cache.resolution, alphas, opts);
