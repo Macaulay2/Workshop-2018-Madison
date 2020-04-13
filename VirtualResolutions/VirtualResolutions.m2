@@ -299,7 +299,7 @@ randomMonomialCurve (ZZ,ZZ,Ring) := (d,e,F)->(
     M2 := matrix {{(uVars#0)^e,(uVars#1)^e,f},{uVars#4,uVars#5,uVars#6}};
     J := minors(2,M1)+minors(2,M2);
     --- Computes saturation and then eliminates producing curve in P1xP2
-    J' := saturate(J,ideal(uVars#0,uVars#1),MinimalGenerators=>false);
+    J' := ourSaturation(J,ideal(uVars#0,uVars#1));
     I := sub(eliminate({uVars#0,uVars#1},J'),S);
     (T, E) := productOfProjectiveSpaces({1, 2},CoefficientField=>F);
     G := map(T,S,(flatten entries vars T));
@@ -341,7 +341,7 @@ curveFromP3toP1P2 (Ideal) := opts -> (J) ->(
     --- If PreserveDegree => true checks whether curve intersects base locus;
     --- this ensures the curve has the correct degree and genus.
     if opts.PreserveDegree == true then (
-        if (saturate((J+BL1))==ideal(rVars)) or (saturate((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
+        if (ourSaturation((J+BL1))==ideal(rVars)) or (ourSaturation((J+BL2))==ideal(rVars)) then error "Given curve intersects places of projection.";
         );
     --- Defines P1xP2
     x := getSymbol "x";
@@ -398,12 +398,12 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := opts -> (d,g,F)->(
     apply(opts.Attempt,i->(
             C = curve(d,g,R);
             if class(C) === Curve then C = ideal(C);
-            if (saturate(C+BL1)!=ideal(rVars)) and (saturate(C+BL2)!=ideal(rVars)) then break C;
+            if (ourSaturation(C+BL1)!=ideal(rVars)) and (ourSaturation(C+BL2)!=ideal(rVars)) then break C;
             )
         );
     --- Checks whether curve in P3 intersects base locus of projection;
     --- this ensures the curve has the correct degree and genus.
-    if (saturate(C+BL1)==ideal(rVars)) or (saturate(C+BL2)==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
+    if (ourSaturation(C+BL1)==ideal(rVars)) or (ourSaturation(C+BL2)==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
     --- Defines P1xP2
     curveFromP3toP1P2(C)
     )
