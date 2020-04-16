@@ -342,7 +342,7 @@ curveFromP3toP1P2 (Ideal) := Ideal => opts -> (J) -> (
     --- If PreserveDegree => true checks whether curve intersects base locus;
     --- this ensures the curve has the correct degree and genus.
     if opts.PreserveDegree == true then (
-        if (ourSaturation(J+BL1,ideal(rVars)))==ideal(rVars)) or (ourSaturation(J+BL2,ideal(rVars)))==ideal(rVars)) then error "Given curve intersects places of projection.";
+        if (ourSaturation(J+BL1,ideal(rVars))==ideal(rVars) or ourSaturation(J+BL2,ideal(rVars))==ideal(rVars)) then error "Given curve intersects places of projection.";
         );
     --- Defines P1xP2
     x := getSymbol "x";
@@ -399,12 +399,12 @@ randomCurveP1P2 (ZZ,ZZ,Ring) := Ideal => opts -> (d,g,F) -> (
     apply(opts.Attempt,i->(
             C = curve(d,g,R);
             if class(C) === Curve then C = ideal(C);
-            if (ourSaturation(C+BL1,ideal(rVars)))!=ideal(rVars)) and (ourSaturation(C+BL2,ideal(rVars)))!=ideal(rVars)) then break C;
+            if (ourSaturation(C+BL1,ideal(rVars))!=ideal(rVars) and ourSaturation(C+BL2,ideal(rVars))!=ideal(rVars)) then break C;
             )
         );
     --- Checks whether curve in P3 intersects base locus of projection;
     --- this ensures the curve has the correct degree and genus.
-    if (ourSaturation(C+BL1,ideal(rVars)))==ideal(rVars)) or (ourSaturation(C+BL2,ideal(rVars)))==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
+    if (ourSaturation(C+BL1,ideal(rVars))==ideal(rVars) or ourSaturation(C+BL2,ideal(rVars))==ideal(rVars)) then error "Unable to find curve not intersecting places of projection.";
     --- Defines P1xP2
     curveFromP3toP1P2(C)
     )
