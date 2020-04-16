@@ -459,7 +459,7 @@ doc ///
           If a resolution for the object exists in the cache or when the input is a chain complex C, virtualOfPair uses
           this information by simply removing the summands in degrees not in L. This option is useful when a minimal free
           resolution of M can be more efficiently computed in the engine or is already known. Otherwise, induced Schreyer
-          orders are used to speed up the computation of syzygies.
+          orders are used to speed up the computation of syzygies. Note that this speedup is often very significant.
 
           For example, consider the ideal of three points in $\mathbb{P}^1\times\mathbb{P}^1$.
         Example
